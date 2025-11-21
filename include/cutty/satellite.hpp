@@ -5,9 +5,10 @@
     Written by Calum Grant 20251109
  */
 
-
-
 #pragma once
+
+namespace cutty
+{
 
 template <typename T, typename Tag> class satellite
 {
@@ -62,3 +63,4 @@ template <typename T, typename Tag> class satellite
         return ptr;
     }
 };
+}
