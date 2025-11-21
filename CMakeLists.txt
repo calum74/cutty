@@ -5,6 +5,9 @@ enable_testing()
 
 include_directories(include)
 
+add_library(cutty src/check.cpp)
+link_libraries(cutty)
+
 add_executable(mixins_demo samples/mixins_demo.cpp)
 add_executable(satellite_demo samples/satellite_demo.cpp)
 

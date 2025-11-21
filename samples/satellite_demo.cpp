@@ -1,5 +1,7 @@
+#include <cutty/check.hpp>
 #include <cutty/satellite.hpp>
-#include <cassert>
+
+namespace cy = cutty;
 
 struct tag1;
 struct tag2;
@@ -8,43 +10,43 @@ int main()
 {
     {
         // Getting and setting the same satellite
-        cutty::satellite<int, tag1> s1;
-        assert(!s1);
+        cy::satellite<int, tag1> s1;
+        cy::check(!s1);
         int x = 42;
         s1 = x;
-        assert(s1);
-        assert(*s1 == 42);
+        cy::check(s1);
+        cy::check(*s1 == 42);
     }
 
     {
         // Nested getters and setters
-        cutty::satellite<int, tag1> s1;
-        cutty::satellite<int, tag2> s2;
-        assert(!s1);
-        assert(!s2);
+        cy::satellite<int, tag1> s1;
+        cy::satellite<int, tag2> s2;
+        cy::check(!s1);
+        cy::check(!s2);
         int v = 10;
-        cutty::satellite<int, tag1> s3(v);
-        cutty::satellite<int, tag1> s4;
-        assert(s4);
-        assert(*s4 == 10);
-        cutty::satellite<int, tag2> s5;
-        assert(!s5);
+        cy::satellite<int, tag1> s3(v);
+        cy::satellite<int, tag1> s4;
+        cy::check(s4);
+        cy::check(*s4 == 10);
+        cy::satellite<int, tag2> s5;
+        cy::check(!s5);
     }
 
     // Scoped assignment
     {
         int v1 = 10;
-        cutty::satellite<int, tag1> s1 = v1;
+        cy::satellite<int, tag1> s1 = v1;
 
         {
             int v2 = 20;
-            cutty::satellite<int, tag1> s2;
-            assert(*s2 == 10);
+            cy::satellite<int, tag1> s2;
+            cy::check(*s2 == 10);
             s2 = v2;
-            assert(*s2 == v2);
+            cy::check(*s2 == v2);
         }
 
         // The assignment to s2 was undone
-        assert(*s1 == 10);
+        cy::check(*s1 == 10);
     }
 }
