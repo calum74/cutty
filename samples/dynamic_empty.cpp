@@ -1,4 +1,4 @@
-#include <dynamic.hpp>
+#include <cutty/dynamic.hpp>
 #include <iostream>
 
 int main()

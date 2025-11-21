@@ -1,8 +1,8 @@
 // The C++ "dynamic" tutorial
 
 // 1. Header file
-#include <dynamic.hpp>
-#include <dynamic/function.hpp>
+#include <cutty/dynamic.hpp>
+#include <cutty/dynamic/function.hpp>
 
 #include <iostream>
 #include <ranges>

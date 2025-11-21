@@ -1,5 +1,5 @@
-#include <dynamic.hpp>
-#include "user_type.hpp"
+#include <cutty/dynamic.hpp>
+#include "dynamic_user_type.hpp"
 #include <iostream>
 
 int main()

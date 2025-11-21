@@ -1,5 +1,5 @@
-#include "user_type.hpp"
-#include <dynamic/enable.hpp>
+#include "dynamic_user_type.hpp"
+#include <cutty/dynamic/enable.hpp>
 
 template<> struct dynamic::traits<MyStruct> : public dynamic::default_traits<MyStruct>
 {
