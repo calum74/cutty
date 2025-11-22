@@ -265,7 +265,7 @@ int main()
     // dynamic d91b = [](int x) { return x; };
     // dynamic d91b = dynamic::function([](auto x) { return x; });
     // 
-    // In the first case, it would work if you #include <dynamic/enable.hpp>
+    // In the first case, it would work if you #include <dynamic/instantiate.hpp>
     // In the second case, dynamic cannot deduce the argument type
     // (use dynamic argument type instead).
 

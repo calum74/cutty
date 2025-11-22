@@ -1,4 +1,4 @@
-#include <cutty/dynamic/enable.hpp>
+#include <cutty/dynamic/instantiate.hpp>
 #include <cutty/dynamic/reference.hpp>
 
 #include <sstream>

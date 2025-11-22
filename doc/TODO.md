@@ -1,5 +1,7 @@
 # Next
-Release build not working
+Doxygen
+Hide dynamic::types
+get rid of byvalue_type
 
 # Dynamic
 Put into namespace.

@@ -73,7 +73,7 @@ class dynamic
     template <typename T, typename Mode> static const type *get_type();
 
     // Instantiate this to add a new dynamic type
-    // #include <dynamic/enable.hpp>
+    // #include <dynamic/instantiate.hpp>
     // template <typename T> static void enable();
 
     // Constructors
