@@ -10,7 +10,7 @@
 
 namespace cy = cutty;
 
-#define BYVALUE_TYPE(T) template void cy::dynamic::enable<T>();
+#define BYVALUE_TYPE(T) template const cy::dynamic::types& cy::dynamic::instantiate<T>();
 
 using list_type = std::vector<cy::dynamic>;
 using map_type = std::map<cy::dynamic, cy::dynamic>;

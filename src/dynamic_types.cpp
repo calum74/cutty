@@ -4,7 +4,7 @@
 
 namespace cy=cutty;
 
-#define BYVALUE_TYPE(T) template void cy::dynamic::enable<T>();
+#define BYVALUE_TYPE(T) template const cy::dynamic::types & cy::dynamic::instantiate<T>();
 
 bool operator==(cy::dynamic::empty, cy::dynamic::empty)
 {

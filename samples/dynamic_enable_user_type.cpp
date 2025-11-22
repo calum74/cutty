@@ -11,4 +11,4 @@ template<> struct cy::dynamic::traits<MyStruct> : public dynamic::default_traits
     }
 };
 
-template void cy::dynamic::enable<MyStruct>();
+template const cy::dynamic::types & cy::dynamic::instantiate<MyStruct>();

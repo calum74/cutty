@@ -20,6 +20,13 @@ class dynamic
 {
   public:
     struct type;
+    struct types
+    {
+        const dynamic::type *by_value;
+        const dynamic::type *by_ref;
+        const dynamic::type *shared;
+    };
+
     using value_type = dynamic;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
@@ -60,11 +67,14 @@ class dynamic
     };
 
     // #include <dynamic/get_type.hpp>
+    template <typename T> static const types &instantiate();
+
+    // !! Move
     template <typename T, typename Mode> static const type *get_type();
 
     // Instantiate this to add a new dynamic type
     // #include <dynamic/enable.hpp>
-    template <typename T> static void enable();
+    // template <typename T> static void enable();
 
     // Constructors
     dynamic();
@@ -80,27 +90,27 @@ class dynamic
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T &v)
     {
-        construct(get_type<std::decay_t<T>, by_value_tag>(), &v);
+        construct(instantiate<std::decay_t<T>>().by_value, &v);
     }
 
     template <typename T> dynamic(const T &v, shared_tag)
     {
-        construct(get_type<std::decay_t<T>, shared_tag>(), &v);
+        construct(instantiate<std::decay_t<T>>().shared, &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v, shared_tag)
     {
-        construct(get_type<std::decay_t<T>, shared_tag>(), &v);
+        construct(instantiate<std::decay_t<T>>().shared, &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
     {
-        construct(get_type<const T *, by_value_tag>(), &v);
+        construct(instantiate<const T *>().by_value, &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &v, by_reference_tag) : m_type()
     {
-        construct(get_type<T &, by_value_tag>(), &v);
+        construct(instantiate<T>().by_ref, &v);
     }
 
     ~dynamic();
