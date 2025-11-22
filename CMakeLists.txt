@@ -26,6 +26,7 @@ add_executable(dynamic_hello samples/dynamic_hello.cpp)
 add_executable(dynamic_maps samples/dynamic_maps.cpp)
 add_executable(dynamic_tutorial samples/dynamic_tutorial.cpp)
 add_executable(pretty_type test/pretty_type.cpp)
+add_executable(scope_hooks samples/scope_hooks.cpp)
 
 add_test(mixins mixins)
 add_test(satellite satellite)
@@ -37,4 +38,4 @@ add_test(dynamic_hello dynamic_hello)
 add_test(dynamic_maps dynamic_maps)
 add_test(dynamic_tutorial dynamic_tutorial)
 add_test(pretty_type pretty_type)
-
+add_test(scope_hooks scope_hooks)
