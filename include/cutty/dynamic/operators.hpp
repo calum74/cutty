@@ -24,22 +24,6 @@ namespace cutty::dynamic_detail
     template<typename T>
     concept supports_mod = requires(T x) { x%x; };
 
-
-    template <typename T> constexpr auto pretty_type()
-    {
-        std::string_view s(__PRETTY_FUNCTION__);
-#if defined(__clang__)
-        s.remove_prefix(40);
-#elif defined (__GNUC__)
-        s.remove_prefix(55);
-#else
-#error "Unhandled compiler (add it here)"
-#endif
-        
-        s.remove_suffix(1);
-        return s;
-    }
-
     #define BINOP(Name, Op) \
         template<typename T>  \
         struct Name  \
