@@ -1,7 +1,8 @@
 #pragma once
+#include <cutty/pretty_type.hpp>
+
 #include <sstream>
 #include <string>
-#include <string_view>
 
 namespace cutty::dynamic_detail
 {
@@ -26,12 +27,10 @@ namespace cutty::dynamic_detail
 
     template <typename T> constexpr auto pretty_type()
     {
-        std::string_view s(__func__);
+        std::string_view s(__PRETTY_FUNCTION__);
 #if defined(__clang__)
         s.remove_prefix(40);
 #elif defined (__GNUC__)
-        s.remove_prefix(55);
-#elif _MSC_VER >= 1910
         s.remove_prefix(55);
 #else
 #error "Unhandled compiler (add it here)"
@@ -86,7 +85,7 @@ namespace cutty::dynamic_detail
     void throw_unsupported(const T &, const dynamic &y, const char *op)
     {
         std::stringstream ss;
-        ss << "Operator " << op << " not supported on values of type " << dynamic_detail::pretty_type<T>() << " and " << y;
+        ss << "Operator " << op << " not supported on values of type " << pretty_type<T>() << " and " << y;
         throw dynamic::incompatible(ss.str().c_str());
     }
 
@@ -95,7 +94,7 @@ namespace cutty::dynamic_detail
     void throw_incompatible(const T &, const dynamic &y, const char *op)
     {
         std::stringstream ss;
-        ss << "Incompatible types on " << op << " for " << dynamic_detail::pretty_type<T>() << " and " << y;
+        ss << "Incompatible types on " << op << " for " << pretty_type<T>() << " and " << y;
         throw dynamic::incompatible(ss.str().c_str());
     }
 

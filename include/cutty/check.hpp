@@ -34,4 +34,6 @@ namespace cutty
 
     }
 
+    // TODO
+    void check_equal(auto &&lhs, auto&&rhs, const std::source_location & src = std::source_location::current());
 }

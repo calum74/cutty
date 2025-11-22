@@ -6,7 +6,9 @@
 #define CY_DYNAMIC_EXPLICIT explicit
 #endif
 
-#include "../dynamic.hpp"
+#include <cutty/check.hpp>
+#include <cutty/dynamic.hpp>
+// #include "../dynamic.hpp"
 #include "empty.hpp"
 #include "function.hpp"
 #include "get_type.hpp"
@@ -16,10 +18,10 @@
 // TODO: This isn't a great name for this function and header file
 template <typename T> void cutty::dynamic::enable()
 {
-    dynamic::get_type<T, dynamic::by_value_tag>();
-    dynamic::get_type<const T, dynamic::by_value_tag>();
-    dynamic::get_type<T &, dynamic::by_value_tag>();
-    dynamic::get_type<const T &, dynamic::by_value_tag>();
-    dynamic::get_type<T, dynamic::shared_tag>();
-    dynamic::get_type<const T, dynamic::shared_tag>();
+    check(dynamic::get_type<T, dynamic::by_value_tag>());
+    check(dynamic::get_type<const T, dynamic::by_value_tag>());
+    check(dynamic::get_type<T &, dynamic::by_value_tag>());
+    check(dynamic::get_type<const T &, dynamic::by_value_tag>());
+    check(dynamic::get_type<T, dynamic::shared_tag>());
+    check(dynamic::get_type<const T, dynamic::shared_tag>());
 }

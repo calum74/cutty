@@ -1,7 +1,6 @@
 #include <cutty/dynamic/enable.hpp>
 #include <cutty/dynamic/reference.hpp>
 
-#include <cassert>
 #include <sstream>
 
 namespace cy = cutty;
@@ -32,11 +31,10 @@ template <typename Dynamic> class reference_type : public dynamic::type
 
     void construct(dynamic &r, const void *p) const override
     {
-        assert(0);
     }
+
     void construct(dynamic &r, void *p) const override
     {
-        assert(0);
     }
 
     void construct_copy(const dynamic &p, dynamic &r) const override

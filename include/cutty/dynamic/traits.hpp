@@ -4,7 +4,6 @@
 
 namespace cutty::dynamic_detail
 {
-template <typename T> constexpr auto pretty_type();
 template <typename T> const T &try_convert(const dynamic &x, const char *op);
 
 template <std::size_t... Args, typename Fn> dynamic invoke(Fn &&fn, const dynamic *args, std::index_sequence<Args...>)
@@ -29,7 +28,7 @@ template <typename T> class cutty::dynamic::default_traits
 
     static std::string_view type_name()
     {
-        return dynamic_detail::pretty_type<T>();
+        return pretty_type<T>();
     }
 
     static void stream_to(const_reference self, std::ostream &os)

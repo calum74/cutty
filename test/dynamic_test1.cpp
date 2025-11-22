@@ -1,7 +1,6 @@
 #include <cutty/check.hpp>
 #include <cutty/dynamic.hpp>
 
-#include <cassert>
 #include <iostream>
 
 namespace cy = cutty;
@@ -11,35 +10,35 @@ int main()
     // Empty
     cy::dynamic empty;
     std::cout << empty << std::endl;
-    assert(empty == cy::dynamic());
+    cy::check(empty == cy::dynamic());
     std::cout << empty.type_str() << std::endl;
-    assert(empty.type_str() == "dynamic::empty");
+    cy::check(empty.type_str() == "dynamic::empty");
 
     // Integers
     std::cout << 2_d << std::endl;
-    assert(1_d != 2);
-    assert(2_d == 2);
+    cy::check(1_d != 2);
+    cy::check(2_d == 2);
 
     // Float
     std::cout << 3.14_d << std::endl;
-    assert(3.14_d != 5);
+    cy::check(3.14_d != 5);
 
     // Addition
     std::cout << (1_d + 2_d) << std::endl;
-    assert(1_d + 2_d == 3_d);
-    assert(0.5_d + 1.5_d == 2);
-    assert(0.5_d + cy::dynamic(1) == 1.5);
-    assert(1_d + 0.5_d == 1.5_d);
+    cy::check(1_d + 2_d == 3_d);
+    cy::check(0.5_d + 1.5_d == 2);
+    cy::check(0.5_d + cy::dynamic(1) == 1.5);
+    cy::check(1_d + 0.5_d == 1.5_d);
 
     // Strings
-    assert("a"_d + "b"_d == "ab"_d);
-    assert(empty == empty);
+    cy::check("a"_d + "b"_d == "ab"_d);
+    cy::check(empty == empty);
 
     // List
     {
         auto l = cy::dynamic::list({1, 2.1, "3"});
-        assert(l.str() == "[1,2.1,3]");
-        assert(l.size() == 3);
+        cy::check(l.str() == "[1,2.1,3]");
+        cy::check(l.size() == 3);
 
         for (auto x : l)
         {
@@ -53,10 +52,10 @@ int main()
     {
         cy::dynamic d1 = 13;
         auto r1 = d1.ref();
-        assert(r1 == 13);
+        cy::check(r1 == 13);
         r1 = 12;
-        assert(d1 == 12);
-        assert(r1 == 12);
+        cy::check(d1 == 12);
+        cy::check(r1 == 12);
 
         auto r2 = d1.const_ref();
         try
@@ -71,7 +70,7 @@ int main()
         auto r3 = d1.ref();
         auto r4 = r3.ref();
         r4 = 42;
-        assert(d1 == 42);
+        cy::check(d1 == 42);
     }
 
     // Let's write to a list
@@ -81,7 +80,7 @@ int main()
         {
             x = 0;
         }
-        assert((l == cy::dynamic::list({0, 0, 0})));
+        cy::check((l == cy::dynamic::list({0, 0, 0})));
     }
 
     // Can we modify a string??
@@ -92,8 +91,8 @@ int main()
         {
             x = 'x';
         }
-        assert(string2 == "abcde");
-        assert(string == "xxxxx");
+        cy::check(string2 == "abcde");
+        cy::check(string == "xxxxx");
     }
 
     // Consts
@@ -110,14 +109,14 @@ int main()
     {
         int x = 42;
         cy::dynamic i(x, cy::dynamic::by_reference_tag());
-        assert(i == 42);
+        cy::check(i == 42);
         x = 43;
-        assert(i == 43);
+        cy::check(i == 43);
 
         i = 42; // !! How is this going to work
         std::cout << i << std::endl;
 
-        assert(i.type_str() == "int");
+        cy::check(i.type_str() == "int");
     }
 
     // Shared pointers
@@ -135,7 +134,7 @@ int main()
         auto string2 = shared_string;
         shared_string.push_back('x');
         string2.push_back('y');
-        assert(string2 == "abcdexy");
+        cy::check(string2 == "abcdexy");
         std::cout << string2 << std::endl;
     }
 
@@ -154,77 +153,77 @@ int main()
         auto old_value = l3[1];
         auto copy = old_value;
         copy = "new_value";
-        assert(old_value == 2);
-        assert(l3[1] == 2);
-        assert(l3.str() == "[1,2,3]");
+        cy::check(old_value == 2);
+        cy::check(l3[1] == 2);
+        cy::check(l3.str() == "[1,2,3]");
         old_value = "new_value";
-        assert(old_value == "new_value");
-        assert(l3[1] == "new_value");
-        assert(l3.str() == "[1,new_value,3]");
+        cy::check(old_value == "new_value");
+        cy::check(l3[1] == "new_value");
+        cy::check(l3.str() == "[1,new_value,3]");
 
         //
-        assert(l3.front() == 1);
+        cy::check(l3.front() == 1);
         l3.front() = 11;
-        assert(l3.front() == 11);
+        cy::check(l3.front() == 11);
 
         auto l3_ref = l3.ref();
-        assert(l3_ref == l3);
+        cy::check(l3_ref == l3);
     }
 
     // Comparisons
     {
         // The == operator always succeeds
         // This is the only way to test for "empty"
-        assert(cy::dynamic() == cy::dynamic());
-        assert(cy::dynamic() != 1);
-        assert("abc"_d == "abc");
-        assert("abc" == "abc"_d);
+        cy::check(cy::dynamic() == cy::dynamic());
+        cy::check(cy::dynamic() != 1);
+        cy::check("abc"_d == "abc");
+        cy::check("abc" == "abc"_d);
 
         // Integers vs integers
-        assert(1_d < 2);
-        assert(2_d > 1);
-        assert(3_d <= 3);
+        cy::check(1_d < 2);
+        cy::check(2_d > 1);
+        cy::check(3_d <= 3);
 
         // Integer vs double
-        assert(1_d < 1.1);
-        assert(1_d <= 1.0);
-        assert(0.5_d < 1_d);
-        assert(-2.1_d < 2_d);
+        cy::check(1_d < 1.1);
+        cy::check(1_d <= 1.0);
+        cy::check(0.5_d < 1_d);
+        cy::check(-2.1_d < 2_d);
 
         // Integer vs string
-        assert(1_d < "");
+        cy::check(1_d < "");
 
         // Integer vs object
-        assert(1_d < cy::dynamic());
+        cy::check(1_d < cy::dynamic());
 
         // Double vs double
-        assert(cy::dynamic(2.1) == cy::dynamic(2.1));
-        assert(cy::dynamic(2.1) < cy::dynamic(2.2));
+        cy::check(cy::dynamic(2.1) == cy::dynamic(2.1));
+        cy::check(cy::dynamic(2.1) < cy::dynamic(2.2));
 
         // Double vs string
-        assert(3.14_d < "3.14");
+        cy::check(3.14_d < "3.14");
 
         // Double vs object
-        assert(3.14_d < cy::dynamic());
+        cy::check(3.14_d < cy::dynamic());
 
         // String vs string
 
-        assert("abc"_d == "abc");
-        assert("ab"_d < "abc");
+        cy::check("abc"_d == "abc");
+        cy::check("ab"_d < "abc");
 
         // String vs object
-        assert(""_d < cy::dynamic());
+        cy::check(""_d < cy::dynamic());
 
         // Object vs object
-        assert(cy::dynamic() <= cy::dynamic());
+        cy::check(cy::dynamic() <= cy::dynamic());
     }
 
     // Literals
     {
-        assert(12_d == 12);
-        assert(3.14_d < 4);
-        assert("abc"_d < "bcd"_d);
-        assert("abc"_d[1] == 'b'_d);
+        cy::check(12_d == 12);
+        cy::check(3.14_d < 4);
+        cy::check("abc"_d < "bcd"_d);
+        cy::check("abc"_d[1] == 'b'_d);
     }
 
     // Const
@@ -236,8 +235,8 @@ int main()
     // Conversions
     {
         auto i = 123_d;
-        // assert((int)i == 123); (TODO)
-        // assert(i.as_int() == 123); (TODO)
+        // cy::check((int)i == 123); (TODO)
+        // cy::check(i.as_int() == 123); (TODO)
     }
 
     // Ranges

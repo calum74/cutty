@@ -1,3 +1,6 @@
+# Next
+Release build not working
+
 # Dynamic
 Put into namespace.
 Get rid of assert()
