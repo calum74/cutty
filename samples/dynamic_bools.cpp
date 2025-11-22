@@ -1,11 +1,13 @@
 #include <cutty/dynamic.hpp>
 #include <iostream>
 
+namespace cy = cutty;
+
 int main()
 {
     // Creating booleans
-    dynamic True = true;
-    dynamic False = false;
+    cy::dynamic True = true;
+    cy::dynamic False = false;
 
     // String representation of booleans
     // Since dynamic follows the C++ conventions, this outputs 0 and 1

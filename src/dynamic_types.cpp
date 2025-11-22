@@ -9,12 +9,14 @@
 #include <vector>
 #include <deque>
 
-using list_type = std::vector<dynamic>;
-using map_type = std::map<dynamic, dynamic>;
-using set_type = std::set<dynamic>;
-using unordered_map_type = std::unordered_map<dynamic, dynamic>;
-using unordered_set_type = std::unordered_set<dynamic>;
-using queue_type = std::deque<dynamic>;
+namespace cy=cutty;
+
+using list_type = std::vector<cy::dynamic>;
+using map_type = std::map<cy::dynamic, cy::dynamic>;
+using set_type = std::set<cy::dynamic>;
+using unordered_map_type = std::unordered_map<cy::dynamic, cy::dynamic>;
+using unordered_set_type = std::unordered_set<cy::dynamic>;
+using queue_type = std::deque<cy::dynamic>;
 
 std::ostream &operator<<(std::ostream &os, const list_type &);
 std::ostream &operator<<(std::ostream &os, const map_type &);
@@ -23,24 +25,24 @@ std::ostream &operator<<(std::ostream &os, const set_type &);
 std::ostream &operator<<(std::ostream &os, const unordered_set_type &);
 std::ostream &operator<<(std::ostream &os, const queue_type &);
 
-#define BYVALUE_TYPE(T) template void dynamic::enable<T>();
+#define BYVALUE_TYPE(T) template void cy::dynamic::enable<T>();
 
-bool operator==(dynamic::empty, dynamic::empty)
+bool operator==(cy::dynamic::empty, cy::dynamic::empty)
 {
     return true;
 }
 
-bool operator<(dynamic::empty, dynamic::empty)
+bool operator<(cy::dynamic::empty, cy::dynamic::empty)
 {
     return false;
 }
 
-std::ostream &operator<<(std::ostream &os, dynamic::empty)
+std::ostream &operator<<(std::ostream &os, cy::dynamic::empty)
 {
     return os << "(empty)";
 }
 
-BYVALUE_TYPE(dynamic::empty)
+BYVALUE_TYPE(cy::dynamic::empty)
 BYVALUE_TYPE(bool)
 BYVALUE_TYPE(signed char)
 BYVALUE_TYPE(unsigned char)
@@ -95,7 +97,7 @@ void output_pairs(std::ostream &os, const auto &list)
 }
 } // namespace
 
-std::ostream &operator<<(std::ostream &os, const std::vector<dynamic> &list)
+std::ostream &operator<<(std::ostream &os, const std::vector<cy::dynamic> &list)
 {
     output_list(os, list);
     return os;
@@ -126,14 +128,14 @@ std::ostream &operator<<(std::ostream &os, const map_type &list)
     return os;
 }
 
-BYVALUE_TYPE(std::vector<dynamic>)
+BYVALUE_TYPE(std::vector<cy::dynamic>)
 
-dynamic dynamic::list()
+cy::dynamic cy::dynamic::list()
 {
     return dynamic(std::vector<dynamic>{});
 }
 
-dynamic dynamic::list(std::initializer_list<dynamic> items)
+cy::dynamic cy::dynamic::list(std::initializer_list<dynamic> items)
 {
     auto l = dynamic(std::vector<dynamic>{});
     for (auto &item : items)
@@ -143,22 +145,22 @@ dynamic dynamic::list(std::initializer_list<dynamic> items)
 
 BYVALUE_TYPE(map_type)
 
-dynamic dynamic::map()
+cy::dynamic cy::dynamic::map()
 {
     return dynamic(map_type{});
 }
 
-dynamic dynamic::dict()
+cy::dynamic cy::dynamic::dict()
 {
     return dynamic(unordered_map_type{});
 }
 
-dynamic dynamic::set()
+cy::dynamic cy::dynamic::set()
 {
     return dynamic(set_type{});
 }
 
-dynamic dynamic::set(std::initializer_list<dynamic> items)
+cy::dynamic cy::dynamic::set(std::initializer_list<dynamic> items)
 {
     auto s = dynamic::set();
     for (auto &item : items)
@@ -166,12 +168,12 @@ dynamic dynamic::set(std::initializer_list<dynamic> items)
     return s;
 }
 
-dynamic dynamic::queue()
+cy::dynamic cy::dynamic::queue()
 {
     return dynamic(queue_type{});
 }
 
-dynamic dynamic::queue(std::initializer_list<dynamic> items)
+cy::dynamic cy::dynamic::queue(std::initializer_list<dynamic> items)
 {
     auto s = dynamic::queue();
     for (auto &item : items)
@@ -179,7 +181,7 @@ dynamic dynamic::queue(std::initializer_list<dynamic> items)
     return s;
 }
 
-dynamic dynamic::dict(std::initializer_list<std::pair<dynamic, dynamic>> items)
+cy::dynamic cy::dynamic::dict(std::initializer_list<std::pair<dynamic, dynamic>> items)
 {
     auto d = dynamic::dict();
     for (auto &&[x, y] : items)
@@ -187,7 +189,7 @@ dynamic dynamic::dict(std::initializer_list<std::pair<dynamic, dynamic>> items)
     return d;
 }
 
-dynamic dynamic::map(std::initializer_list<std::pair<dynamic, dynamic>> items)
+cy::dynamic cy::dynamic::map(std::initializer_list<std::pair<dynamic, dynamic>> items)
 {
     auto m = dynamic::map();
     for (auto &&[x, y] : items)
@@ -195,8 +197,9 @@ dynamic dynamic::map(std::initializer_list<std::pair<dynamic, dynamic>> items)
     return m;
 }
 
-BYVALUE_TYPE(std::function<dynamic()>);
-BYVALUE_TYPE(std::function<dynamic(const dynamic &)>);
-BYVALUE_TYPE(std::function<dynamic(const dynamic &, const dynamic &)>);
-BYVALUE_TYPE(std::function<dynamic(const dynamic &, const dynamic &, const dynamic &)>);
-BYVALUE_TYPE(std::function<dynamic(const dynamic &, const dynamic &, const dynamic &, const dynamic &)>);
+BYVALUE_TYPE(std::function<cy::dynamic()>);
+BYVALUE_TYPE(std::function<cy::dynamic(const cy::dynamic &)>);
+BYVALUE_TYPE(std::function<cy::dynamic(const cy::dynamic &, const cy::dynamic &)>);
+BYVALUE_TYPE(std::function<cy::dynamic(const cy::dynamic &, const cy::dynamic &, const cy::dynamic &)>);
+BYVALUE_TYPE(std::function<cy::dynamic(const cy::dynamic &, const cy::dynamic &, const cy::dynamic &, const cy::dynamic &)>);
+// Ok to add more here

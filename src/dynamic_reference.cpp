@@ -4,7 +4,9 @@
 #include <cassert>
 #include <sstream>
 
-namespace dynamic_detail
+namespace cy = cutty;
+
+namespace cutty::dynamic_detail
 {
 template <typename Dynamic> class reference_type : public dynamic::type
 {
@@ -229,7 +231,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
         get(self).m_type->insert(get_mut(self, "insert()"), value);
     }
 
-    void insert(dynamic&self, const dynamic &k, const dynamic&v) const override
+    void insert(dynamic &self, const dynamic &k, const dynamic &v) const override
     {
         get(self).m_type->insert(get_mut(self, "insert()"), k, v);
     }
@@ -255,31 +257,31 @@ template <typename Dynamic> class reference_type : public dynamic::type
     }
 };
 
-} // namespace dynamic_detail
+} // namespace cutty::dynamic_detail
 
-dynamic dynamic::ref()
+cy::dynamic cy::dynamic::ref()
 {
     return dynamic(*this, dynamic::by_reference_tag());
 }
 
-dynamic dynamic::ref() const
+cy::dynamic cy::dynamic::ref() const
 {
     return dynamic(*this, dynamic::by_reference_tag());
 }
 
-dynamic dynamic::const_ref() const
+cy::dynamic cy::dynamic::const_ref() const
 {
-    return dynamic(*this, dynamic::by_reference_tag());
+    return cy::dynamic(*this, dynamic::by_reference_tag());
 }
 
-void dynamic_detail::construct_reference_to_dynamic(const dynamic &src, dynamic &dest)
+void cy::dynamic_detail::construct_reference_to_dynamic(const dynamic &src, dynamic &dest)
 {
     static reference_type<const dynamic> type;
     dest.m_type = &type;
     dest.m_ptr = (void *)&src;
 }
 
-void dynamic_detail::construct_reference_to_dynamic(dynamic &src, dynamic &dest)
+void cy::dynamic_detail::construct_reference_to_dynamic(dynamic &src, dynamic &dest)
 {
     static reference_type<dynamic> type;
     dest.m_type = &type;

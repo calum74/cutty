@@ -1,9 +1,9 @@
 #pragma once
 
-struct dynamic::empty
+struct cutty::dynamic::empty
 {
 };
 
-bool operator==(dynamic::empty, dynamic::empty);
-bool operator<(dynamic::empty, dynamic::empty);
-std::ostream &operator<<(std::ostream &os, dynamic::empty);
+bool operator==(cutty::dynamic::empty, cutty::dynamic::empty);
+bool operator<(cutty::dynamic::empty, cutty::dynamic::empty);
+std::ostream &operator<<(std::ostream &os, cutty::dynamic::empty);

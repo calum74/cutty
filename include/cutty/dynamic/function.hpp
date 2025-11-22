@@ -1,7 +1,7 @@
 #pragma once
 #include <functional>
 
-namespace dynamic_detail
+namespace cutty::dynamic_detail
 {
 template <typename Fn> struct lambda_traits;
 
@@ -89,7 +89,7 @@ template <typename Fn>
 concept fully_typed_function = requires { typename function_traits<Fn>::args_type; };
 } // namespace dynamic_detail
 
-template <typename Fn> dynamic dynamic::function(Fn fn)
+template <typename Fn> cutty::dynamic cutty::dynamic::function(Fn fn)
 {
     static_assert(dynamic_detail::fully_typed_function<Fn>, "Function must have fully typed arguments");
     return dynamic(dynamic_detail::make_dynamic_function(fn), dynamic::shared_tag());

@@ -2,7 +2,7 @@
 #include <optional>
 #include <cstdint>
 
-struct dynamic::type
+struct cutty::dynamic::type
 {
     virtual ~type() = default;
     virtual void construct(dynamic &unsassigned, const void *) const = 0;

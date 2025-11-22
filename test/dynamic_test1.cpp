@@ -4,12 +4,14 @@
 #include <cassert>
 #include <iostream>
 
+namespace cy = cutty;
+
 int main()
 {
     // Empty
-    dynamic empty;
+    cy::dynamic empty;
     std::cout << empty << std::endl;
-    assert(empty == dynamic());
+    assert(empty == cy::dynamic());
     std::cout << empty.type_str() << std::endl;
     assert(empty.type_str() == "dynamic::empty");
 
@@ -26,7 +28,7 @@ int main()
     std::cout << (1_d + 2_d) << std::endl;
     assert(1_d + 2_d == 3_d);
     assert(0.5_d + 1.5_d == 2);
-    assert(0.5_d + dynamic(1) == 1.5);
+    assert(0.5_d + cy::dynamic(1) == 1.5);
     assert(1_d + 0.5_d == 1.5_d);
 
     // Strings
@@ -35,7 +37,7 @@ int main()
 
     // List
     {
-        auto l = dynamic::list({1, 2.1, "3"});
+        auto l = cy::dynamic::list({1, 2.1, "3"});
         assert(l.str() == "[1,2.1,3]");
         assert(l.size() == 3);
 
@@ -49,7 +51,7 @@ int main()
 
     // Reference
     {
-        dynamic d1 = 13;
+        cy::dynamic d1 = 13;
         auto r1 = d1.ref();
         assert(r1 == 13);
         r1 = 12;
@@ -61,7 +63,7 @@ int main()
         {
             r2 = 1; // Cannot write to a const reference
         }
-        catch (dynamic::unsupported &)
+        catch (cy::dynamic::unsupported &)
         {
         }
 
@@ -74,17 +76,17 @@ int main()
 
     // Let's write to a list
     {
-        auto l = dynamic::list({1, 2, 3});
+        auto l = cy::dynamic::list({1, 2, 3});
         for (auto x : l)
         {
             x = 0;
         }
-        assert((l == dynamic::list({0, 0, 0})));
+        assert((l == cy::dynamic::list({0, 0, 0})));
     }
 
     // Can we modify a string??
     {
-        dynamic string = "abcde";
+        cy::dynamic string = "abcde";
         auto string2 = string;
         for (auto x : string)
         {
@@ -96,18 +98,18 @@ int main()
 
     // Consts
     {
-        dynamic i = dynamic::list();
-        dynamic j{i}; // , dynamic::const_value()};
+        cy::dynamic i = cy::dynamic::list();
+        cy::dynamic j{i}; // , dynamic::const_value()};
 
         // j.push_back(1); // Throws (TODO: Test)
-        std::cout << dynamic::list({1, 2, 3}) << j << std::endl;
+        std::cout << cy::dynamic::list({1, 2, 3}) << j << std::endl;
         j = 3; //??
     }
 
     // References
     {
         int x = 42;
-        dynamic i(x, dynamic::by_reference_tag());
+        cy::dynamic i(x, cy::dynamic::by_reference_tag());
         assert(i == 42);
         x = 43;
         assert(i == 43);
@@ -120,8 +122,8 @@ int main()
 
     // Shared pointers
     {
-        dynamic shared(43, dynamic::shared_tag());
-        auto shared_list = dynamic::list({3, 2, 1}).shared_ref();
+        cy::dynamic shared(43, cy::dynamic::shared_tag());
+        auto shared_list = cy::dynamic::list({3, 2, 1}).shared_ref();
         auto shared_list2 = shared_list;
         shared_list.push_back(4);
 
@@ -148,7 +150,7 @@ int main()
 
     // Lists and references
     {
-        dynamic l3 = {1, 2, 3};
+        cy::dynamic l3 = {1, 2, 3};
         auto old_value = l3[1];
         auto copy = old_value;
         copy = "new_value";
@@ -173,8 +175,8 @@ int main()
     {
         // The == operator always succeeds
         // This is the only way to test for "empty"
-        assert(dynamic() == dynamic());
-        assert(dynamic() != 1);
+        assert(cy::dynamic() == cy::dynamic());
+        assert(cy::dynamic() != 1);
         assert("abc"_d == "abc");
         assert("abc" == "abc"_d);
 
@@ -193,17 +195,17 @@ int main()
         assert(1_d < "");
 
         // Integer vs object
-        assert(1_d < dynamic());
+        assert(1_d < cy::dynamic());
 
         // Double vs double
-        assert(dynamic(2.1) == dynamic(2.1));
-        assert(dynamic(2.1) < dynamic(2.2));
+        assert(cy::dynamic(2.1) == cy::dynamic(2.1));
+        assert(cy::dynamic(2.1) < cy::dynamic(2.2));
 
         // Double vs string
         assert(3.14_d < "3.14");
 
         // Double vs object
-        assert(3.14_d < dynamic());
+        assert(3.14_d < cy::dynamic());
 
         // String vs string
 
@@ -211,10 +213,10 @@ int main()
         assert("ab"_d < "abc");
 
         // String vs object
-        assert(""_d < dynamic());
+        assert(""_d < cy::dynamic());
 
         // Object vs object
-        assert(dynamic() <= dynamic());
+        assert(cy::dynamic() <= cy::dynamic());
     }
 
     // Literals
@@ -234,7 +236,17 @@ int main()
     // Conversions
     {
         auto i = 123_d;
-        //assert((int)i == 123); (TODO)
-        //assert(i.as_int() == 123); (TODO)
+        // assert((int)i == 123); (TODO)
+        // assert(i.as_int() == 123); (TODO)
+    }
+
+    // Ranges
+    {
+        const auto x = "abc"_d;
+        static_assert(std::input_or_output_iterator<cy::dynamic>);
+        //std::ranges::begin(x);
+        //x.begin();
+        //static_assert(std::ranges::range<cy::dynamic>);
+        // x.begin();
     }
 }

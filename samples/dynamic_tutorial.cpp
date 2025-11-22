@@ -7,23 +7,25 @@
 #include <iostream>
 #include <ranges>
 
+namespace cy = cutty;
+
 int main()
 {
     // 2. Creation
 
     // 2.1 The empty type
-    dynamic d21;
+    cy::dynamic d21;
 
     // 2.2 Create different types by assignment
-    dynamic d22a = 1;
-    dynamic d22b = true;
-    dynamic d22c = "abc";
-    dynamic d22d = 3.14;
+    cy::dynamic d22a = 1;
+    cy::dynamic d22b = true;
+    cy::dynamic d22c = "abc";
+    cy::dynamic d22d = 3.14;
 
     // 2.3 Assignment operator
 
     // Assigning C++ values to dynamic
-    dynamic d23;
+    cy::dynamic d23;
     d23 = 2.217;
 
     // 2.4 Dynamic literals have the _d suffix
@@ -36,8 +38,8 @@ int main()
     // 3. Properties
 
     // 3.1 Check if d1 is empty
-    dynamic d31;
-    if(d31 == dynamic())
+    cy::dynamic d31;
+    if(d31 == cy::dynamic())
     {
         std::cout << "d1 is empty\n";
     }
@@ -82,7 +84,7 @@ int main()
     // 5.1 Strings
 
     // Constructing a string
-    dynamic d51a = "abc";  // By conversion
+    cy::dynamic d51a = "abc";  // By conversion
     auto d51b = "def"_d;   // By literal
 
     // Operators on strings
@@ -116,10 +118,10 @@ int main()
     // 5.2 Lists
 
     // Create an empty list
-    dynamic d52a = dynamic::list();
+    cy::dynamic d52a = cy::dynamic::list();
 
     // Create a list from initializer
-    dynamic d52b = dynamic::list({1,2,3});
+    cy::dynamic d52b = cy::dynamic::list({1,2,3});
 
     // Append to a list
     d52b.push_back("Item");
@@ -144,10 +146,10 @@ int main()
     // 5.3 Dictionary
 
     // Create an empty dictionary
-    dynamic a53a = dynamic::dict();
+    cy::dynamic a53a = cy::dynamic::dict();
 
     // Create a dictionary from an initializer list
-    dynamic a53b = dynamic::dict({{"Fred", 10}, {"Joe", 12}});
+    cy::dynamic a53b = cy::dynamic::dict({{"Fred", 10}, {"Joe", 12}});
 
     // Lookup items
     std::cout << "The item for Fred is 10: " << a53b["Fred"] << std::endl;
@@ -163,10 +165,10 @@ int main()
     // 5.4 Map
     // Maps and dicts are very similar, but maps are sorted
 
-    dynamic a54a = dynamic::map();
+    cy::dynamic a54a = cy::dynamic::map();
 
     // Create a dictionary from an initializer list
-    dynamic a54b = dynamic::map({{"Fred", 10}, {"Joe", 12}});
+    cy::dynamic a54b = cy::dynamic::map({{"Fred", 10}, {"Joe", 12}});
 
     // Lookup items
     std::cout << "The item for Fred is 10: " << a54b["Fred"] << std::endl;
@@ -182,8 +184,8 @@ int main()
     // 5.5 Set
 
     // Construct set
-    dynamic d55a = dynamic::set();
-    dynamic d55b = dynamic::set({'a','b','c'});
+    cy::dynamic d55a = cy::dynamic::set();
+    cy::dynamic d55b = cy::dynamic::set({'a','b','c'});
 
     std::cout << "Here is the set: " << d55b << std::endl;
 
@@ -195,8 +197,8 @@ int main()
     // !! count
 
     // 5.6 Queue
-    auto d56a = dynamic::queue();
-    auto d56b = dynamic::queue({1,2,3});
+    auto d56a = cy::dynamic::queue();
+    auto d56b = cy::dynamic::queue({1,2,3});
 
     while(d56b.size()>0)
     {
@@ -214,8 +216,8 @@ int main()
 
     // 7. References
     // 7.1 References to dynamic objects
-    dynamic d71a = 5;
-    dynamic d71b = d71a.ref();
+    cy::dynamic d71a = 5;
+    cy::dynamic d71b = d71a.ref();
     d71b = 6;
     std::cout << "d71a now has the value 6: " << d71a << std::endl;
 
@@ -225,7 +227,7 @@ int main()
     int int_value = 10;
 
     // Create a reference to C++ value
-    auto d72 = dynamic::reference(int_value);
+    auto d72 = cy::dynamic::reference(int_value);
     // dynamic d72(int_value, dynamic::by_reference_tag());
 
     // Assigning a reference writes the underlying value
@@ -236,28 +238,28 @@ int main()
     // 8.1 Shared pointers
 
     // Create a shared reference
-    dynamic d81a = ("abc"_d).shared_ref();
-    dynamic d81b = d81a;  // d82 and d81 share the same string
+    cy::dynamic d81a = ("abc"_d).shared_ref();
+    cy::dynamic d81b = d81a;  // d82 and d81 share the same string
     d81b.push_back('d');
     std::cout << "d81a is abcd: " << d81a << std::endl;
 
     // 8.2 Weak pointers
 
     // Create weak pointers using weak_ref() on a shared pointer
-    dynamic d82a = d81a.weak_ref();
+    cy::dynamic d82a = d81a.weak_ref();
 
     // You must convert the weak_pointer to a shared pointer before using it:
-    dynamic d82c = d82a.shared_ref();
+    cy::dynamic d82c = d82a.shared_ref();
     std::cout << "d82b is abcd: " << d82c << std::endl;
 
     // Attempts to create a shared pointer from an expired weak pointer
-    d81a = d81b = d82c = dynamic();
+    d81a = d81b = d82c = cy::dynamic();
     // d82a.shared_ref();  // Throws exception "Expired weak pointer"
 
     // 9. Functions
     // 9.1. Creating functors using dynamic::function
-    dynamic d91a = dynamic::function([](int x) { return x*x; });
-    dynamic d91b = dynamic::function([](dynamic x) { return x*x; });
+    cy::dynamic d91a = cy::dynamic::function([](int x) { return x*x; });
+    cy::dynamic d91b = cy::dynamic::function([](cy::dynamic x) { return x*x; });
 
     // Note the following do NOT work:
     // dynamic d91b = [](int x) { return x; };

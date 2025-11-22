@@ -1,7 +1,9 @@
 #include "dynamic_user_type.hpp"
 #include <cutty/dynamic/enable.hpp>
 
-template<> struct dynamic::traits<MyStruct> : public dynamic::default_traits<MyStruct>
+namespace cy = cutty;
+
+template<> struct cy::dynamic::traits<MyStruct> : public dynamic::default_traits<MyStruct>
 {
     static dynamic op_mul(const MyStruct &x, const dynamic &y)
     {
@@ -9,4 +11,4 @@ template<> struct dynamic::traits<MyStruct> : public dynamic::default_traits<MyS
     }
 };
 
-template void dynamic::enable<MyStruct>();
+template void cy::dynamic::enable<MyStruct>();

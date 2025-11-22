@@ -1,11 +1,13 @@
 #include <cutty/dynamic.hpp>
 #include <iostream>
 
+namespace cy = cutty;
+
 int main()
 {
     // Default-constructing a dynamic creates an "empty" type
-    dynamic empty;
-    dynamic empty2 = {};
+    cy::dynamic empty;
+    cy::dynamic empty2 = {};  // ?? Is this a list now
 
     if(empty == empty2)
     {

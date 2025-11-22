@@ -2,9 +2,11 @@
 #include "dynamic_user_type.hpp"
 #include <iostream>
 
+namespace cy = cutty;
+
 int main()
 {
-    dynamic d1 = MyStruct(4), d2 = d1;
+    cy::dynamic d1 = MyStruct(4), d2 = d1;
 
     std::cout << "d1 is " << d1 << std::endl;
     std::cout << "d2 is " << d2 << std::endl;

@@ -1,18 +1,18 @@
 #pragma once
-#include "operators.hpp"
 #include "function.hpp"
+#include "operators.hpp"
 
-namespace dynamic_detail
+namespace cutty::dynamic_detail
 {
 template <typename T> constexpr auto pretty_type();
-template <typename T> const T& try_convert(const dynamic &x, const char *op);
+template <typename T> const T &try_convert(const dynamic &x, const char *op);
 
 template <std::size_t... Args, typename Fn> dynamic invoke(Fn &&fn, const dynamic *args, std::index_sequence<Args...>)
 {
     return fn(args[Args]...);
 }
 
-}
+} // namespace cutty::dynamic_detail
 
 #define TRY_TO_RETURN(CMD, OP)                                                                                         \
     if constexpr (requires { CMD; })                                                                                   \
@@ -21,12 +21,11 @@ template <std::size_t... Args, typename Fn> dynamic invoke(Fn &&fn, const dynami
         throw_unsupported(OP, self);
 
 // Customize this class to implement bespoke behaviour for a type T.
-template <typename T> class dynamic::default_traits
+template <typename T> class cutty::dynamic::default_traits
 {
   public:
-
-    using reference = std::remove_const_t<T>&;
-    using const_reference = const T&;
+    using reference = std::remove_const_t<T> &;
+    using const_reference = const T &;
 
     static std::string_view type_name()
     {
@@ -64,7 +63,7 @@ template <typename T> class dynamic::default_traits
     {
         TRY_TO_RETURN((bool)self, "bool");
     }
-    
+
     static bool op_eq(const_reference x, const dynamic &y)
     {
         return x == y;
@@ -130,7 +129,8 @@ template <typename T> class dynamic::default_traits
 
     static void push_back(reference self, const dynamic &y)
     {
-        TRY_TO_RETURN(self.push_back(dynamic_detail::try_convert<typename T::value_type>(y, "push_back()")), "push_back()");
+        TRY_TO_RETURN(self.push_back(dynamic_detail::try_convert<typename T::value_type>(y, "push_back()")),
+                      "push_back()");
     }
 
     static void pop_back(reference self)
@@ -143,7 +143,7 @@ template <typename T> class dynamic::default_traits
         TRY_TO_RETURN(self.push_back(try_convert<typename T::value_type>(value, "push_front()")), "push_front()");
     }
 
-    static void pop_front(reference  self)
+    static void pop_front(reference self)
     {
         TRY_TO_RETURN(self.pop_front(), "pop_front()");
     }
@@ -200,7 +200,7 @@ template <typename T> class dynamic::default_traits
 
     static void insert(reference self, const dynamic &k, const dynamic &v)
     {
-        TRY_TO_RETURN((void)self.insert(std::make_pair(k,v)), "insert()");
+        TRY_TO_RETURN((void)self.insert(std::make_pair(k, v)), "insert()");
     }
 
     static dynamic first(const_reference self)
@@ -314,7 +314,7 @@ template <typename T> class dynamic::default_traits
 };
 
 // Customize this class to implement bespoke behaviour for a type T.
-template <typename T> class dynamic::traits : public default_traits<T>
+template <typename T> class cutty::dynamic::traits : public default_traits<T>
 {
 };
 

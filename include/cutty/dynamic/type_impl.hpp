@@ -18,7 +18,7 @@
     else                                                                                                               \
         throw_unsupported(OP, x);
 
-namespace dynamic_detail
+namespace cutty::dynamic_detail
 {
 
 template <typename T> const T &try_convert(const dynamic &x, const char *op)

@@ -1,9 +1,9 @@
 #pragma once
 
-#ifdef DYNAMIC_EXPLICIT
-#error DYNAMIC_EXPLICIT is already defined
+#ifdef CY_DYNAMIC_EXPLICIT
+#error CY_DYNAMIC_EXPLICIT is already defined
 #else
-#define DYNAMIC_EXPLICIT explicit
+#define CY_DYNAMIC_EXPLICIT explicit
 #endif
 
 #include "../dynamic.hpp"
@@ -13,7 +13,8 @@
 #include "type.hpp"
 #include "type_impl.hpp"
 
-template <typename T> void dynamic::enable()
+// TODO: This isn't a great name for this function and header file
+template <typename T> void cutty::dynamic::enable()
 {
     dynamic::get_type<T, dynamic::by_value_tag>();
     dynamic::get_type<const T, dynamic::by_value_tag>();

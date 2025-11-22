@@ -2,8 +2,7 @@
 // Written by Calum Grant
 // https://www.github.com/calum74/dynamic
 //
-// Implements the class `dynamic`, which 
-
+// Implements the class `dynamic`, which
 
 #pragma once
 #include <iosfwd>
@@ -11,10 +10,12 @@
 #include <string>
 #include <typeinfo>
 
-#ifndef DYNAMIC_EXPLICIT
-#define DYNAMIC_EXPLICIT
+#ifndef CY_DYNAMIC_EXPLICIT
+#define CY_DYNAMIC_EXPLICIT
 #endif
 
+namespace cutty
+{
 class dynamic
 {
   public:
@@ -27,11 +28,21 @@ class dynamic
 
     template <typename T> class default_traits;
     template <typename T> class traits;
-    struct by_value_tag {};
-    struct by_reference_tag {};
-    struct shared_tag {};
-    struct weak_reference_tag {};
-    struct const_value_tag {};
+    struct by_value_tag
+    {
+    };
+    struct by_reference_tag
+    {
+    };
+    struct shared_tag
+    {
+    };
+    struct weak_reference_tag
+    {
+    };
+    struct const_value_tag
+    {
+    };
     struct empty;
 
     // Exception thrown when something isn't implemented on the underlying type
@@ -60,15 +71,14 @@ class dynamic
     dynamic(const dynamic &src);
     dynamic(dynamic &&other);
 
-
     // Copies str to an internal std::string
-    DYNAMIC_EXPLICIT dynamic(const char *str);
-    DYNAMIC_EXPLICIT dynamic(std::string_view str);
+    CY_DYNAMIC_EXPLICIT dynamic(const char *str);
+    CY_DYNAMIC_EXPLICIT dynamic(std::string_view str);
 
     // Construct a list (vector<dynamic>)
-    DYNAMIC_EXPLICIT dynamic(std::initializer_list<dynamic>);
+    CY_DYNAMIC_EXPLICIT dynamic(std::initializer_list<dynamic>);
 
-    template <typename T> DYNAMIC_EXPLICIT dynamic(const T &v)
+    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T &v)
     {
         construct(get_type<std::decay_t<T>, by_value_tag>(), &v);
     }
@@ -78,17 +88,17 @@ class dynamic
         construct(get_type<std::decay_t<T>, shared_tag>(), &v);
     }
 
-    template <typename T> DYNAMIC_EXPLICIT dynamic(T &&v, shared_tag)
+    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v, shared_tag)
     {
         construct(get_type<std::decay_t<T>, shared_tag>(), &v);
     }
 
-    template <typename T> DYNAMIC_EXPLICIT dynamic(const T *v)
+    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
     {
         construct(get_type<const T *, by_value_tag>(), &v);
     }
 
-    template <typename T> DYNAMIC_EXPLICIT dynamic(T &v, by_reference_tag) : m_type()
+    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &v, by_reference_tag) : m_type()
     {
         construct(get_type<T &, by_value_tag>(), &v);
     }
@@ -109,14 +119,14 @@ class dynamic
         return (const T *)get_as(typeid(T));
     }
 
-    template<typename T> T & as()
+    template <typename T> T &as()
     {
-        return *(T*)as(typeid(T));
+        return *(T *)as(typeid(T));
     }
 
-    template<typename T> const T & as() const
+    template <typename T> const T &as() const
     {
-        return *(const T*)as(typeid(T));
+        return *(const T *)as(typeid(T));
     }
 
     // Constructors
@@ -147,14 +157,12 @@ class dynamic
     dynamic ref() const;
     dynamic const_ref() const;
 
-    template<typename T>
-    static dynamic reference(T&t)
+    template <typename T> static dynamic reference(T &t)
     {
         return dynamic(t, by_reference_tag{});
     }
 
-    template<typename T>
-    static dynamic const_reference(const T&t)
+    template <typename T> static dynamic const_reference(const T &t)
     {
         return dynamic(t, by_reference_tag{});
     }
@@ -181,7 +189,10 @@ class dynamic
     dynamic back();
     dynamic back() const;
 
-    size_type count(const dynamic&) const;
+    // Iterators
+    dynamic operator*() const;
+
+    size_type count(const dynamic &) const;
 
     void push_back(const dynamic &item);
     void pop_back();
@@ -214,7 +225,7 @@ class dynamic
     explicit operator std::string_view() const;
     explicit operator std::string() const;
 
-    //int as_int() const;
+    // int as_int() const;
     double as_double() const;
     // dynamic as_const();
 
@@ -240,6 +251,10 @@ class dynamic
     dynamic &operator<<=(const dynamic &);
     dynamic &operator>>=(const dynamic &);
 
+    // Comparison operators
+    bool operator==(const dynamic &) const;
+    std::weak_ordering operator<=>(const dynamic &) const;
+
     const type *m_type;
     void *m_ptr;
 
@@ -261,62 +276,62 @@ class dynamic
     const void *as(const std::type_info &) const;
     dynamic call(std::size_t n_args, const dynamic *args) const;
 };
+} // namespace cutty
 
-template <> struct std::hash<dynamic>
+template <> struct std::hash<cutty::dynamic>
 {
-    std::size_t operator()(const dynamic &) const;
+    std::size_t operator()(const cutty::dynamic &) const;
 };
 
-template <> struct std::tuple_size<dynamic>
+template <> struct std::tuple_size<cutty::dynamic>
 {
     static constexpr std::size_t value = 2;
 };
 
-template <std::size_t Element> struct std::tuple_element<Element, dynamic>
+template <std::size_t Element> struct std::tuple_element<Element, cutty::dynamic>
 {
-    using type = dynamic;
+    using type = cutty::dynamic;
 };
 
 namespace std
 {
-template void swap(dynamic &, dynamic &);
+template void swap(cutty::dynamic &, cutty::dynamic &);
 } // namespace std
 
-template <std::size_t> dynamic get(const dynamic &);
-template <std::size_t> dynamic get(const dynamic &);
-template <std::size_t> dynamic get(dynamic &);
-template <> dynamic get<0>(const dynamic &e);
-template <> dynamic get<1>(const dynamic &e);
-template <> dynamic get<0>(dynamic &e);
-template <> dynamic get<1>(dynamic &e);
+namespace cutty
+{
+template <std::size_t> cutty::dynamic get(const cutty::dynamic &);
+template <std::size_t> cutty::dynamic get(const cutty::dynamic &);
+template <std::size_t> cutty::dynamic get(cutty::dynamic &);
+template <> cutty::dynamic get<0>(const cutty::dynamic &e);
+template <> cutty::dynamic get<1>(const cutty::dynamic &e);
+template <> cutty::dynamic get<0>(cutty::dynamic &e);
+template <> cutty::dynamic get<1>(cutty::dynamic &e);
+} // namespace cutty
 
-std::ostream &operator<<(std::ostream &os, const dynamic &x);
-bool operator==(const dynamic &x, const dynamic &y);
-bool operator!=(const dynamic &x, const dynamic &y);
-bool operator<(const dynamic &x, const dynamic &y);
-bool operator<=(const dynamic &x, const dynamic &y);
-bool operator>(const dynamic &x, const dynamic &y);
-bool operator>=(const dynamic &x, const dynamic &y);
-std::strong_ordering operator<=>(const dynamic &x, const dynamic &y);
-dynamic operator+(const dynamic &x, const dynamic &y);
-dynamic operator-(const dynamic &x, const dynamic &y);
-dynamic operator*(const dynamic &x, const dynamic &y);
-dynamic operator/(const dynamic &x, const dynamic &y);
-dynamic operator%(const dynamic &x, const dynamic &y);
+// ?? Namespace
+std::ostream &operator<<(std::ostream &os, const cutty::dynamic &x);
 
-dynamic operator|(const dynamic &x, const dynamic &y);
-dynamic operator&(const dynamic &x, const dynamic &y);
-dynamic operator^(const dynamic &x, const dynamic &y);
+cutty::dynamic operator+(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator-(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator*(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator/(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator%(const cutty::dynamic &x, const cutty::dynamic &y);
 
-dynamic operator<<(const dynamic &x, const dynamic &y);
-dynamic operator>>(const dynamic &x, const dynamic &y);
+cutty::dynamic operator|(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator&(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator^(const cutty::dynamic &x, const cutty::dynamic &y);
 
-dynamic operator+(const dynamic &x);
-dynamic operator-(const dynamic &x);
-dynamic operator*(const dynamic &x);
-dynamic operator~(const dynamic &x);
+cutty::dynamic operator<<(const cutty::dynamic &x, const cutty::dynamic &y);
+cutty::dynamic operator>>(const cutty::dynamic &x, const cutty::dynamic &y);
 
-dynamic operator""_d(const char *, std::size_t);
-dynamic operator""_d(unsigned long long);
-dynamic operator""_d(long double);
-dynamic operator""_d(char);
+cutty::dynamic operator+(const cutty::dynamic &x);
+cutty::dynamic operator-(const cutty::dynamic &x);
+// cutty::dynamic operator*(const cutty::dynamic &x);
+cutty::dynamic operator~(const cutty::dynamic &x);
+
+// ?? Namespace
+cutty::dynamic operator""_d(const char *, std::size_t);
+cutty::dynamic operator""_d(unsigned long long);
+cutty::dynamic operator""_d(long double);
+cutty::dynamic operator""_d(char);

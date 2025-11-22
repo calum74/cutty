@@ -1,28 +1,30 @@
 #include <cutty/dynamic.hpp>
 #include <iostream>
 
+namespace cy = cutty;
+
 int main()
 {
     // Create a map
     // Maps must contain keys of the same type,
     // with the exception that numbers and strings can be compared (and compared with each other)
-    auto m = dynamic::map();
+    auto m = cy::dynamic::map();
 
     // Dictionaries can contain keys of any type
     // The main difference between dict() and map() are that map() is ordered.
     // A dict is stored as a hash table.
-    auto d = dynamic::dict();
+    auto d = cy::dynamic::dict();
 
-    m[1] = 2;
+    // m[1] = 2;   FIXME
     d["hello"] = "fred";
-    d[true] = "bob";
+    // d[true] = "bob";
 
     // Output a list of contents
     std::cout << m << std::endl;
     std::cout << d << std::endl;
 
     // Dictionaries can be initialised
-    d = dynamic::dict({ {"Fred", 42}, {"Joe", 89} });
+    d = cy::dynamic::dict({ {"Fred", 42}, {"Joe", 89} });
 
     for(auto item : d)
     {
