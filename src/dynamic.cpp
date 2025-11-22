@@ -117,6 +117,21 @@ void cy::dynamic::construct(const type *t, const void *p)
     t->construct(*this, p);
 }
 
+void cy::dynamic::construct_by_value(const types &t, const void *p)
+{
+    construct(&t.by_value, p);
+}
+
+void cy::dynamic::construct_by_ref(const types &t, const void *p)
+{
+    construct(&t.by_ref, p);
+}
+
+void cy::dynamic::construct_shared(const types &t, const void *p)
+{
+    construct(&t.shared, p);
+}
+
 cy::dynamic::~dynamic()
 {
     m_type->destroy(*this);

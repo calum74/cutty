@@ -4,8 +4,6 @@
 
 namespace cy=cutty;
 
-#define BYVALUE_TYPE(T) template const cy::dynamic::types & cy::dynamic::instantiate<T>();
-
 bool operator==(cy::dynamic::empty, cy::dynamic::empty)
 {
     return true;
@@ -21,24 +19,24 @@ std::ostream &operator<<(std::ostream &os, cy::dynamic::empty)
     return os << "(empty)";
 }
 
-BYVALUE_TYPE(cy::dynamic::empty)
-BYVALUE_TYPE(bool)
-BYVALUE_TYPE(signed char)
-BYVALUE_TYPE(unsigned char)
-BYVALUE_TYPE(char)
+CY_INSTANTIATE(cy::dynamic::empty)
+CY_INSTANTIATE(bool)
+CY_INSTANTIATE(signed char)
+CY_INSTANTIATE(unsigned char)
+CY_INSTANTIATE(char)
 
-BYVALUE_TYPE(short)
-BYVALUE_TYPE(unsigned short)
-BYVALUE_TYPE(int)
-BYVALUE_TYPE(unsigned int)
-BYVALUE_TYPE(long)
-BYVALUE_TYPE(unsigned long)
-BYVALUE_TYPE(long long)
-BYVALUE_TYPE(unsigned long long)
+CY_INSTANTIATE(short)
+CY_INSTANTIATE(unsigned short)
+CY_INSTANTIATE(int)
+CY_INSTANTIATE(unsigned int)
+CY_INSTANTIATE(long)
+CY_INSTANTIATE(unsigned long)
+CY_INSTANTIATE(long long)
+CY_INSTANTIATE(unsigned long long)
 
-BYVALUE_TYPE(float)
-BYVALUE_TYPE(double)
+CY_INSTANTIATE(float)
+CY_INSTANTIATE(double)
 
-BYVALUE_TYPE(std::string)
-BYVALUE_TYPE(char *)
-BYVALUE_TYPE(std::string_view)
+CY_INSTANTIATE(std::string)
+CY_INSTANTIATE(char *)
+CY_INSTANTIATE(std::string_view)

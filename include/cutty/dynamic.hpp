@@ -20,12 +20,7 @@ class dynamic
 {
   public:
     struct type;
-    struct types
-    {
-        const dynamic::type *by_value;
-        const dynamic::type *by_ref;
-        const dynamic::type *shared;
-    };
+    struct types;
 
     using value_type = dynamic;
     using size_type = std::size_t;
@@ -66,11 +61,7 @@ class dynamic
         incompatible(const char *msg);
     };
 
-    // #include <dynamic/get_type.hpp>
     template <typename T> static const types &instantiate();
-
-    // !! Move
-    template <typename T, typename Mode> static const type *get_type();
 
     // Instantiate this to add a new dynamic type
     // #include <dynamic/instantiate.hpp>
@@ -90,27 +81,27 @@ class dynamic
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T &v)
     {
-        construct(instantiate<std::decay_t<T>>().by_value, &v);
+        construct_by_value(instantiate<std::decay_t<T>>(), &v);
     }
 
     template <typename T> dynamic(const T &v, shared_tag)
     {
-        construct(instantiate<std::decay_t<T>>().shared, &v);
+        construct_shared(instantiate<std::decay_t<T>>(), &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v, shared_tag)
     {
-        construct(instantiate<std::decay_t<T>>().shared, &v);
+        construct_shared(instantiate<std::decay_t<T>>(), &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
     {
-        construct(instantiate<const T *>().by_value, &v);
+        construct_by_value(instantiate<const T *>(), &v);
     }
 
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &v, by_reference_tag) : m_type()
     {
-        construct(instantiate<T>().by_ref, &v);
+        construct_by_ref(instantiate<T>(), &v);
     }
 
     ~dynamic();
@@ -285,6 +276,11 @@ class dynamic
 
     void construct(const type *t, void *p);
     void construct(const type *t, const void *p);
+
+    void construct_by_value(const types &, const void *p);
+    void construct_by_ref(const types &, const void *p);
+    void construct_shared(const types &, const void *p);
+
     void *get_as(const std::type_info &);
     const void *get_as(const std::type_info &) const;
     void *as(const std::type_info &);

@@ -10,7 +10,6 @@
 
 namespace cy = cutty;
 
-#define BYVALUE_TYPE(T) template const cy::dynamic::types& cy::dynamic::instantiate<T>();
 
 using list_type = std::vector<cy::dynamic>;
 using map_type = std::map<cy::dynamic, cy::dynamic>;
@@ -90,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, const map_type& list)
     return os;
 }
 
-BYVALUE_TYPE(std::vector<cy::dynamic>)
+CY_INSTANTIATE(std::vector<cy::dynamic>)
 
 cy::dynamic cy::dynamic::list()
 {
@@ -105,7 +104,7 @@ cy::dynamic cy::dynamic::list(std::initializer_list<dynamic> items)
     return l;
 }
 
-BYVALUE_TYPE(map_type)
+CY_INSTANTIATE(map_type)
 
 cy::dynamic cy::dynamic::map()
 {

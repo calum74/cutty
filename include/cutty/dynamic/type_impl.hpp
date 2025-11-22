@@ -176,7 +176,7 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
 
     void construct_shared(const dynamic &src, dynamic &dest_unassigned) const override
     {
-        dest_unassigned.m_type = dynamic::get_type<T, dynamic::shared_tag>();
+        dest_unassigned.m_type = &dynamic::instantiate<T>().shared;
         if constexpr (is_strong_shared)
         {
             auto *p = (shared_impl *)src.m_ptr;
@@ -202,7 +202,7 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
 
     void construct_weak_ref(const dynamic &src, dynamic &dest_unassigned) const override
     {
-        dest_unassigned.m_type = dynamic::get_type<T, dynamic::weak_reference_tag>();
+        dest_unassigned.m_type = &dynamic_detail::get_type<T, dynamic::weak_reference_tag>::get();
         if constexpr (is_strong_shared || is_weak_shared)
         {
             auto *p = (shared_impl *)src.m_ptr;
@@ -217,7 +217,7 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
 
     void construct_const_copy(const dynamic &src, dynamic &x) const override
     {
-        x.m_type = dynamic::get_type<const T, Mode>();
+        x.m_type = &dynamic_detail::get_type<const T, Mode>::get();
         if constexpr (is_strong_shared || is_weak_shared)
         {
             x.m_ptr = src.m_ptr;
