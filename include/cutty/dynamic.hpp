@@ -152,6 +152,11 @@ class dynamic
         return call(sizeof...(args), vec);
     }
 
+    template <typename... Args> dynamic operator()() const
+    {
+        return call(0, {});
+    }
+
     // References
     dynamic ref();
     dynamic ref() const;

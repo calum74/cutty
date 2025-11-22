@@ -26,10 +26,12 @@ namespace cutty::dynamic_detail
 
     template <typename T> constexpr auto pretty_type()
     {
-        std::string_view s(__PRETTY_FUNCTION__);
+        std::string_view s(__func__);
 #if defined(__clang__)
         s.remove_prefix(40);
 #elif defined (__GNUC__)
+        s.remove_prefix(55);
+#elif _MSC_VER >= 1910
         s.remove_prefix(55);
 #else
 #error "Unhandled compiler (add it here)"
