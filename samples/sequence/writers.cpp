@@ -1,6 +1,6 @@
 // This example demonstrates output sequences
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <vector>
 #include <set>
 #include <string>

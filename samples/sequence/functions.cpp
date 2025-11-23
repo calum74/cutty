@@ -1,7 +1,7 @@
 // This example demonstrates how to pass sequences to functions.
 
 // In the .cpp file itself, you still need to include the full library
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 #include "functions.hpp"
 

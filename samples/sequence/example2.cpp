@@ -1,6 +1,6 @@
 // This example demonstrates processing command line arguments as a sequence of strings.
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 
 // A function that processes a sequence of options and files

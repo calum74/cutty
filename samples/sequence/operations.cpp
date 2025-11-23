@@ -1,7 +1,7 @@
 // This example demonstrates the various operations
 // that can be performed on sequences
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 #include <vector>
 

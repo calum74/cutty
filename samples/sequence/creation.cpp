@@ -1,6 +1,6 @@
 // This example demonstrates the various ways to create sequences
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 #include <vector>
 #include <sstream>

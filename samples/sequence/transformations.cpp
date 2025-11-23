@@ -1,6 +1,6 @@
 // This example shows the various ways of transforming sequences
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 
 void print(const sequence<int> & s)

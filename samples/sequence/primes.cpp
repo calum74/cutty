@@ -1,4 +1,4 @@
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 
 int main()

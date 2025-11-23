@@ -2,7 +2,7 @@
 
 // The header file is "sequence.hpp"
 // You can also include just "sequence_fwd.hpp" in header files to reduce the compilation size.
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 
 #include <iostream>
 

@@ -3,7 +3,7 @@
 // Do this if you really really care about performance
 // (don't do this).
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 #include <iostream>
 
 // Passing a sequence to a function
