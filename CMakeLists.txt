@@ -7,11 +7,11 @@ include_directories(include)
 
 add_library(cutty
     src/check.cpp
-    src/dynamic.cpp
-    src/dynamic_containers.cpp
-    src/dynamic_functions.cpp
-    src/dynamic_reference.cpp
-    src/dynamic_types.cpp)
+    src/dynamic/dynamic.cpp
+    src/dynamic/containers.cpp
+    src/dynamic/functions.cpp
+    src/dynamic/reference.cpp
+    src/dynamic/types.cpp)
 
 link_libraries(cutty)
 
