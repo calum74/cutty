@@ -8,6 +8,8 @@
 #include <iostream>
 #include <mutex>
 
+namespace cy = cutty;
+
 // Each mixin is identified using a "tag" class, for example
 struct container_tag;
 struct tracker_tag;
@@ -16,7 +18,7 @@ struct lockable_container_tag;
 struct printable_tag;
 
 // To define a mixin, specialize the type cutty::mixin as follows:
-template <typename T> struct cutty::mixin<T, container_tag>
+template <typename T> struct cy::mixin<T, container_tag>
 {
     using size_type = std::size_t;
 
@@ -30,7 +32,7 @@ template <typename T> struct cutty::mixin<T, container_tag>
 // Existing mixins can be extended further. You can specify a sequence number
 // (starting 0), which adds more mixins to the chain. Since this is the second mixin,
 // we specify 1.
-template <typename T> struct cutty::mixin<T, container_tag, 1>
+template <typename T> struct cy::mixin<T, container_tag, 1>
 {
     void print() const
     {
@@ -57,11 +59,11 @@ template <typename T> struct cutty::mixin<T, container_tag, 4>
 // {
 // };
 
-// Managing sequence numbers could become difficult, so the DECLARE_MIXIN macro
-// can be used to automatically extend a mixin with the next available sequence number.
+// Managing sequence numbers could become difficult, so cy::defines_mixin and 
+// CY_REGISTER_MIXIN can be used to chain mixins together.
 
 template<typename T>
-struct lockable_impl
+struct lockable_impl : cy::defines_mixin<lockable_tag>
 {
 public:
     void lock() { m.lock(); }
@@ -70,22 +72,26 @@ private:
     std::mutex m;
 };
 
-CY_DECLARE_MIXIN(lockable_tag, lockable_impl);
+CY_REGISTER_MIXIN(lockable_impl);
 
-// Mixins can be combined using the EXTEND_MIXIN macro
-CY_EXTEND_MIXIN(container_tag, tracker_tag);  // All containers are tracked
-CY_EXTEND_MIXIN(lockable_container_tag, container_tag);
-CY_EXTEND_MIXIN(lockable_container_tag, lockable_tag);
+template<typename T>
+struct lockable_impl2 : cy::defines_mixin<lockable_tag, lockable_impl<T>>
+{
+public:
+    void f() {}
+};
+
+CY_REGISTER_MIXIN(lockable_impl2);
 
 // Here is another mixin
 
 template<typename T>
-struct tracker_impl
+struct tracker_impl : cy::defines_mixin<tracker_tag>
 {
     tracker_impl() { std::cout << "Created object!\n"; }
 };
 
-CY_DECLARE_MIXIN(tracker_tag, tracker_impl);
+CY_REGISTER_MIXIN(tracker_impl);
 
 // Mixins must be defined before they are used, otherwise they will
 // not be applied. It is ok to not implement a mixin - it will be there as a
@@ -93,7 +99,7 @@ CY_DECLARE_MIXIN(tracker_tag, tracker_impl);
 
 // To add a mixin to a type, you must inherit from mixin::implements,
 // specifying the mixins you want implemented.
-class mylist : public cutty::implements<mylist, lockable_container_tag>
+class mylist : public cutty::implements<mylist, lockable_tag, container_tag>
 {
   public:
     auto begin() const
@@ -114,27 +120,8 @@ class myobject : public cutty::implements<myobject, tracker_tag, lockable_tag>
 {
 };
 
-// Function injection
-// You can inject functions directly as an alternative syntax
-
-void print(const class myvalue &foo);
-
-// We still need to include INJECT before the definition of Foo
-CY_FUNCTION_MIXIN(printable_tag, print);
-
-struct myvalue : cutty::implements<myvalue, printable_tag>
-{
-    int value = 42;
-};
-
-void print(const myvalue &f)
-{
-    std::cout << "Print called with " << f.value << std::endl;
-}
-
 // Concepts can be used to check the status of a mixin
 static_assert(cutty::has_mixin<myobject, tracker_tag>);
-static_assert(cutty::has_mixin<mylist, lockable_tag>);
 static_assert(!cutty::has_mixin<myobject, container_tag>);
 
 template<cutty::has_mixin<lockable_tag> Lockable>
@@ -170,8 +157,4 @@ int main()
     myobject o;
     o.lock();
     o.unlock();
-
-    // Output: Print called with 42
-    myvalue v;
-    v.print();
 }

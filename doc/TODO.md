@@ -19,6 +19,13 @@ Dynamic has mixins
 rename macros
 fix gcc build
 
+We need a way to chain mixins
+
+struct lockable_mixins
+{
+};
+class MyMixin
+
 # Projects to add
 Entropy
 Numbers and traits
