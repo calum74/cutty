@@ -14,7 +14,7 @@ Find a use case
 Robustify it
 
 # Mixins
-Static base
+Static mixins
 Dynamic has mixins
 rename macros
 fix gcc build
@@ -23,3 +23,6 @@ fix gcc build
 Entropy
 Numbers and traits
 Parsing
+
+# Sequence
+Update to C++ ranges, maybe mirror their structure better?

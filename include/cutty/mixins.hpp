@@ -62,18 +62,18 @@ concept has_mixin = std::derived_from<T, mixin<T, Tag>>;
 // is, what sequence number do we use? The hack is that ::cutty::detail::next counts the existing
 // specializations, and then we use the result to add a new specialization. By passing a new parameter
 // Impl<Tag>, we ensure that this gets recomputed each time.
-#define DECLARE_MIXIN(Tag, Impl)                                                                                       \
+#define CY_DECLARE_MIXIN(Tag, Impl)                                                                                       \
     template <typename T> struct cutty::mixin<T, Tag, cutty::detail::next<Tag, Impl<Tag>>> : Impl<T>             \
     {                                                                                                                  \
     };
 
-#define EXTEND_MIXIN(Tag, Base)                                                                                        \
+#define CY_EXTEND_MIXIN(Tag, Base)                                                                                        \
     template <typename T>                                                                                              \
     struct cutty::mixin<T, Tag, cutty::detail::next<Tag, Base>> : cutty::implements<T, Base>                    \
     {                                                                                                                  \
     };
 
-#define FUNCTION_MIXIN(Tag, Name)                                                                                      \
+#define CY_FUNCTION_MIXIN(Tag, Name)                                                                                      \
     template <typename T> struct cutty::mixin<T, Tag, cutty::detail::next<Tag, struct Name##_mixin>>             \
     {                                                                                                                  \
         template <typename... Args> decltype(auto) Name(Args &&...args)                                                \

@@ -70,12 +70,12 @@ private:
     std::mutex m;
 };
 
-DECLARE_MIXIN(lockable_tag, lockable_impl);
+CY_DECLARE_MIXIN(lockable_tag, lockable_impl);
 
 // Mixins can be combined using the EXTEND_MIXIN macro
-EXTEND_MIXIN(container_tag, tracker_tag);  // All containers are tracked
-EXTEND_MIXIN(lockable_container_tag, container_tag);
-EXTEND_MIXIN(lockable_container_tag, lockable_tag);
+CY_EXTEND_MIXIN(container_tag, tracker_tag);  // All containers are tracked
+CY_EXTEND_MIXIN(lockable_container_tag, container_tag);
+CY_EXTEND_MIXIN(lockable_container_tag, lockable_tag);
 
 // Here is another mixin
 
@@ -85,7 +85,7 @@ struct tracker_impl
     tracker_impl() { std::cout << "Created object!\n"; }
 };
 
-DECLARE_MIXIN(tracker_tag, tracker_impl);
+CY_DECLARE_MIXIN(tracker_tag, tracker_impl);
 
 // Mixins must be defined before they are used, otherwise they will
 // not be applied. It is ok to not implement a mixin - it will be there as a
@@ -120,7 +120,7 @@ class myobject : public cutty::implements<myobject, tracker_tag, lockable_tag>
 void print(const class myvalue &foo);
 
 // We still need to include INJECT before the definition of Foo
-FUNCTION_MIXIN(printable_tag, print);
+CY_FUNCTION_MIXIN(printable_tag, print);
 
 struct myvalue : cutty::implements<myvalue, printable_tag>
 {
