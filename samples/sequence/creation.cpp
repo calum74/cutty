@@ -5,7 +5,9 @@
 #include <vector>
 #include <sstream>
 
-void print(const sequence<const char*> & items)
+namespace cy = cutty;
+
+void print(const cy::sequence<const char*> & items)
 {
     for(auto i : items)
         std::cout << i << std::endl;
@@ -14,37 +16,37 @@ void print(const sequence<const char*> & items)
 int main()
 {
     // Create an empty sequence (or an empty list - they are the same thing)
-    print(seq<const char*>());
-    print(list<const char*>());
+    print(cy::seq<const char*>());
+    print(cy::list<const char*>());
 
     // Create a sequence with the given items
-    print(list("hello"));
-    print(list("cat", "dog", "parrot"));
+    print(cy::list("hello"));
+    print(cy::list("cat", "dog", "parrot"));
 
     // Create a sequence from a container
     std::vector<const char*> items { "Beethoven", "Chopin", "Liszt"};
-    print(seq(items));
+    print(cy::seq(items));
 
     // Create a sequence from iterators
-    print(seq(items.rbegin(), items.rend()));
+    print(cy::seq(items.rbegin(), items.rend()));
 
     // Create a sequence from C arrays
     const char *carray[] = { "Red", "White", "Rose" };
-    print(seq(carray));
-    print(seq(carray+1, 2));
+    print(cy::seq(carray));
+    print(cy::seq(carray+1, 2));
 
     // Create an integer range
-    auto r = seq(1,10);
+    auto r = cy::seq(1,10);
 
     // Output: 55
     std::cout << r.sum() << std::endl;
 
     // Create a sequence of characters in a C string
-    std::cout << seq("Bergerac").size() << std::endl;
+    std::cout << cy::seq("Bergerac").size() << std::endl;
 
     // Create a sequence of characters from a stream
     std::stringstream ss("a b c");
-    std::cout << seq(ss).front() << std::endl;
+    std::cout << cy::seq(ss).front() << std::endl;
 
     return 0;
 }

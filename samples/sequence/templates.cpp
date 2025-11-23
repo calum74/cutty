@@ -6,6 +6,8 @@
 #include <cutty/sequence.hpp>
 #include <iostream>
 
+namespace cy = cutty;
+
 // Passing a sequence to a function
 // You can use typename = typename Seq::is_sequence to ensure that you are handling
 // a sequence and nothing else. This function operates on the underlying type of the sequence
@@ -24,12 +26,12 @@ void setItems(Seq s)
 template<typename Seq, typename = typename Seq::is_output_sequence>
 void getItems(Seq s)
 {
-    s << list("a", "b", "c");
+    s << cy::list("a", "b", "c");
 }
 
 int main(int argc, char**argv)
 {
-    setItems(seq(argv, argc).skip(1));
-    getItems(receiver([](const char * str) { std::cout << "Got " << str << std::endl;}));
+    setItems(cy::seq(argv, argc).skip(1));
+    getItems(cy::receiver([](const char * str) { std::cout << "Got " << str << std::endl;}));
     return 0;
 }

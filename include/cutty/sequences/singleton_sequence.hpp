@@ -1,5 +1,5 @@
 // Implements a sequence of exactly one element
-namespace sequences
+namespace cutty::sequences
 {
     template<typename T>
     class singleton_sequence : public base_sequence<T, singleton_sequence<T>, singleton_sequence<T>>

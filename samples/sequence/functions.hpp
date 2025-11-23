@@ -2,5 +2,5 @@
 // the forward declarations (for example in a header file)
 #include <cutty/sequence_fwd.hpp>
 
-void process1(const sequence<int> & items);
-void process2(const pointer_sequence<int> & items);
+void process1(const cutty::sequence<int> & items);
+void process2(const cutty::pointer_sequence<int> & items);

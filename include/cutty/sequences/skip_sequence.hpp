@@ -1,6 +1,6 @@
 // Implements a sequence that skips the first elements of another sequence
 
-namespace sequences
+namespace cutty::sequences
 {
     template<typename T, typename Seq>
     class skip_sequence : public base_sequence<T, skip_sequence<T,Seq>>

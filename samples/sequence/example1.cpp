@@ -6,11 +6,13 @@
 
 #include <iostream>
 
-int main(int argc, const char**argv)
+namespace cy = cutty;
+
+int main(int argc, const char **argv)
 {
     // seq(argv, argc) creates a sequence that iterates over a C array
     // skip(1) skips the first element
-    for(auto i : seq(argv, argc).skip(1))
+    for (auto i : cy::seq(argv, argc).skip(1))
         std::cout << "Hello " << i << std::endl;
     return 0;
 }

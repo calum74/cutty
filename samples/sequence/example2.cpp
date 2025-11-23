@@ -3,8 +3,10 @@
 #include <cutty/sequence.hpp>
 #include <iostream>
 
+namespace cy = cutty;
+
 // A function that processes a sequence of options and files
-void processFiles(const sequence<std::pair<char, std::string>> & options, const sequence<std::string> & files)
+void processFiles(const cy::sequence<std::pair<char, std::string>> & options, const cy::sequence<std::string> & files)
 {
     // Extract all options of the form "-Ixxx" into a sequence
     auto includes = options.
@@ -24,7 +26,7 @@ int main(int argc, const char**argv)
 {
     // Define a sequence that convert the arguments to a list of std::string,
     // skipping argv[0] which is the program itself
-    auto arguments = seq(argv, argc).skip(1).as<std::string>();
+    auto arguments = cy::seq(argv, argc).skip(1).as<std::string>();
 
     // Define the sequence of arguments before "--"
     auto beforeDashes = arguments.take_while([](const std::string & arg) { return arg != "--"; });

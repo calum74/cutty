@@ -7,13 +7,15 @@
 #include <iostream>
 #include <list>
 
-void moreItems(const output_sequence<std::string> & output)
+namespace cy = cutty;
+
+void moreItems(const cy::output_sequence<std::string> & output)
 {
     output << "Item 7";
 }
 
 // This is a function that returns a sequence
-void getItems(const output_sequence<std::string> & output)
+void getItems(const cy::output_sequence<std::string> & output)
 {
     // Call the add() function to output a single element
     output.add("Item 1");
@@ -22,10 +24,10 @@ void getItems(const output_sequence<std::string> & output)
     output << "Item 2";
 
     // You can send a sequence to an output
-    list("Item 3", "Item 4","Item 5").write_to(output);
+    cy::list("Item 3", "Item 4","Item 5").write_to(output);
 
     // You can also send sequences via the << operator
-    output << list("Item 6");
+    output << cy::list("Item 6");
 
     // You can build up the output over several functions
     moreItems(output);
@@ -38,14 +40,14 @@ int main()
     std::list<std::string> list;
 
     // writer() creates a writer that adds the items to a container
-    getItems(writer(vec));
+    getItems(cy::writer(vec));
 
     // It doesn't matter what container you use
-    getItems(writer(set));
-    getItems(writer(list));
+    getItems(cy::writer(set));
+    getItems(cy::writer(list));
 
     // receiver() specifies a function that will receive the itens
-    getItems(receiver([](const std::string & str) { std::cout << str << std::endl; }));
+    getItems(cy::receiver([](const std::string & str) { std::cout << str << std::endl; }));
 
     return 0;
 }

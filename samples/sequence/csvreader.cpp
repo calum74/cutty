@@ -3,6 +3,8 @@
 #include <fstream>
 #include <string>
 
+namespace cy = cutty;
+
 struct Cell
 {
     std::string text;
@@ -18,13 +20,13 @@ std::string trim(const std::string & str)
     return str.substr(i, i-j+1);
 }
 
-void csvReader(const sequence<char> & input, const output_sequence<Cell> & output)
+void csvReader(const cy::sequence<char> & input, const cy::output_sequence<Cell> & output)
 {
     int row=1;
     for(auto & line : input.split("\r\n"))
     {
         int column=1;
-        for(auto &cell : seq(line).split(",").select(trim))
+        for(auto &cell : cy::seq(line).split(",").select(trim))
             output << Cell{cell,row,column++};
         row++;
     }
@@ -33,7 +35,7 @@ void csvReader(const sequence<char> & input, const output_sequence<Cell> & outpu
 int main(int argc, const char**argv)
 {
     int file=1;
-    auto files = seq(argv, argc).skip(1);
+    auto files = cy::seq(argv, argc).skip(1);
 
     if(!files.any())
         std::cout << "Usage: csvreader <filename> ...\n";
@@ -41,7 +43,7 @@ int main(int argc, const char**argv)
     for(auto filename : files)
     {
         std::ifstream file(filename);
-        csvReader(seq(file), receiver([](const Cell &cell) {
+        csvReader(cy::seq(file), cy::receiver([](const Cell &cell) {
             std::cout << cell.row << "." << cell.column << ": " << cell.text << std::endl;
         }));
     }

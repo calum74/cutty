@@ -1,47 +1,55 @@
 // Implements the sequence to select/map sequence elements using a functor.
 
-namespace sequences
+namespace cutty::sequences
 {
-    template<typename T, typename Seq, typename Fn>
-    class select_sequence : public base_sequence<typename helpers::deduce_result<Fn>::type, select_sequence<T,Seq,Fn>>
+template <typename T, typename Seq, typename Fn>
+class select_sequence : public base_sequence<typename helpers::deduce_result<Fn>::type, select_sequence<T, Seq, Fn>>
+{
+    Seq seq;
+    Fn fn;
+
+  public:
+    typedef typename helpers::deduce_result<Fn>::type value_type;
+
+  private:
+    value_type current;
+
+  public:
+    select_sequence(const Seq &seq, Fn fn) : seq(seq), fn(fn)
     {
-        Seq seq;
-        Fn fn;
-    public:
-        typedef typename helpers::deduce_result<Fn>::type value_type;
-    private:
-        value_type current;
-    public:
-        select_sequence(const Seq &seq, Fn fn) : seq(seq), fn(fn) {}
+    }
 
-        const value_type * first()
+    const value_type *first()
+    {
+        const T *result = seq.first();
+        if (result)
         {
-            const T * result = seq.first();
-            if(result)
-            {
-                current = fn(*result);
-                return &current;
-            }
-            else
-            {
-                return nullptr;
-            }
+            current = fn(*result);
+            return &current;
         }
-
-        const value_type * next()
+        else
         {
-            const T * result = seq.next();
-            if(result)
-            {
-                current = fn(*result);
-                return &current;
-            }
-            else
-            {
-                return nullptr;
-            }
+            return nullptr;
         }
+    }
 
-        std::size_t size() const { return seq.size(); }
-    };
-}
+    const value_type *next()
+    {
+        const T *result = seq.next();
+        if (result)
+        {
+            current = fn(*result);
+            return &current;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    std::size_t size() const
+    {
+        return seq.size();
+    }
+};
+} // namespace cutty::sequences
