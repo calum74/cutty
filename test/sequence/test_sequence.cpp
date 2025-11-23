@@ -4,7 +4,7 @@
 // This is the main header file to include, which includes everything
 // You can also #include <sequence_fwd.hpp> if you just need the forward declaration.
 
-#include <sequence.hpp>
+#include <cutty/sequence.hpp>
 
 #include <iostream>
 #include <vector>

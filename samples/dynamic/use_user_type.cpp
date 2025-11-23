@@ -1,5 +1,5 @@
 #include <cutty/dynamic.hpp>
-#include "dynamic_user_type.hpp"
+#include "user_type.hpp"
 #include <iostream>
 
 namespace cy = cutty;

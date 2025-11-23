@@ -1,4 +1,4 @@
-#include "dynamic_user_type.hpp"
+#include "user_type.hpp"
 #include <cutty/dynamic/instantiate.hpp>
 
 namespace cy = cutty;
