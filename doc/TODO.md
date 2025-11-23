@@ -3,7 +3,6 @@ Doxygen
 Auto tests running on github actions
 Readme
 
-
 # Dynamic
 Get map test passing
 Finish stuff
@@ -21,8 +20,6 @@ rename macros
 fix gcc build
 
 # Projects to add
-Sequence
-Properties
 Entropy
 Numbers and traits
 Parsing
