@@ -78,7 +78,7 @@ int main()
     }
 
 // You can define macros to make scope_hooks easier to use
-#define BINLOG(ARGS...) auto binguard = varargs_logger(__FUNCTION__, ":", __LINE__, ": ", ARGS)
+#define BINLOG(ARGS, ...) auto binguard = varargs_logger(__FUNCTION__, ":", __LINE__, ": ", __VA_ARGS__)
 
     {
         BINLOG("Example ", 5);
