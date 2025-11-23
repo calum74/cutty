@@ -17,6 +17,8 @@ Robustify it
 # Mixins
 Static base
 Dynamic has mixins
+rename macros
+fix gcc build
 
 # Projects to add
 Sequence
