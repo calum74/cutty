@@ -4,15 +4,13 @@
 #pragma once
 
 // We don't use this much so avoid including this by default
-#if SEQUENCE_ENABLE_VECTOR
-#include <vector>
-#endif
 
 #include <array>
 #include <cstring>
 #include <iterator>
 #include <stdexcept>
 #include <type_traits>
+#include <ranges>
 
 #include "sequence_fwd.hpp"
 #include "sequences/fwd.hpp"
@@ -44,17 +42,17 @@
 namespace cutty
 {
 // Constructs a sequence from a container
-template <typename Container, typename = typename Container::value_type>
-sequences::iterator_sequence<typename Container::const_iterator> seq(const Container &c)
+template <std::ranges::input_range Container>
+auto seq(const Container &c)
 {
-    return {std::begin(c), std::end(c)};
+    return sequences::iterator_sequence {std::ranges::begin(c), std::ranges::end(c)};
 }
 
 // Constructs a sequence from a container
-template <typename Container, typename = typename Container::value_type>
-sequences::iterator_sequence<typename Container::const_iterator> seq(Container &c)
+template <std::ranges::input_range Container>
+auto seq(Container &c)
 {
-    return {std::begin(c), std::end(c)};
+    return sequences::iterator_sequence {std::begin(c), std::end(c)};
 }
 
 // Constructs a sequence from a fixed-length array
@@ -88,9 +86,9 @@ template <typename T> sequences::empty_sequence<T> list()
 }
 
 // Constructs an integer range sequence
-inline sequences::iterator_sequence<sequences::int_iterator> seq(int a, int b)
+inline auto seq(int a, int b)
 {
-    return {sequences::int_iterator(a), sequences::int_iterator(b + 1)};
+    return sequences::iterator_sequence {sequences::int_iterator(a), sequences::int_iterator(b + 1)};
 }
 
 // Constructs a sequence from a C string
@@ -111,23 +109,15 @@ template <typename Ch> pointer_sequence<Ch> seq(const std::basic_string<Ch> &str
     return {str.data(), str.data() + str.size()};
 }
 
-#if SEQUENCE_ENABLE_VECTOR
 // Constructs a pointer_sequence from a vector
-template <typename T, typename Alloc> pointer_sequence<T> seq(const std::vector<T, Alloc> &vec)
+template <std::ranges::contiguous_range T> pointer_sequence<std::ranges::range_value_t<T>> seq(T &vec)
 {
-    return {vec.data(), vec.data() + vec.size()};
+    return {std::ranges::data(vec), std::ranges::data(vec) + std::ranges::size(vec)};
 }
-
-// Constructs a pointer_sequence from a vector
-template <typename T, typename Alloc> pointer_sequence<T> seq(std::vector<T, Alloc> &vec)
-{
-    return {vec.data(), vec.data() + vec.size()};
-}
-#endif
 
 // Constructs a sequence that stores the container
 // This is potentially quite slow so be careful.
-template <typename T, typename = typename T::value_type> sequences::stored_sequence<T> seq(T &&src)
+template <std::ranges::input_range T> sequences::stored_sequence<T> seq(T &&src)
 {
     return {std::move(src)};
 }
@@ -139,13 +129,13 @@ template <typename T> pointer_sequence<T> seq(const T *a, const T *b)
 }
 
 // Constructs a sequence from a pair of iterators
-template <typename It> sequences::iterator_sequence<It> seq(It a, It b)
+template <std::input_iterator It, std::input_iterator EndIt> auto seq(It a, EndIt b)
 {
-    return {a, b};
+    return sequences::iterator_sequence {a, b};
 }
 
 // Constructs a sequence from a stream
-template <typename T> sequences::cached_iterator_sequence<std::istreambuf_iterator<T>> seq(std::basic_istream<T> &is)
+template <typename T> sequences::cached_iterator_sequence<std::istreambuf_iterator<T>, std::istreambuf_iterator<T>> seq(std::basic_istream<T> &is)
 {
     return {{is}, {}};
 }

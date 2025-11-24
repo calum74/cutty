@@ -2,15 +2,16 @@
 
 namespace cutty::sequences
 {
-template <typename It>
-class iterator_sequence : public base_sequence<typename std::iterator_traits<It>::value_type, iterator_sequence<It>>
+template <typename It, typename EndIt>
+class iterator_sequence : public base_sequence<typename std::iterator_traits<It>::value_type, iterator_sequence<It, EndIt>>
 {
-    It from, to, current;
+    It from, current;
+    EndIt to;
 
   public:
     typedef typename std::iterator_traits<It>::value_type value_type;
 
-    iterator_sequence(It from, It to) : from(from), to(to), current(from)
+    iterator_sequence(It from, EndIt to) : from(from), to(to), current(from)
     {
     }
 
@@ -34,11 +35,12 @@ class iterator_sequence : public base_sequence<typename std::iterator_traits<It>
 
 // A version of iterator_sequence that stores the current value of the iterator
 // This is to support iterators whose operator*() returns a value not a reference.
-template <typename It>
+template <typename It, typename EndIt>
 class cached_iterator_sequence
-    : public base_sequence<typename std::iterator_traits<It>::value_type, cached_iterator_sequence<It>>
+    : public base_sequence<typename std::iterator_traits<It>::value_type, cached_iterator_sequence<It, EndIt>>
 {
-    It from, to, current;
+    It from, current;
+    EndIt to;
 
   public:
     typedef typename std::iterator_traits<It>::value_type value_type;

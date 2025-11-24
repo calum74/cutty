@@ -8,6 +8,6 @@ template <typename T> class sequence : public sequences::base_sequence<T, sequen
     typedef T value_type;
     virtual const value_type *first() = 0;
     virtual const value_type *next() = 0;
-    virtual std::size_t size() const = 0;
+    virtual std::size_t size() = 0;
 };
 } // namespace cutty

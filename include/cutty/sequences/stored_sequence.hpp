@@ -3,12 +3,12 @@
 namespace cutty::sequences
 {
 template <typename Container>
-class stored_sequence : public base_sequence<typename Container::value_type, stored_sequence<Container>>
+class stored_sequence : public base_sequence<std::ranges::range_value_t<Container>, stored_sequence<Container>>
 {
   public:
     Container container;
-    typedef typename Container::value_type value_type;
-    typename Container::const_iterator current;
+    using value_type = std::ranges::range_value_t<Container>;
+    typename std::ranges::iterator_t<Container> current;
 
     stored_sequence(Container &&c) : container(std::move(c))
     {
@@ -30,9 +30,9 @@ class stored_sequence : public base_sequence<typename Container::value_type, sto
         return current == container.end() ? nullptr : &*current;
     }
 
-    std::size_t size() const
+    std::size_t size()
     {
-        return container.size();
+        return std::ranges::distance(container);
     }
 };
 } // namespace cutty::sequences

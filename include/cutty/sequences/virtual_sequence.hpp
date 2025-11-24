@@ -18,9 +18,9 @@ template <typename T, typename Seq> class virtual_sequence : public sequence<T>
     {
         return seq.next();
     }
-    std::size_t size() const override
+    std::size_t size() override
     {
-        return seq.size();
+        return std::ranges::distance(seq);
     }
 };
 } // namespace cutty::sequences

@@ -40,7 +40,7 @@ class concat_sequence : public base_sequence<typename Seq1::value_type, concat_s
     }
 
     // Override for a more efficient implementation
-    std::size_t size() const
+    std::size_t size()
     {
         return seq1.size() + seq2.size();
     }

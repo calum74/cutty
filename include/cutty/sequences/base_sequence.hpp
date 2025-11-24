@@ -49,7 +49,7 @@ template <typename T, typename Derived, typename Stored = Derived> class base_se
     struct iterator
     {
         typedef T value_type;
-        Derived &underlying;
+        Derived *underlying;
         const value_type *current;
 
         typedef value_type &reference;
@@ -65,13 +65,20 @@ template <typename T, typename Derived, typename Stored = Derived> class base_se
 
         iterator &operator++()
         {
-            current = underlying.next();
+            current = underlying->next();
             return *this;
         }
 
-        bool operator!=(iterator other) const
+        iterator operator++(int)
         {
-            return current != other.current;
+            iterator it = *this;
+            current = underlying->next();
+            return it;
+        }
+
+        bool operator==(iterator other) const
+        {
+            return current == other.current;
         }
     };
 
@@ -79,12 +86,12 @@ template <typename T, typename Derived, typename Stored = Derived> class base_se
 
     iterator begin() const
     {
-        return {self(), self().first()};
+        return {&self(), self().first()};
     }
 
     iterator end() const
     {
-        return {self(), nullptr};
+        return {&self(), nullptr};
     }
 
     const_iterator cbegin() const

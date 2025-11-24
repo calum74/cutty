@@ -47,7 +47,7 @@ class select_sequence : public base_sequence<typename helpers::deduce_result<Fn>
         }
     }
 
-    std::size_t size() const
+    std::size_t size()
     {
         return seq.size();
     }

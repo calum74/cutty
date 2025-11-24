@@ -1,7 +1,18 @@
 # Project
 Doxygen
-Auto tests running on github actions
 Readme
+
+# Sequence
+Update for ranges
+Model range concepts
+
+
+# Tags
+Implement!
+- temperature
+- times
+- policies on addition and multiplication
+- complex numbers
 
 # Dynamic
 Get map test passing
