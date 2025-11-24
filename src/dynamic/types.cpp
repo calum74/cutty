@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace cy=cutty;
+namespace cy = cutty;
 
 bool operator==(cy::dynamic::empty, cy::dynamic::empty)
 {

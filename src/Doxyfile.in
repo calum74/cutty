@@ -1,0 +1,12 @@
+# Basic project info
+PROJECT_NAME           = @PROJECT_NAME@
+OUTPUT_DIRECTORY       = @CMAKE_CURRENT_SOURCE_DIR@/doc
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+
+# Input
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/src
+RECURSIVE              = YES
+
+# Quiet
+QUIET                  = YES

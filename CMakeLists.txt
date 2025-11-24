@@ -3,6 +3,58 @@ project(cutty)
 set(CMAKE_CXX_STANDARD 23)
 enable_testing()
 
+find_package(Doxygen REQUIRED)
+
+if(DOXYGEN_FOUND)
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+
+    add_custom_target(docs
+        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Generating API documentation with Doxygen"
+        VERBATIM
+    )
+endif()
+
+# --- clang-format support ---
+find_program(CLANG_FORMAT_EXECUTABLE NAMES clang-format)
+
+if(NOT CLANG_FORMAT_EXECUTABLE)
+    message(WARNING "clang-format not found! Formatting targets disabled.")
+else()
+    # List all source files you want formatted
+    file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+    )
+
+    # --- Target: format (modifies files in place) ---
+    add_custom_target(format
+        COMMAND ${CLANG_FORMAT_EXECUTABLE}
+            -i
+            -style=Microsoft
+            ${ALL_CXX_SOURCE_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Formatting all source files with clang-format (Microsoft style)"
+    )
+
+    # --- Target: format-check (fails on misformatted files) ---
+    add_custom_target(format-check
+        COMMAND ${CLANG_FORMAT_EXECUTABLE}
+            --dry-run
+            --Werror
+            -style=Microsoft
+            ${ALL_CXX_SOURCE_FILES}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Checking C++ formatting (Microsoft style)"
+    )
+endif()
+
 include_directories(include)
 
 add_library(cutty

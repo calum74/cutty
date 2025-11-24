@@ -17,4 +17,9 @@ Containers
 
 ## Building
 
+Prerequisites:
+C++, doxygen
+
+Build targets: all, test, format, format-check, docs
+
 ## Installation
