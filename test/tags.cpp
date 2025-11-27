@@ -44,4 +44,11 @@ int main()
 
     auto d = cy::tag<Farenheit>(12);
     std::cout << cy::tag<Farenheit>(12) << std::endl;
+
+    {
+        auto x = cy::unit<tag1>;
+
+        // Get could just be an accessor?
+        // Idea: auto& y = x / cy::units<tag1>;
+    }
 }

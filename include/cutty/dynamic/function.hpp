@@ -87,7 +87,7 @@ template <typename Fn> auto make_dynamic_function(Fn fn)
 
 template <typename Fn>
 concept fully_typed_function = requires { typename function_traits<Fn>::args_type; };
-} // namespace dynamic_detail
+} // namespace cutty::dynamic_detail
 
 template <typename Fn> cutty::dynamic cutty::dynamic::function(Fn fn)
 {

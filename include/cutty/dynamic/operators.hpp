@@ -6,108 +6,111 @@
 
 namespace cutty::dynamic_detail
 {
-    template<typename T>
-    concept string = requires(T x) { std::string_view(x); };
+template <typename T>
+concept string = requires(T x) { std::string_view(x); };
 
-    template<typename T>
-    concept supports_add = requires(T x) { x+x; };
+template <typename T>
+concept supports_add = requires(T x) { x + x; };
 
-    template<typename T>
-    concept supports_sub = requires(T x) { x-x; };
+template <typename T>
+concept supports_sub = requires(T x) { x - x; };
 
-    template<typename T>
-    concept supports_mul = requires(T x) { x*x; };
+template <typename T>
+concept supports_mul = requires(T x) { x * x; };
 
-    template<typename T>
-    concept supports_div = requires(T x) { x/x; };
+template <typename T>
+concept supports_div = requires(T x) { x / x; };
 
-    template<typename T>
-    concept supports_mod = requires(T x) { x%x; };
+template <typename T>
+concept supports_mod = requires(T x) { x % x; };
 
-    #define BINOP(Name, Op) \
-        template<typename T>  \
-        struct Name  \
-        {  \
-            using return_type = bool; \
-            bool operator()(const T &x, const T&y) const requires requires { x Op y; } { return x Op y; }  \
-        };
+#define BINOP(Name, Op)                                                                                                \
+    template <typename T> struct Name                                                                                  \
+    {                                                                                                                  \
+        using return_type = bool;                                                                                      \
+        bool operator()(const T &x, const T &y) const                                                                  \
+            requires requires { x Op y; }                                                                              \
+        {                                                                                                              \
+            return x Op y;                                                                                             \
+        }                                                                                                              \
+    };
 
-    BINOP(less, <)
+BINOP(less, <)
 
-    template<typename T, template<typename> typename Operator>
-    struct operator_impl
+template <typename T, template <typename> typename Operator> struct operator_impl
+{
+    using op = Operator<T>;
+    static constexpr bool supported = requires(T t, op o) {
+        { o(t, t) };
+    };
+
+    typename op::return_type operator()(const T &x, const dynamic &y, const char *msg) const
     {
-        using op = Operator<T>;
-        static constexpr bool supported = requires(T t, op o) { { o(t, t) }; };
-
-        typename op::return_type operator()(const T &x, const dynamic &y, const char * msg) const
+        if constexpr (supported)
         {
-            if constexpr (supported)
+            if (const auto *p = y.try_get<T>())
             {
-                if(const auto *p = y.try_get<T>())
-                {
-                    return op()(x, *p);
-                }
-                else
-                {
-                    std::stringstream ss;
-                    ss << "Operator " << msg << " could not convert " << y << " to " << pretty_type<T>();
-                    throw dynamic::unsupported(ss.str().c_str());
-                }
+                return op()(x, *p);
             }
             else
             {
                 std::stringstream ss;
-                ss << "Operator " << msg << " is not supported on " << pretty_type<T>() << " and " << y;
+                ss << "Operator " << msg << " could not convert " << y << " to " << pretty_type<T>();
                 throw dynamic::unsupported(ss.str().c_str());
             }
         }
-    };
-
-    template<typename T>
-    [[noreturn]]
-    void throw_unsupported(const T &, const dynamic &y, const char *op)
-    {
-        std::stringstream ss;
-        ss << "Operator " << op << " not supported on values of type " << pretty_type<T>() << " and " << y;
-        throw dynamic::incompatible(ss.str().c_str());
+        else
+        {
+            std::stringstream ss;
+            ss << "Operator " << msg << " is not supported on " << pretty_type<T>() << " and " << y;
+            throw dynamic::unsupported(ss.str().c_str());
+        }
     }
+};
 
-    template<typename T>
-    [[noreturn]]
-    void throw_incompatible(const T &, const dynamic &y, const char *op)
-    {
-        std::stringstream ss;
-        ss << "Incompatible types on " << op << " for " << pretty_type<T>() << " and " << y;
-        throw dynamic::incompatible(ss.str().c_str());
-    }
-
+template <typename T>
+[[noreturn]]
+void throw_unsupported(const T &, const dynamic &y, const char *op)
+{
+    std::stringstream ss;
+    ss << "Operator " << op << " not supported on values of type " << pretty_type<T>() << " and " << y;
+    throw dynamic::incompatible(ss.str().c_str());
 }
 
-template<typename T>
-cutty::dynamic operator+(const T&x, const cutty::dynamic &y)
+template <typename T>
+[[noreturn]]
+void throw_incompatible(const T &, const dynamic &y, const char *op)
+{
+    std::stringstream ss;
+    ss << "Incompatible types on " << op << " for " << pretty_type<T>() << " and " << y;
+    throw dynamic::incompatible(ss.str().c_str());
+}
+
+} // namespace cutty::dynamic_detail
+
+template <typename T> cutty::dynamic operator+(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::floating_point<T> || std::integral<T>)
     {
-        if(auto d = y.m_type->try_get_double(y))
+        if (auto d = y.m_type->try_get_double(y))
         {
-            return cutty::dynamic(x+*d);
+            return cutty::dynamic(x + *d);
         }
-        else if(auto i = y.m_type->try_get_integral(y))
+        else if (auto i = y.m_type->try_get_integral(y))
         {
             return cutty::dynamic(x + *i);
         }
     }
     else if constexpr (cutty::dynamic_detail::string<T>)
     {
-        if(auto s = y.m_type->try_get_string(y))
+        if (auto s = y.m_type->try_get_string(y))
         {
-            return cutty::dynamic(std::string(x)+std::string(*s));
+            return cutty::dynamic(std::string(x) + std::string(*s));
         }
     }
     else if constexpr (cutty::dynamic_detail::supports_add<T>)
     {
-        if(auto p = y.try_get<T>())
+        if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x + *p);
         }
@@ -115,23 +118,22 @@ cutty::dynamic operator+(const T&x, const cutty::dynamic &y)
     cutty::dynamic_detail::throw_unsupported(x, y, "+");
 }
 
-template<typename T>
-cutty::dynamic operator-(const T&x, const cutty::dynamic &y)
+template <typename T> cutty::dynamic operator-(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::floating_point<T> || std::integral<T>)
     {
-        if(auto d = y.m_type->try_get_double(y))
+        if (auto d = y.m_type->try_get_double(y))
         {
-            return cutty::dynamic(x-*d);
+            return cutty::dynamic(x - *d);
         }
-        else if(auto i = y.m_type->try_get_integral(y))
+        else if (auto i = y.m_type->try_get_integral(y))
         {
             return cutty::dynamic(x - *i);
         }
     }
     else if constexpr (cutty::dynamic_detail::supports_sub<T>)
     {
-        if(auto p = y.try_get<T>())
+        if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x - *p);
         }
@@ -139,24 +141,22 @@ cutty::dynamic operator-(const T&x, const cutty::dynamic &y)
     cutty::dynamic_detail::throw_unsupported(x, y, "-");
 }
 
-
-template<typename T>
-cutty::dynamic operator*(const T&x, const cutty::dynamic &y)
+template <typename T> cutty::dynamic operator*(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::floating_point<T> || std::integral<T>)
     {
-        if(auto d = y.m_type->try_get_double(y))
+        if (auto d = y.m_type->try_get_double(y))
         {
-            return cutty::dynamic(x* *d);
+            return cutty::dynamic(x * *d);
         }
-        else if(auto i = y.m_type->try_get_integral(y))
+        else if (auto i = y.m_type->try_get_integral(y))
         {
             return cutty::dynamic(x * *i);
         }
     }
     else if constexpr (cutty::dynamic_detail::supports_mul<T>)
     {
-        if(auto p = y.try_get<T>())
+        if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x * *p);
         }
@@ -164,23 +164,22 @@ cutty::dynamic operator*(const T&x, const cutty::dynamic &y)
     cutty::dynamic_detail::throw_unsupported(x, y, "*");
 }
 
-template<typename T>
-cutty::dynamic operator/(const T&x, const cutty::dynamic &y)
+template <typename T> cutty::dynamic operator/(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::floating_point<T> || std::integral<T>)
     {
-        if(auto d = y.m_type->try_get_double(y))
+        if (auto d = y.m_type->try_get_double(y))
         {
-            return cutty::dynamic(x* *d);
+            return cutty::dynamic(x * *d);
         }
-        else if(auto i = y.m_type->try_get_integral(y))
+        else if (auto i = y.m_type->try_get_integral(y))
         {
             return cutty::dynamic(x / *i);
         }
     }
     else if constexpr (cutty::dynamic_detail::supports_mul<T>)
     {
-        if(auto p = y.try_get<T>())
+        if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x / *p);
         }
@@ -188,9 +187,7 @@ cutty::dynamic operator/(const T&x, const cutty::dynamic &y)
     cutty::dynamic_detail::throw_unsupported(x, y, "/");
 }
 
-
-template<typename T>
-cutty::dynamic operator%(const T&x, const cutty::dynamic &y)
+template <typename T> cutty::dynamic operator%(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::integral<T>)
     {
@@ -199,9 +196,10 @@ cutty::dynamic operator%(const T&x, const cutty::dynamic &y)
             return cutty::dynamic(x % *i);
         }
         cutty::dynamic_detail::throw_incompatible(x, y, "%");
-    } else if constexpr (cutty::dynamic_detail::supports_mod<T>)
+    }
+    else if constexpr (cutty::dynamic_detail::supports_mod<T>)
     {
-        if(auto p = y.try_get<T>())
+        if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x % *p);
         }
@@ -210,8 +208,7 @@ cutty::dynamic operator%(const T&x, const cutty::dynamic &y)
     cutty::dynamic_detail::throw_unsupported(x, y, "%");
 }
 
-template<typename T>
-bool operator<(const T&x, const cutty::dynamic &y)
+template <typename T> bool operator<(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::integral<T> || std::floating_point<T>)
     {
@@ -246,8 +243,7 @@ bool operator<(const T&x, const cutty::dynamic &y)
     }
 }
 
-template<typename T>
-bool operator==(const T&x, const cutty::dynamic &y)
+template <typename T> bool operator==(const T &x, const cutty::dynamic &y)
 {
     if constexpr (cutty::dynamic_detail::string<T>)
     {

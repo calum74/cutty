@@ -78,18 +78,19 @@ template <typename EntryFn, typename ExitFn, typename ExceptFn> class scope_hook
 //
 // Returns an unspecified type which can be called to create a scope guard of unspecified type.
 template <typename EntryFn, typename ExitFn, typename ExceptFn>
-constexpr auto scope_hooks(EntryFn&& entry, ExitFn&& exit, ExceptFn&& except)
+constexpr auto scope_hooks(EntryFn &&entry, ExitFn &&exit, ExceptFn &&except)
 {
-    return detail::scope_hooks<EntryFn, ExitFn, ExceptFn>{std::forward<EntryFn&&>(entry), std::forward<ExitFn&&>(exit), std::forward<ExceptFn&&>(except)};
+    return detail::scope_hooks<EntryFn, ExitFn, ExceptFn>{
+        std::forward<EntryFn &&>(entry), std::forward<ExitFn &&>(exit), std::forward<ExceptFn &&>(except)};
 }
 
 // Creates a scope_hooks with the given entry and exit functions.
 // The exit function is also used for exceptional exits.
 //
 // Returns an unspecified type which can be called to create a scope guard of unspecified type.
-template <typename EntryFn, typename ExitFn> constexpr auto scope_hooks(EntryFn&& entry, ExitFn&& exit)
+template <typename EntryFn, typename ExitFn> constexpr auto scope_hooks(EntryFn &&entry, ExitFn &&exit)
 {
-    return scope_hooks(std::forward<EntryFn&&>(entry), std::forward<ExitFn&&>(exit), std::forward<ExitFn&&>(exit));
+    return scope_hooks(std::forward<EntryFn &&>(entry), std::forward<ExitFn &&>(exit), std::forward<ExitFn &&>(exit));
 }
 
 // Creates a scope_hooks with the given exit function.
@@ -98,6 +99,6 @@ template <typename EntryFn, typename ExitFn> constexpr auto scope_hooks(EntryFn&
 // Returns an unspecified type which can be called to create a scope guard of unspecified type.
 template <typename ExitFn> constexpr auto scope_hooks(ExitFn &&exit)
 {
-    return scope_hooks([](auto &&...) {}, std::forward<ExitFn&&>(exit));
+    return scope_hooks([](auto &&...) {}, std::forward<ExitFn &&>(exit));
 }
-}
+} // namespace cutty

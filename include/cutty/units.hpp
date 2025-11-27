@@ -4,37 +4,47 @@
 
 namespace cutty
 {
-    struct units;
-    
-    struct Celcius;
-    struct Farenheit;
-    struct Kelvin;
+struct units;
 
-    struct degrees;
-    struct radians;
-    struct gradians;
+struct Celcius;
+struct Farenheit;
+struct Kelvin;
 
-    struct mega;
-    struct milli;
-    struct kilo;
-    struct micro;
-    struct nano;
-    struct pico;
+struct degrees;
+struct radians;
+struct gradians;
 
-    struct seconds;
-    struct minutes;
-    struct hours;
-    struct days;
-    struct weeks;
-    struct months;
-    struct years;
-    struct centuries;
-    struct millenia;
+struct tera;
+struct giga;
+struct mega;
+struct milli;
+struct kilo;
+struct micro;
+struct nano;
+struct pico;
 
-    struct percent;
-    struct epoch_time;
-    struct unix_time;
+struct milliseconds;
+struct seconds;
+struct minutes;
+struct hours;
+struct days;
+struct weeks;
+struct months;
+struct years;
+struct centuries;
+struct millenia;
 
-    struct Im;
-    struct Re;
-}
+struct percent;
+struct epoch_time;
+struct unix_time;
+
+struct Im;
+struct Re;
+
+struct bits;
+struct bytes;
+struct kilobytes;
+struct megabytes;
+struct gigabytes;
+struct terabytes;
+} // namespace cutty

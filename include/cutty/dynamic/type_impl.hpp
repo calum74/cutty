@@ -4,11 +4,11 @@
 #include "operators.hpp"
 #include "reference.hpp"
 #include "traits.hpp"
+#include <atomic>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <type_traits>
-#include <atomic>
 
 #define TRY_TO(CMD, OP)                                                                                                \
     if constexpr (requires { CMD; })                                                                                   \
@@ -342,7 +342,6 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         }
     }
 
-
     T &get(dynamic &x) const
     {
         if constexpr (is_strong_shared)
@@ -612,4 +611,4 @@ template <typename T, typename Mode> struct get_type
         return type;
     }
 };
-} // namespace dynamic_detail
+} // namespace cutty::dynamic_detail

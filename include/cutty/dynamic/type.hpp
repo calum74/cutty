@@ -1,6 +1,6 @@
 #pragma once
-#include <optional>
 #include <cstdint>
+#include <optional>
 
 struct cutty::dynamic::type
 {
@@ -28,7 +28,7 @@ struct cutty::dynamic::type
     virtual void *try_get(dynamic &, const std::type_info &) const = 0;
     virtual const void *try_get(const dynamic &, const std::type_info &) const = 0;
     virtual const std::string &type_str(const dynamic &) const = 0;
-    virtual bool as_bool(const dynamic&) const = 0;
+    virtual bool as_bool(const dynamic &) const = 0;
 
     virtual bool op_eq(const dynamic &x, const dynamic &y) const = 0;
     virtual bool op_lt(const dynamic &x, const dynamic &y) const = 0;
@@ -63,17 +63,17 @@ struct cutty::dynamic::type
     virtual dynamic end(dynamic &) const = 0;
     virtual dynamic end(const dynamic &) const = 0;
 
-    virtual dynamic front(dynamic&) const = 0;
-    virtual dynamic front(const dynamic&) const = 0;
-    virtual dynamic back(dynamic&) const = 0;
-    virtual dynamic back(const dynamic&) const = 0;
+    virtual dynamic front(dynamic &) const = 0;
+    virtual dynamic front(const dynamic &) const = 0;
+    virtual dynamic back(dynamic &) const = 0;
+    virtual dynamic back(const dynamic &) const = 0;
 
-    virtual void insert(dynamic&, const dynamic&) const = 0;
-    virtual void insert(dynamic&, const dynamic &k, const dynamic&v) const = 0;
-    virtual dynamic first(dynamic&) const=0;
-    virtual dynamic first(const dynamic&) const=0;
-    virtual dynamic second(dynamic&) const=0;
-    virtual dynamic second(const dynamic&) const=0;
+    virtual void insert(dynamic &, const dynamic &) const = 0;
+    virtual void insert(dynamic &, const dynamic &k, const dynamic &v) const = 0;
+    virtual dynamic first(dynamic &) const = 0;
+    virtual dynamic first(const dynamic &) const = 0;
+    virtual dynamic second(dynamic &) const = 0;
+    virtual dynamic second(const dynamic &) const = 0;
 
     // Iterators
     virtual dynamic op_star(const dynamic &x) const = 0;
@@ -85,10 +85,10 @@ struct cutty::dynamic::type
     // virtual dynamic call0(const dynamic &self) const;
     // virtual dynamic call1(const dynamic &self, const dynamic &arg0) const;
     // virtual dynamic call2(const dynamic &self, const dynamic &arg0, const dynamic &arg1) const;
-    virtual dynamic call(const dynamic &self, std::size_t n_args, const dynamic * args) const=0;
+    virtual dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const = 0;
 
     virtual dynamic op_index(const dynamic &x, size_type i) const = 0;
     virtual dynamic op_index(dynamic &x, size_type i) const = 0;
-    virtual dynamic op_index(const dynamic &x, const dynamic & i) const = 0;
-    virtual dynamic op_index(dynamic &x, const dynamic & i) const = 0;
+    virtual dynamic op_index(const dynamic &x, const dynamic &i) const = 0;
+    virtual dynamic op_index(dynamic &x, const dynamic &i) const = 0;
 };

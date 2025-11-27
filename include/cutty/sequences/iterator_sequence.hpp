@@ -3,7 +3,8 @@
 namespace cutty::sequences
 {
 template <typename It, typename EndIt>
-class iterator_sequence : public base_sequence<typename std::iterator_traits<It>::value_type, iterator_sequence<It, EndIt>>
+class iterator_sequence
+    : public base_sequence<typename std::iterator_traits<It>::value_type, iterator_sequence<It, EndIt>>
 {
     It from, current;
     EndIt to;

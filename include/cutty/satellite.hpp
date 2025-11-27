@@ -63,4 +63,4 @@ template <typename T, typename Tag> class satellite
         return ptr;
     }
 };
-}
+} // namespace cutty
