@@ -5,15 +5,17 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets.
 ## List of libraries
 
 Core
-    Check
-    Fixed string
+- Check
+- Fixed string
+
 Types
-    Mixins
-    Dynamic
-    Satellite
-    Properties
+- Mixins
+- Dynamic
+- Satellite
+- Properties
+
 Containers
-    Sequence
+- Sequence
 
 ## Building
 

@@ -27,10 +27,8 @@ if(NOT CLANG_FORMAT_EXECUTABLE)
 else()
     # List all source files you want formatted
     file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
     )
 
     # --- Target: format (modifies files in place) ---
@@ -58,6 +56,7 @@ endif()
 include_directories(include)
 
 add_library(cutty
+    include/cutty/check.hpp
     src/check.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
@@ -93,6 +92,8 @@ add_executable(sequence_primes samples/sequence/primes.cpp)
 add_executable(sequence_templates samples/sequence/templates.cpp)
 add_executable(sequence_transformations samples/sequence/transformations.cpp)
 add_executable(sequence_writers samples/sequence/writers.cpp)
+add_executable(tag_test test/tags.cpp)
+add_executable(unit_test test/units.cpp)
 
 add_test(mixins mixins)
 add_test(satellite satellite)
@@ -120,3 +121,6 @@ add_test(sequence_primes sequence_primes)
 add_test(sequence_templates sequence_templates)
 add_test(sequence_transformations sequence_transformations)
 add_test(sequence_writers sequence_writers)
+
+add_test(tag_test tag_test)
+add_test(unit_test unit_test)

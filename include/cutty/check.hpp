@@ -4,6 +4,7 @@
 #include <exception>
 #include <string_view>
 
+/** Namespace for all cutty functionality */
 namespace cutty
 {
     namespace detail
@@ -16,9 +17,19 @@ namespace cutty
         };
     }
 
+    /**
+        Checks if a condition holds or throws an exception.
+     */
     void check(detail::convertible_boolean cond, const char * msg = "Failed check", 
         const std::source_location & src = std::source_location::current());
 
+    /**
+        Checks that specific exception text is thrown.
+        @p fn               The function/lambda to execute
+        @p expected_text    The expected error messages
+
+        
+     */
     void check_throws(auto &&fn, std::string_view expected_text, 
         const std::source_location & src = std::source_location::current())
     {
