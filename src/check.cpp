@@ -11,3 +11,14 @@ void cutty::check(detail::convertible_boolean cond, const char *msg, const std::
         throw std::runtime_error(ss.str());
     }
 }
+
+void cutty::detail::check_expected_exception(const char * expected, const char *actual, const std::source_location &src)
+{
+    if (std::string_view (expected) != std::string_view(actual))
+    {
+        std::stringstream ss;
+        ss << "Expected exception not thrown: expected '" << expected << "' but got '" << actual << "'";
+        ss << " at " << src.file_name() << ":" << src.line();
+        throw std::runtime_error(ss.str());
+    }
+}

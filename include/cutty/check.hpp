@@ -18,6 +18,8 @@ struct convertible_boolean
     }
     bool value;
 };
+
+void check_expected_exception (const char * expected_text, const char * actual_text, const std::source_location &src);
 } // namespace detail
 
 /**
@@ -26,6 +28,7 @@ struct convertible_boolean
 void check(detail::convertible_boolean cond, const char *msg = "Failed check",
            const std::source_location &src = std::source_location::current());
 
+
 /**
     Checks that specific exception text is thrown.
     @p fn               The function/lambda to execute
@@ -33,7 +36,7 @@ void check(detail::convertible_boolean cond, const char *msg = "Failed check",
 
 
  */
-void check_throws(auto &&fn, std::string_view expected_text,
+void check_throws(auto &&fn, const char *expected_text,
                   const std::source_location &src = std::source_location::current())
 {
     try
@@ -43,7 +46,7 @@ void check_throws(auto &&fn, std::string_view expected_text,
     }
     catch (const std::exception &ex)
     {
-        check(expected_text == ex.what(), "exception text differs", src);
+        detail::check_expected_exception(expected_text, ex.what(), src);
     }
 }
 
