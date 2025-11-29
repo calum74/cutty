@@ -3,7 +3,7 @@ project(cutty)
 set(CMAKE_CXX_STANDARD 23)
 enable_testing()
 
-find_package(Doxygen REQUIRED)
+find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/src/Doxyfile.in)
