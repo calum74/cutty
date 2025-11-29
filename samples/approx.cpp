@@ -1,6 +1,7 @@
 #include <cutty/approx.hpp>
 #include <cutty/check.hpp>
 
+#include <iostream>
 #include <numbers>
 
 namespace cy = cutty;
