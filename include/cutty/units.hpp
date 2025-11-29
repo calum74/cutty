@@ -30,9 +30,8 @@ struct SI;
 
 // ?? How to write out SI units in full ??
 
-
-template <fraction Meter, fraction Kilogram, fraction Second, fraction Ampere, fraction Kelvin,
-          fraction Mole, fraction Candela>
+template <fraction Meter, fraction Kilogram, fraction Second, fraction Ampere, fraction Kelvin, fraction Mole,
+          fraction Candela>
 struct tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>>
 {
     using tag_type = SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>;
@@ -44,12 +43,11 @@ struct tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>>
         }
         else
         {
-            auto output = [&](const char *name, fraction p)
-            {
-                if(p!=0)
+            auto output = [&](const char *name, fraction p) {
+                if (p != 0)
                 {
                     os << name;
-                    if(p!=1)
+                    if (p != 1)
                     {
                         os << "^" << p;
                     }
@@ -74,20 +72,20 @@ using Kelvin = SI<0, 0, 0, 0, 1>;
 using mol = SI<0, 0, 0, 0, 0, 1>;
 using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
-using Joules = SI<2,1,-2>;
-template<> const char * tag_suffix<Joules> = "J";
-using Volts = SI<2,1,-3,-1>;
-template<> const char * tag_suffix<Volts> = "V";
-using Newtons = SI<1,1,-2>;
-template<> const char * tag_suffix<Newtons> = "N";
+using Joules = SI<2, 1, -2>;
+template <> const char *tag_suffix<Joules> = "J";
+using Volts = SI<2, 1, -3, -1>;
+template <> const char *tag_suffix<Volts> = "V";
+using Newtons = SI<1, 1, -2>;
+template <> const char *tag_suffix<Newtons> = "N";
 
-using Ohms = SI<2,1,-3,-2>;
-template<> const char * tag_suffix<Ohms> = "Ω";
+using Ohms = SI<2, 1, -3, -2>;
+template <> const char *tag_suffix<Ohms> = "Ω";
 
 /// Temperature
 struct Celcius;
 template <> const char *tag_suffix<Celcius> = "°C";
-template<> struct tag_traits<Celcius> : default_tag_traits<Celcius>
+template <> struct tag_traits<Celcius> : default_tag_traits<Celcius>
 {
     using common_type = Kelvin;
 };
@@ -96,11 +94,10 @@ using Centigrade = Celcius;
 
 struct Farenheit;
 template <> const char *tag_suffix<Farenheit> = "°F";
-template<> struct tag_traits<Farenheit> : default_tag_traits<Farenheit>
+template <> struct tag_traits<Farenheit> : default_tag_traits<Farenheit>
 {
     using common_type = Kelvin;
 };
-
 
 template <typename T> void convert(const tagged<T, Celcius> &c, tagged<T, Kelvin> &k)
 {
@@ -112,17 +109,15 @@ template <typename T> void convert(const tagged<T, Kelvin> &k, tagged<T, Celcius
     *c = *k - 273.15;
 }
 
-
 template <typename T> void convert(const tagged<T, Kelvin> &k, tagged<T, Farenheit> &f)
 {
-    *f = 9 * (*k-273.15) / 5 + 32;
+    *f = 9 * (*k - 273.15) / 5 + 32;
 }
 
 template <typename T> void convert(const tagged<T, Farenheit> &f, tagged<T, Kelvin> &k)
 {
     *k = 273.15 + 5 * (*f - 32) / 9;
 }
-
 
 // template <> const char *tag_suffix<Kelvin> = "K";
 

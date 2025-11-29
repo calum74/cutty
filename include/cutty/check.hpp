@@ -19,7 +19,7 @@ struct convertible_boolean
     bool value;
 };
 
-void check_expected_exception (const char * expected_text, const char * actual_text, const std::source_location &src);
+void check_expected_exception(const char *expected_text, const char *actual_text, const std::source_location &src);
 } // namespace detail
 
 /**
@@ -27,7 +27,6 @@ void check_expected_exception (const char * expected_text, const char * actual_t
  */
 void check(detail::convertible_boolean cond, const char *msg = "Failed check",
            const std::source_location &src = std::source_location::current());
-
 
 /**
     Checks that specific exception text is thrown.

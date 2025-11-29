@@ -32,5 +32,5 @@ struct fraction
     constexpr bool operator==(const fraction &) const = default;
 };
 
-std::ostream & operator<<(std::ostream &os, fraction p);
+std::ostream &operator<<(std::ostream &os, fraction p);
 } // namespace cutty
