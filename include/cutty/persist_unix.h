@@ -5,7 +5,7 @@
 
 #include <mutex>
 
-namespace persist
+namespace cutty
 {
     typedef long long offset_t;
 

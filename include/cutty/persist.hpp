@@ -15,7 +15,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace persist
+namespace cutty
 {
 // Exception thrown when an invalid datafile is opened,
 // or the datafile is the wrong version.
@@ -285,9 +285,9 @@ template <class T> class map_data
   private:
     shared_memory &file;
 };
-} // namespace persist
+} // namespace cutty
 
-void *operator new(size_t size, persist::shared_memory &mem);
-void operator delete(void *p, persist::shared_memory &mem);
+void *operator new(size_t size, cutty::shared_memory &mem);
+void operator delete(void *p, cutty::shared_memory &mem);
 
 #endif

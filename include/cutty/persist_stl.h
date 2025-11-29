@@ -7,374 +7,266 @@
 #define _PERSIST_STL_H
 #include "persist.h"
 
-#include <vector>
-#include <string>
+#include <list>
 #include <map>
 #include <set>
-#include <list>
+#include <string>
+#include <vector>
 
-// Ideally, hash_maps would standardly implemented
-// Sadly, they are not
+namespace cutty::persist
+{
+template <class T> using list = std::list<T, persist::allocator<T>>;
 
-#ifdef _MSC_VER
-// This is a microsoft compiler
-#include <hash_map>
-#include <hash_set>
-#define microsoft_stl 1
-#else
-// Default to the sgi-based stl
-#include <ext/hash_map>
-#include <ext/hash_set>
-#define sgi_stl 1
-#endif
+template <class C, class Traits = std::char_traits<C>>
+using basic_string = std::basic_string<C, Traits, persist::allocator<C>>;
 
+using string = basic_string<char>;
+using wstring = basic_string<wchar_t>;
+} // namespace cutty::persist
 
 namespace persist
 {
-    template<class T>
-    class list : public std::list<T, persist::allocator<T> >
-    {
-    };
-    
-    template<class C, class Traits = std::char_traits<C> >
-    class basic_string : public std::basic_string<C, Traits, persist::allocator<C> >
-    {
-        void operator=(const std::basic_string<C> &s);
-    public:
-        basic_string() { }
-        basic_string(const C*c) : std::basic_string<C, Traits, persist::allocator<C> >(c) { }
+template <class T> using vector = std::vector<T, persist::allocator<T>>;
 
-        basic_string(const std::basic_string<C> &s)
-        {
-            assign(s.begin(), s.end());
-        }
+template <class T, class L = std::less<T>> using class set = std::set<T, L, persist::allocator<T>>;
 
-        basic_string &operator=(const C *s)
-        {
-            assign(s);
-            return *this;
-        }
-        // TODO: Other constructors
-    };
+template <class T, class L = std::less<T>> using multiset = std::multiset<T, L, persist::allocator<T>>;
 
-    typedef basic_string<char> string;
-    typedef basic_string<wchar_t> wstring;
-}
+template <class T, class V, class L = std::less<T>> using map = std::map<T, V, L, persist::allocator<std::pair<T, V>>>;
 
+template <class T, class V, class L = std::less<T>>
+using multimap = std::multimap<T, V, L, persist::allocator<std::pair<T, V>>>;
 
-namespace persist
+// owner
+// An owner is a pointer to a persistent object
+// It's like an auto_ptr, but less broken,
+// and works with persistent data and the STL
+template <class T, class A = persist::allocator<T>> class owner
 {
-    template<class T>
-    class vector : public std::vector<T, persist::allocator<T> >
-    {
-        // TODO: constructors
-    };
+    T *ptr;
 
-    template<class T, class L = std::less<T> >
-    class set : public std::set<T, L, persist::allocator<T> >
+  public:
+    owner() : ptr(0)
     {
-    };
-
-    template<class T, class L = std::less<T> >
-    class multiset : public std::multiset<T, L, persist::allocator<T> >
+    }
+    owner(T *p) : ptr(p)
     {
-    };
-
-    template<class T, class V, class L = std::less<T> >
-    class map : public std::map<T, V, L, persist::allocator<std::pair<T,V> > >
+    }
+    owner(const owner<T, A> &o)
     {
-    };
-
-    template<class T, class V, class L = std::less<T> >
-    class multimap : public std::multimap<T, V, L, persist::allocator<std::pair<T,V> > >
-    {
-    };
-
-#if microsoft_stl
-    template<class T, class H = std::hash_compare<T, std::less<T> > >
-    class hash_set : public stdext::hash_set<T, H, persist::allocator<T> >
-    {
-    };
-
-    template<class K, class V, class H = std::hash_compare<K, std::less<K> > >
-    class hash_map : public stdext::hash_map<K, V, H, persist::allocator<std::pair<K, V> > >
-    {
-    };
-
-    template<class T, class H = std::hash_compare<T, std::less<T> > >
-    class hash_multiset : public stdext::hash_multiset<T, H, persist::allocator<T> >
-    {
-    };
-
-    template<class K, class V, class H = std::hash_compare<K, std::less<K> > >
-    class hash_multimap : public stdext::hash_multimap<K, V, H, persist::allocator<std::pair<K, V> > >
-    {
-    };
-#elif sgi_stl
-    template< class K, class H = __gnu_cxx::hash<K>, class E = __gnu_cxx::equal_to<K> >
-    class hash_set : public __gnu_cxx::hash_set< K, H, E, persist::allocator<K> >
-    {
-    };
-
-    template<class K, class V, class H = __gnu_cxx::hash<K>, class E=__gnu_cxx::equal_to<K> > 
-    class hash_map : public __gnu_cxx::hash_map<K, V, H, E, persist::allocator<V> > 
-    {
-    };
-
-    template< class K, class H = __gnu_cxx::hash<K>, class E = __gnu_cxx::equal_to<K> >
-    class hash_multiset : public __gnu_cxx::hash_multiset< K, H, E, persist::allocator<K> >
-    {
-    };
-
-    template<class K, class V, class H = __gnu_cxx::hash<K>, class E=__gnu_cxx::equal_to<K> > 
-    class hash_multimap : public __gnu_cxx::hash_multimap<K, V, H, E, persist::allocator<V> > 
-    {
-    };
-#endif
-
-    // owner
-    // An owner is a pointer to a persistent object
-    // It's like an auto_ptr, but less broken, 
-    // and works with persistent data and the STL
-    template<class T, class A = persist::allocator<T> >
-    class owner
-    {
-        T *ptr;
-
-    public:
-        owner() : ptr(0) { }
-        owner(T *p) : ptr(p) { }
-        owner(const owner<T,A>& o)
+        if (this != &o) // Why copy to self?
         {
-            if(this != &o)  // Why copy to self?
-            {
-                // Wrest the pointer from o, even though it is const
-                ptr = o.ptr;
-                const_cast<owner<T,A>&>(o).ptr = 0;
-            }
+            // Wrest the pointer from o, even though it is const
+            ptr = o.ptr;
+            const_cast<owner<T, A> &>(o).ptr = 0;
         }
+    }
 
-        ~owner() { destroy(); }
-
-        owner<T,A> &operator=(T *p)
-        {
-            destroy();
-            ptr = p;
-            return *this;
-        }
-
-        void create()
-        {
-            destroy();
-            ptr = new T;
-        }
-
-        void create(const T &c)
-        {
-            destroy();
-            ptr = new T(c);
-        }
-
-        void destroy() 
-        { 
-            if(ptr)
-            {
-                A().destroy(ptr); 
-                A().deallocate(ptr, 1); 
-                ptr = 0;
-            }
-        }
-
-        owner<T,A> &operator=(const owner<T,A>&o)
-        {
-            if(this != &o)
-            {
-                // Wrest the pointer from o, even though it is const
-                ptr = o.ptr;
-                const_cast<owner<T,A>&>(o).ptr = 0;
-            }
-            return *this;
-        }
-
-        T *operator->() const { return ptr; }
-        T &operator*() { return *ptr; }
-        const T &operator*() const { return *ptr; }
-
-        // Returns the pointer
-        T *get() const { return ptr; }
-
-        // Returns the pointer, and releases it from the owner.
-        // The caller must destroy this pointer.
-        T *release() const { T *p = ptr; ptr=0; return p; }
-    };
-
-    // fixed_string is a fixed-length string
-    template<int N, class C=char>
-    class fixed_string
+    ~owner()
     {
-        unsigned char len;  // The actual length of the string
-        C str[N+1];
-    public:
-        typedef C *iterator;
-        typedef const C *const_iterator;
+        destroy();
+    }
 
-        fixed_string() { clear(); }
-        fixed_string(const_iterator d) { assign(d); }
+    owner<T, A> &operator=(T *p)
+    {
+        destroy();
+        ptr = p;
+        return *this;
+    }
 
-        template<int M>
-        fixed_string(const fixed_string<M,C> &b)
+    void create()
+    {
+        destroy();
+        ptr = new T;
+    }
+
+    void create(const T &c)
+    {
+        destroy();
+        ptr = new T(c);
+    }
+
+    void destroy()
+    {
+        if (ptr)
         {
-            assign(b.begin(), b.end());
+            A().destroy(ptr);
+            A().deallocate(ptr, 1);
+            ptr = 0;
         }
+    }
 
-        fixed_string<N,C> &operator=(const_iterator d)
+    owner<T, A> &operator=(const owner<T, A> &o)
+    {
+        if (this != &o)
         {
-            assign(d);
-            return *this;
+            // Wrest the pointer from o, even though it is const
+            ptr = o.ptr;
+            const_cast<owner<T, A> &>(o).ptr = 0;
         }
+        return *this;
+    }
 
-        template<int M>
-        fixed_string<N,C> &operator=(const fixed_string<M,C> &b)
-        {
-            assign(b.begin(), b.end());
-            return *this;
-        }
+    T *operator->() const
+    {
+        return ptr;
+    }
+    T &operator*()
+    {
+        return *ptr;
+    }
+    const T &operator*() const
+    {
+        return *ptr;
+    }
 
-        iterator begin() { return str; }
-        const_iterator begin() const { return str; }
+    // Returns the pointer
+    T *get() const
+    {
+        return ptr;
+    }
 
-        iterator end() { return str+len; }
-        const_iterator end() const { return str+len; }
+    // Returns the pointer, and releases it from the owner.
+    // The caller must destroy this pointer.
+    T *release() const
+    {
+        T *p = ptr;
+        ptr = 0;
+        return p;
+    }
+};
 
-        const_iterator c_str() const { return begin(); }
+// fixed_string is a fixed-length string
+template <int N, class C = char> class fixed_string
+{
+    unsigned char len; // The actual length of the string
+    C str[N + 1];
 
-        size_t size() const { return len; }
+  public:
+    typedef C *iterator;
+    typedef const C *const_iterator;
 
-        void clear() { len=0; str[len]=0; }
+    fixed_string()
+    {
+        clear();
+    }
+    fixed_string(const_iterator d)
+    {
+        assign(d);
+    }
 
-        void assign(const_iterator a)
-        {
-            for(len=0; len<N && *a; ++a, ++len)
-                str[len] = *a;
+    template <int M> fixed_string(const fixed_string<M, C> &b)
+    {
+        assign(b.begin(), b.end());
+    }
 
-            str[len]=0;  // Zero-terminate
-        }
+    fixed_string<N, C> &operator=(const_iterator d)
+    {
+        assign(d);
+        return *this;
+    }
 
-        void assign(const_iterator a, const_iterator b)
-        {
-            for(len=0; len<N && a!=b; ++a, ++len)
-                str[len] = *a;
+    template <int M> fixed_string<N, C> &operator=(const fixed_string<M, C> &b)
+    {
+        assign(b.begin(), b.end());
+        return *this;
+    }
 
-            str[len]=0; // Zero-terminate
-        }
+    iterator begin()
+    {
+        return str;
+    }
+    const_iterator begin() const
+    {
+        return str;
+    }
 
-        C &operator[](size_t n) { return str[n]; }
-        const C&operator[](size_t n) const { return str[n]; }
+    iterator end()
+    {
+        return str + len;
+    }
+    const_iterator end() const
+    {
+        return str + len;
+    }
 
-        template<int M>
-        bool operator==(const fixed_string<M,C> &b) const
-        {
-            if(size() != b.size()) return false;
+    const_iterator c_str() const
+    {
+        return begin();
+    }
 
-            for(unsigned p=0; p<size(); ++p)
-            {
-                if(str[p] != b[p]) return false;
-            }
-            return true;
-        }
+    size_t size() const
+    {
+        return len;
+    }
 
-        bool operator==(const_iterator b) const
-        {
-            for(unsigned p=0; p<=size(); ++p)
-            {
-                if(str[p] != b[p]) return false;
-            }
+    void clear()
+    {
+        len = 0;
+        str[len] = 0;
+    }
 
-            return true;
-        }
+    void assign(const_iterator a)
+    {
+        for (len = 0; len < N && *a; ++a, ++len)
+            str[len] = *a;
 
-        template<int M>
-        bool operator<(const fixed_string<M,C> &b) const
-        {
-            for(const C* pa = begin(), *pb = b.begin(); *pb; ++pa, ++pb)
-            {
-                if(*pa < *pb) return true;
-                else if(*pa > *pb) return false;
-            }       
+        str[len] = 0; // Zero-terminate
+    }
 
+    void assign(const_iterator a, const_iterator b)
+    {
+        for (len = 0; len < N && a != b; ++a, ++len)
+            str[len] = *a;
+
+        str[len] = 0; // Zero-terminate
+    }
+
+    C &operator[](size_t n)
+    {
+        return str[n];
+    }
+    const C &operator[](size_t n) const
+    {
+        return str[n];
+    }
+
+    template <int M> bool operator==(const fixed_string<M, C> &b) const
+    {
+        if (size() != b.size())
             return false;
+
+        for (unsigned p = 0; p < size(); ++p)
+        {
+            if (str[p] != b[p])
+                return false;
         }
-    };
- }
+        return true;
+    }
 
-#endif
-
-
-#if microsoft_stl
-namespace std
-{
-    template<class T>
-    class hash_compare<persist::basic_string<T>, std::less<persist::basic_string<T> > >
+    bool operator==(const_iterator b) const
     {
-    public:
-        static const size_t bucket_size = 4;
-        static const size_t min_buckets = 8;
-
-        typedef persist::basic_string<T> key_type;
-
-        size_t operator()(const key_type &s) const
+        for (unsigned p = 0; p <= size(); ++p)
         {
-            size_t h=0;
-            for(typename key_type::const_iterator x=s.begin(); x!=s.end(); ++x)
-                h = h*5 + *x;
-            return h;
+            if (str[p] != b[p])
+                return false;
         }
 
-        bool operator()(const key_type &s1, const key_type &s2)
-        {
-            return s1<s2;
-        }
-    };
+        return true;
+    }
 
-    template<int N, class C>
-    class hash_compare<persist::fixed_string<N,C>, std::less<persist::fixed_string<N,C> > >
+    template <int M> bool operator<(const fixed_string<M, C> &b) const
     {
-    public:
-        static const size_t bucket_size = 4;
-        static const size_t min_buckets = 8;
-
-        typedef persist::fixed_string<N,C> key_type;
-
-        size_t operator()(const key_type &s) const
+        for (const C *pa = begin(), *pb = b.begin(); *pb; ++pa, ++pb)
         {
-            size_t h=0;
-            for(typename key_type::const_iterator x=s.begin(); x!=s.end(); ++x)
-                h = h*5 + *x;
-            return h;
+            if (*pa < *pb)
+                return true;
+            else if (*pa > *pb)
+                return false;
         }
 
-        bool operator()(const key_type &s1, const key_type &s2)
-        {
-            return s1<s2;
-        }
-    };
-}
-
-#elif sgi_stl
-namespace __gnu_cxx
-{
-    template<class T>
-    class hash<persist::basic_string<T> >
-    {
-        typedef persist::basic_string<T> key_type;
-    public:
-        size_t operator()(const key_type &s) const
-        {
-            size_t h=0;
-            for(typename key_type::const_iterator x=s.begin(); x!=s.end(); ++x)
-                h = h*5 + *x;
-            return h;
-        }
-    };
-}
+        return false;
+    }
+};
+} // namespace persist
 #endif

@@ -9,7 +9,7 @@ using namespace std; // tmp
 #include <sys/mman.h>
 #include <fcntl.h>
 
-using namespace persist;
+namespace cy = cutty;
 
 
 // constructor::map_file
@@ -18,14 +18,14 @@ using namespace persist;
 // It first read the first part of the file, and the might need to remap the file to the 
 // location specified by the first invocation of the map.
 
-map_file::map_file(const char *filename, int applicationId, short majorVersion, short minorVersion,
+cy::map_file::map_file(const char *filename, int applicationId, short majorVersion, short minorVersion,
                    size_t length, size_t limit, int flags, size_t base)
 {
     map_address = 0;
     open(filename, applicationId, majorVersion, minorVersion, length, limit, flags, base);
 }
 
-void map_file::open(const char *filename,  int applicationId, short majorVersion, short minorVersion, size_t length, size_t limit, int flags, size_t base)
+void cy::map_file::open(const char *filename,  int applicationId, short majorVersion, short minorVersion, size_t length, size_t limit, int flags, size_t base)
 {
     close();
     
@@ -172,14 +172,13 @@ void map_file::open(const char *filename,  int applicationId, short majorVersion
 }
 
 
-
-map_file::~map_file()
+cy::map_file::~map_file()
 {
     close();
 }
 
 
-void map_file::close()
+void cy::map_file::close()
 {
     if(map_address)
     {
@@ -190,7 +189,7 @@ void map_file::close()
 }
 
 
-void shared_memory::unmap()
+void cy::shared_memory::unmap()
 {
     munmap((char*)this, current_size);
 }
@@ -198,7 +197,7 @@ void shared_memory::unmap()
 
 #define MREMAP 0    // 1 on Linux
 
-bool shared_memory::extend_to(void * new_top)
+bool cy::shared_memory::extend_to(void * new_top)
 {
     if(current_size == max_size) return false;
     
@@ -262,30 +261,30 @@ bool shared_memory::extend_to(void * new_top)
 }
 
 
-bool shared_memory::lock(int ms)
+bool cy::shared_memory::lock(int ms)
 {
     extra.user_mutex.lock();
     return true;
 }
 
 
-void shared_memory::unlock()
+void cy::shared_memory::unlock()
 {
     extra.user_mutex.unlock();
 }
 
-void shared_memory::lockMem()
+void cy::shared_memory::lockMem()
 {
     extra.mem_mutex.lock();
 }
 
 
-void shared_memory::unlockMem()
+void cy::shared_memory::unlockMem()
 {
     extra.mem_mutex.unlock();
 }
 
-map_file::map_file()
+cy::map_file::map_file()
 {
     map_address = nullptr;
 }

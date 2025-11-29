@@ -3,7 +3,7 @@
 
 // This file is only included in win32 targets
 
-namespace persist
+namespace cutty
 {
     typedef unsigned __int64 offset_t;
     typedef unsigned page_t;

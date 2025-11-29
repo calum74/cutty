@@ -7,7 +7,7 @@
 #include <cassert>
 #include <iostream>  // Debug only
 
-using namespace persist;
+namespace cy = cutty;
 
 // Whether to reuse freed memory (yes, you want to do this)
 #define RECYCLE 1 
@@ -23,7 +23,7 @@ using namespace persist;
 //
 // Allocates space for one object in the shared memory
 
-void *operator new(size_t size, persist::shared_memory &file)
+void *operator new(size_t size, cy::shared_memory &file)
 {
     void *p = file.malloc(size);
 
@@ -37,7 +37,7 @@ void *operator new(size_t size, persist::shared_memory &file)
 //
 // Matches operator new.  Not used.
 
-void operator delete(void *p, persist::shared_memory &file)
+void operator delete(void *p, cy::shared_memory &file)
 {
 }
 
@@ -80,7 +80,7 @@ inline int object_cell(size_t &req_size)
 // If possible, use a block in the free_space instead of growing the heap.
 // Mutexed, threadsafe - very important.
 
-void *shared_memory::malloc(size_t size)
+void *cy::shared_memory::malloc(size_t size)
 {
     if(size==0) return top;  // A valid address?  TODO
 
@@ -144,7 +144,7 @@ void *shared_memory::malloc(size_t size)
 // Free blocks are stored in a linked list, starting at the vector free_cell.
 // The minimum allocation size is 4 bytes to accomodate the pointer
 
-void shared_memory::free(void* block, size_t size)
+void cy::shared_memory::free(void* block, size_t size)
 {
     lockMem();
 
@@ -189,12 +189,12 @@ void shared_memory::free(void* block, size_t size)
 //
 // Returns a pointer to the first object in the heap.
 
-void *shared_memory::root()
+void *cy::shared_memory::root()
 {
     return this+1;
 }
 
-const void *shared_memory::root() const
+const void *cy::shared_memory::root() const
 {
     return this+1;
 }
@@ -205,43 +205,43 @@ const void *shared_memory::root() const
 // Returns true of the heap is empty - no objects have been allocated.
 // This tells us if we need to construct a root object.
 
-bool shared_memory::empty() const
+bool cy::shared_memory::empty() const
 {
     return root() == top;  // No objects allocated
 }
 
-shared_memory & map_file::data() const
+cy::shared_memory & cy::map_file::data() const
 {
     return *map_address;
 }
 
-void shared_memory::clear()
+void cy::shared_memory::clear()
 {
     top = (char*)root();
     for(int i=0; i<64; ++i)
         free_space[i] = nullptr;
 }
 
-size_t shared_memory::capacity() const
+size_t cy::shared_memory::capacity() const
 {
     return (end-top) + (max_size - current_size);
 }
 
-size_t shared_memory::size() const
+size_t cy::shared_memory::size() const
 {
     return top-(char*)root();
 }
 
-size_t shared_memory::limit() const
+size_t cy::shared_memory::limit() const
 {
     return max_size;
 }
 
-void shared_memory::limit(size_t size)
+void cy::shared_memory::limit(size_t size)
 {
     max_size = size;
 }
 
-InvalidVersion::InvalidVersion() : std::runtime_error("Version number mismatch")
+cy::InvalidVersion::InvalidVersion() : std::runtime_error("Version number mismatch")
 {
 }
