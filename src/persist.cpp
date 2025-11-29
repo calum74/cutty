@@ -1,8 +1,8 @@
 // Copyright (C) Calum Grant 2003
 // Copying permitted under the terms of the GNU Public Licence (GPL)
 
-#include "persist.h"
-#include "shared_data.h"
+#include <cutty/persist.hpp>
+#include "persist_shared_data.h"
 
 #include <cassert>
 #include <iostream>  // Debug only

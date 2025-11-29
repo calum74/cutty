@@ -27,7 +27,7 @@ cy::approx::value_type cy::approx::min() const
     return value - tolerance;
 }
 
-std::weak_ordering operator<=>(const cy::approx::value_type &lhs, const cy::approx &rhs)
+std::weak_ordering cy::operator<=>(const cy::approx::value_type &lhs, const cy::approx &rhs)
 {
     // Technically does not work with NaN
     return lhs < rhs.min()   ? std::weak_ordering::less

@@ -1,6 +1,6 @@
 
-#include "persist.h"
-#include "shared_data.h"
+#include <cutty/persist.hpp>
+#include "persist_shared_data.h"
 
 #include <iostream>  // tmp
 using namespace std; // tmp

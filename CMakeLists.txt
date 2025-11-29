@@ -55,10 +55,18 @@ endif()
 
 include_directories(include)
 
+if(WIN32)
+    set(PLATFORM_PERSIST_IMPL src/persist_win32.cpp)
+else()
+    set(PLATFORM_PERSIST_IMPL src/persist_unix.cpp)
+endif()
+
 add_library(cutty
     include/cutty/check.hpp
     src/check.cpp
     src/cutty.cpp
+    src/persist.cpp
+    ${PLATFORM_PERSIST_IMPL}
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
     src/dynamic/functions.cpp
