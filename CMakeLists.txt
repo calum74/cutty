@@ -66,6 +66,7 @@ add_library(cutty
 
 link_libraries(cutty)
 
+add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
 add_executable(satellite samples/satellite.cpp)
 add_executable(dynamic_functions test/dynamic/functions.cpp)
@@ -95,6 +96,7 @@ add_executable(sequence_writers samples/sequence/writers.cpp)
 add_executable(tag_test test/tags.cpp)
 add_executable(unit_test test/units.cpp)
 
+add_test(approx approx_sample)
 add_test(mixins mixins)
 add_test(satellite satellite)
 add_test(dynamic_bools dynamic_bools)
