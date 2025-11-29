@@ -4,7 +4,6 @@ Readme
 Look into calumgrant account
 
 # Sequence
-Update for ranges
 Model range concepts
 Deprecate filters etc.
 Maybe based on mixins
@@ -12,14 +11,15 @@ Rename pointer_sequence
 Maybe typedef to template<typename T> using sequence = const sequence_base<T>&
 Output sequence is a bit weird as it's not a sequence.
 In/out sequence?
-Implement in terms of mixins
 
 # Tags
+What about difference types
+- temperature
+- times and dates
+Multiple conversions
 Requirements and concepts
-Template deduction
 Addition
 Multiplication
-SI units (seperate file?)
 Complex numbers
 
 Implement!

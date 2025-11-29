@@ -9,10 +9,6 @@ namespace cutty
 {
 template <typename T, typename Tag> class tagged;
 
-template <typename... Tags> struct product_tag;
-
-template <typename Tag, fraction power> struct power_tag;
-
 template <typename T, typename Tag> void initialise(tagged<T, Tag> &v)
 {
     *v = T();
@@ -93,19 +89,45 @@ template <typename T, typename Tag> class tagged
     value_type value;
 };
 
-template <typename T, typename Tag> const char *tag_suffix(tagged<T, Tag>)
-{
-    return "";
-}
+template<typename T>
+const char * tag_suffix = "";
 
-template <typename T, typename Tag> const char *tag_prefix(tagged<T, Tag>)
+template<typename Tag>
+struct default_tag_traits
 {
-    return "";
+    using tag_type = Tag;
+    using common_type = Tag;
+
+    static void write_tag(std::ostream &os)
+    {
+        if (tag_suffix<tag_type>)
+        {
+            os << tag_suffix<tag_type>;
+        }
+    }
+};
+
+template<typename Tag>
+struct tag_traits : public default_tag_traits<Tag>
+{
+};
+
+template<typename Tag1, typename Tag2>
+concept common_tags = std::same_as<typename tag_traits<Tag1>::common_type, typename tag_traits<Tag2>::common_type>;
+
+template<typename T1, typename Tag1, typename T2, typename Tag2>
+void convert(const tagged<T1, Tag1>&from, tagged<T2, Tag2>&to) requires common_tags<Tag1, Tag2>
+{
+    tagged<T1, typename tag_traits<Tag1>::common_type> i;
+    convert(from, i);
+    convert(i, to);
 }
 
 template <typename T, typename Tag> std::ostream &operator<<(std::ostream &os, const tagged<T, Tag> &t)
 {
-    return os << tag_prefix(t) << *t << tag_suffix(t);
+    os << *t;
+    tag_traits<Tag>::write_tag(os);
+    return os;
 }
 
 template <typename Tag, typename T> tagged<T, Tag> tag(const T &v)
@@ -119,4 +141,110 @@ template <typename Tag, typename T, typename Tag2> tagged<T, Tag> tag(const tagg
 {
     return tagged<T, Tag>{*src};
 }
+
+/// A list of builtin tags
+namespace tags
+{
+struct unit;
+
+template <typename... Tags> struct product;
+
+template <typename... Tags> struct sum;
+
+template <typename Tag, fraction Power> struct power;
+
+template <fraction F> struct scalar;
+} // namespace tags
+
+namespace detail
+{
+template <typename Tag> struct simplify
+{
+    using type = Tag; // No simplification possible
+};
+
+template <typename Tag> struct simplify<tags::power<Tag, 0>> : simplify<tags::unit>
+{
+};
+
+template <typename Tag> struct simplify<tags::power<Tag, 1>> : simplify<Tag>
+{
+};
+
+template <typename Tag> struct simplify<tags::sum<Tag>> : simplify<Tag>
+{
+};
+
+template <typename Tag> struct simplify<tags::product<Tag>> : simplify<Tag>
+{
+};
+
+// template<typename Tag, typename...List>
+
+// Indicates that a value in one tag should be converted to another tag
+// possibly with a calculation.
+template <typename From, typename To> struct converts : public std::false_type
+{
+};
+
+// A tag can always be converted to itself
+template <typename Tag> struct converts<Tag, Tag> : public std::true_type
+{
+};
+
+// template<typename From, typename To>
+// struct converts<
+
+// !! requires no conversion
+template <typename Tag1, typename Tag2> struct add_tags
+{
+    using type = tags::sum<Tag1, Tag2>;
+};
+
+template<typename From, typename To>
+concept convertible = requires(const tagged<double, From>&from, tagged<double, To>&to)
+{
+    convert(from, to);
+};
+
+} // namespace detail
+
+template<typename T, typename Tag>
+tagged<T, Tag> operator*(const tagged<T, Tag> &x, const T&y)
+{
+    return tagged<T, Tag> {*x * y};
+}
+
+template<typename T1, typename T2, typename Tag>
+bool operator==(const tagged<T1, Tag> &x, const tagged<T2, Tag>&y)
+{
+    return *x == *y;
+}
+
+template<typename T1, typename Tag1, typename T2, typename Tag2>
+bool operator==(const tagged<T1, Tag1> &x, const tagged<T2, Tag2>&y)
+{
+    const tagged<T1, Tag1> y2 = y;
+    return *x == *y2;
+}
+
+template<typename T1, typename Tag1, typename T2, typename Tag2>
+tagged<T1, Tag1> operator+(const tagged<T1, Tag1> &x, const tagged<T2, Tag2>&y)
+{
+    const tagged<T1, Tag1> y2 = y;
+    return tagged<T1, Tag1> {*x + *y2};
+}
+
+template<typename T, typename Tag>
+auto operator<=>(const tagged<T, Tag> &x, const tagged<T, Tag>&y)
+{
+    return *x <=> *y;
+}
+
+template<typename T, typename Tag>
+tagged<T, Tag> operator*(const T &x, const tagged<T,Tag>&y)
+{
+    return tagged<T, Tag> {x * *y};
+}
+
 } // namespace cutty

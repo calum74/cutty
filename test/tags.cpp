@@ -1,13 +1,12 @@
+#include <cutty/approx.hpp>
 #include <cutty/check.hpp>
 #include <cutty/tags.hpp>
+#include <cutty/units.hpp>
 
 namespace cy = cutty;
 
 struct tag1;
 struct tag2;
-struct Celcius;
-struct Farenheit;
-using Centigrade = Celcius;
 
 namespace cutty
 {
@@ -20,12 +19,6 @@ template <typename T> void convert(const cy::tagged<T, tag2> &src, cy::tagged<T,
 {
     *dest = *src;
 }
-
-template<typename T>
-const char * tag_suffix(tagged<T, Celcius>) { return "'C"; }
-
-template<typename T>
-const char * tag_suffix(tagged<T, Farenheit>) { return "'F"; }
 
 } // namespace cutty
 
@@ -40,10 +33,10 @@ int main()
     y = x; // x = y;
     x = x;
     x = y;
-    y = cy::tag<tag2> (1.0);
+    y = cy::tag<tag2>(1.0);
 
-    auto d = cy::tag<Farenheit>(12);
-    std::cout << cy::tag<Farenheit>(12) << std::endl;
+    auto d = cy::tag<cy::Farenheit>(12);
+    std::cout << cy::tag<cy::Farenheit>(12) << std::endl;
 
     {
         auto x = cy::unit<tag1>;
@@ -51,4 +44,29 @@ int main()
         // Get could just be an accessor?
         // Idea: auto& y = x / cy::units<tag1>;
     }
+
+    // Conversions
+    {
+        auto x = cy::tag<cy::Farenheit>(80.0);
+        cy::tagged<double, cy::Celcius> y = x;
+        cy::check(*y == cy::approx(26.67, 0.1));
+        std::cout << x << std::endl;
+        std::cout << y << std::endl;
+    }
+
+    // Multiplications with a scalar
+    {
+        // Technically, multiplying a temperature by a scalar is nonsense,
+        // but it has an interpretation so no need to be pedantic about it
+        cy::check(cy::tag<cy::Farenheit>(3.0) == cy::tag<cy::Farenheit>(1.0) * 3.0);
+
+        // TODO: Division
+    }
+
+    // Addition of the same tag type
+    {
+        cy::check(cy::tag<cy::Farenheit>(3) == cy::tag<cy::Farenheit>(1) + cy::tag<cy::Farenheit>(2));
+    }
+
+    // Comparisons    
 }

@@ -58,6 +58,7 @@ include_directories(include)
 add_library(cutty
     include/cutty/check.hpp
     src/check.cpp
+    src/cutty.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
     src/dynamic/functions.cpp
