@@ -22,7 +22,8 @@ class shared_memory
         Private = 4,    /// Changes are discarded
         exclusive = 8,  /// Ensure not open by anyone else
         fixed=16,       /// Fail if the specified address cannot be used
-        trunc=32        /// Delete any existing file
+        trunc=32,       /// Delete any existing file
+        temp=64         /// Create a temporary object
     };
 
     /** Creates an empty shared_memory */

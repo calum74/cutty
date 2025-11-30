@@ -43,18 +43,24 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
     if (flags & exclusive)
         fd_flags |= O_EXCL;
 
-    int fd = open(filename, fd_flags, 0600); // ?? Permissions
+    int fd = -1;
+    size_type mapped_size = initial_size;
 
-    if (fd < 0)
+    if(!(flags & temp))
     {
-        ec = {errno, std::generic_category()};
-        // std::cout << "Failed to open file! " << ec.message() << std::endl;
-        return;
-    }
+        fd = open(filename, fd_flags, 0600); // ?? Permissions
 
-    struct stat st;
-    fstat(fd, &st);
-    size_type mapped_size = st.st_size;
+        if (fd < 0)
+        {
+            ec = {errno, std::generic_category()};
+            // std::cout << "Failed to open file! " << ec.message() << std::endl;
+            return;
+        }
+
+        struct stat st;
+        fstat(fd, &st);
+        mapped_size = st.st_size;
+    }
 
     if (mapped_size < initial_size)
     {
@@ -70,6 +76,7 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
 
     int prot_flags = flags & readonly ? PROT_READ : PROT_READ | PROT_WRITE;
     int map_flags = MAP_SHARED;
+    if(flags & temp) map_flags |= MAP_ANON;
     auto data = mmap(hint, mapped_size, prot_flags, map_flags, fd, 0);
 
     if (data == MAP_FAILED)
@@ -104,7 +111,9 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
         // Need to remap
         // !! TODO: Need to respect the map flags here
         munmap(m_data, m_size);
-        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, MAP_SHARED, m_fd, 0);
+        int map_flags = MAP_SHARED;
+        if(m_fd<0) map_flags |= MAP_ANON;
+        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, map_flags, m_fd, 0);
 
         if (data == MAP_FAILED)
         {
@@ -137,24 +146,25 @@ void cy::shared_memory::reserve(std::error_code &ec, size_type new_min)
     remap(ec, mapped_size);
 }
 
-void cy::shared_memory::resize(std::error_code &ec, size_type new_min)
+void cy::shared_memory::resize(std::error_code &ec, size_type new_size)
 {
-    struct stat st;
-    fstat(m_fd, &st);
-    size_type mapped_size = st.st_size;
-
-    if (mapped_size != new_min)
+    if(m_fd>=0)
     {
-        // Need to extend the file
-        if (ftruncate(m_fd, new_min))
+        struct stat st;
+        fstat(m_fd, &st);
+
+        if (st.st_size != new_size)
         {
-            // resize failed
-            ec = {errno, std::generic_category()};
-            return;
+            // Need to extend the file
+            if (ftruncate(m_fd, new_size))
+            {
+                // resize failed
+                ec = {errno, std::generic_category()};
+                return;
+            }
         }
-        mapped_size = new_min;
     }
-    remap(ec, mapped_size);
+    remap(ec, new_size);
 }
 
 void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
@@ -163,8 +173,12 @@ void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
     {
         // !! TODO: Need to respect the map flags here
         // ?? Should we use MAP_FIXED here and fail
+
+        // !! This really needs a remap as it will just lose all existing data
         munmap(m_data, m_size);
-        auto data = mmap(new_address, m_size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_FIXED, m_fd, 0);
+        int map_flags = MAP_SHARED | MAP_FIXED; 
+        if(m_fd<0) map_flags |= MAP_ANON;
+        auto data = mmap(new_address, m_size, PROT_READ | PROT_WRITE, map_flags, m_fd, 0);
 
         if (data == MAP_FAILED)
         {
