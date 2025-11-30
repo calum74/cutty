@@ -22,7 +22,7 @@ namespace cy = cutty;
 //
 // Allocates space for one object in the shared memory
 
-void *operator new(size_t size, cy::detail::shared_record &file)
+void *operator new(size_t size, cy::map_file &file)
 {
     void *p = file.malloc(size);
 
@@ -36,7 +36,7 @@ void *operator new(size_t size, cy::detail::shared_record &file)
 //
 // Matches operator new.  Not used.
 
-void operator delete(void *p, cy::detail::shared_record &file)
+void operator delete(void *p, cy::map_file &file)
 {
 }
 
@@ -79,21 +79,22 @@ inline int object_cell(size_t &req_size)
 // If possible, use a block in the free_space instead of growing the heap.
 // Mutexed, threadsafe - very important.
 
-void *cy::detail::shared_record::malloc(size_t size)
+void *cy::map_file::malloc(size_t size)
 {
-    if(size==0) return top;  // A valid address?  TODO
+    auto &d = data();
+    if(size==0) return d.top;  // A valid address?  TODO
 
-    lockMem();
+    d.lockMem();
     
     int free_cell = object_cell(size);
 
 #if RECYCLE   
-    if(free_space[free_cell])
+    if(d.free_space[free_cell])
     {
         // We have a free cell of the desired size
 
-        void *block = free_space[free_cell];
-        free_space[free_cell] = *(void**)block;
+        void *block = d.free_space[free_cell];
+        d.free_space[free_cell] = *(void**)block;
 
 #if CHECK_MEM
         ((int*)block)[-1] = size;
@@ -103,7 +104,7 @@ void *cy::detail::shared_record::malloc(size_t size)
         std::cout << " +" << block << "(" << size << ")";
 #endif
 
-        unlockMem();
+        d.unlockMem();
         return block;
     }
 #endif
@@ -113,26 +114,26 @@ void *cy::detail::shared_record::malloc(size_t size)
     map_address->top += sizeof(int);
 #endif
 
-    void *t = top;
+    void *t = d.top;
         
-    auto new_top = top + size;
+    auto new_top = d.top + size;
 
-    if(new_top > end)
+    if(new_top > d.end)
     {
-        if(max_size <= current_size || !extend_to(new_top))
+        if(d.max_size <= d.current_size || !extend_to(new_top))
         {
-            unlockMem();
+            d.unlockMem();
             return nullptr;
         }
     }
 
-    top = new_top;
+    d.top = new_top;
 
 #if TRACE_ALLOCS
     std::cout << " +" << t << "(" << size << ")";
 #endif
 
-    unlockMem();
+    d.unlockMem();
     return t;
 }
 
@@ -207,11 +208,6 @@ const void *cy::detail::shared_record::root() const
 bool cy::detail::shared_record::empty() const
 {
     return root() == top;  // No objects allocated
-}
-
-cy::detail::shared_record & cy::map_file::data() const
-{
-    return *map_address;
 }
 
 void cy::detail::shared_record::clear()

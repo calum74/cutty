@@ -48,36 +48,13 @@ class shared_record
     void *root();             // The root object
     const void *root() const; // The root object
 
-    void *malloc(size_t);
     void free(void *, size_t);
-
     void clear();
 
     size_type capacity() const;
     size_type size() const;
     size_type limit() const;
     void limit(size_type);
-
-    void *fast_malloc(size_t size)
-    {
-        auto r = size & 7;
-        if (r)
-            size += (8 - r);
-        assert((size & 7) == 0);
-        auto result = top += size;
-        if (result > end)
-        {
-            lockMem();
-            bool failed = !extend_to(result);
-            if (failed)
-                top -= size;
-            unlockMem();
-            if (failed)
-                return nullptr;
-        }
-        // top is a std::atmoic, so we need to do it like this:
-        return result - size;
-    }
 
   private:
     friend map_file;
@@ -103,7 +80,6 @@ class shared_record
 
     shared_base extra;
 
-    bool extend_to(void *newTop);
     void unmap();
     void lockMem();
     void unlockMem();
@@ -147,16 +123,44 @@ class map_file
         return map_address != 0;
     }
 
-    detail::shared_record &data() const;
+    bool empty() const { return data().empty(); }
+    void * root() const { return data().root(); }
+    void * malloc(size_t x);
+    size_t capacity() const { return data().capacity(); }
+    void free(void*p, size_t s) { data().free(p, s); }
+    void clear() { data().clear(); }
+
+    void *fast_malloc(size_t size)
+    {
+        auto &d = data();
+        auto r = size & 7;
+        if (r)
+            size += (8 - r);
+        assert((size & 7) == 0);
+        auto result = d.top += size;
+        if (result > d.end)
+        {
+            d.lockMem();
+            bool failed = !extend_to(result);
+            if (failed)
+                d.top -= size;
+            d.unlockMem();
+            if (failed)
+                return nullptr;
+        }
+        // top is a std::atmoic, so we need to do it like this:
+        return result - size;
+    }
+
+    bool extend_to(void * new_top);
+
+    detail::shared_record &data() const { return *map_address; }
 };
 
 template <class T> class fast_allocator : public std::allocator<T>
 {
   public:
-    fast_allocator(map_file &map) : map(map.data())
-    {
-    }
-    fast_allocator(detail::shared_record &mem) : map(mem)
+    fast_allocator(map_file &map) : map(map)
     {
     }
 
@@ -196,16 +200,13 @@ template <class T> class fast_allocator : public std::allocator<T>
         typedef fast_allocator<Other> other;
     };
 
-    detail::shared_record &map;
+    map_file &map;
 };
 
 template <class T> class allocator : public std::allocator<T>
 {
   public:
-    allocator(map_file &map) : map(map.data())
-    {
-    }
-    allocator(detail::shared_record &mem) : map(mem)
+    allocator(map_file &map) : map(map)
     {
     }
 
@@ -246,7 +247,7 @@ template <class T> class allocator : public std::allocator<T>
         typedef allocator<Other> other;
     };
 
-    detail::shared_record &map;
+    map_file &map;
 };
 
 template <class T> class map_data
@@ -254,7 +255,7 @@ template <class T> class map_data
   public:
     typedef T value_type;
 
-    template <typename... ConstructorArgs> map_data(detail::shared_record &mem, ConstructorArgs &&...init) : file(mem)
+    template <typename... ConstructorArgs> map_data(map_file &mem, ConstructorArgs &&...init) : file(mem)
     {
         if (mem.empty())
         {
@@ -262,7 +263,7 @@ template <class T> class map_data
         }
     }
 
-    map_data(detail::shared_record &mem) : file(mem)
+    map_data(map_file &mem) : file(mem)
     {
         if (this->file.empty())
         {
@@ -291,11 +292,11 @@ template <class T> class map_data
     }
 
   private:
-    detail::shared_record &file;
+    map_file &file;
 };
 } // namespace cutty
 
-void *operator new(size_t size, cutty::detail::shared_record &mem);
-void operator delete(void *p, cutty::detail::shared_record &mem);
+void *operator new(size_t size, cutty::map_file &mem);
+void operator delete(void *p, cutty::map_file &mem);
 
 #endif

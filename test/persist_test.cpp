@@ -64,7 +64,7 @@ class TestPersist
         std::shared_ptr<int> intptr;
         std::vector<pstring, cy::allocator<pstring>> vec;
 
-        Demo(cy::detail::shared_record &mem) : string1(mem), string2(mem), vec(cy::allocator<pstring>(mem))
+        Demo(cy::map_file &mem) : string1(mem), string2(mem), vec(cy::allocator<pstring>(mem))
         {
             intptr = std::allocate_shared<int, cy::fast_allocator<int>>(mem, 123);
         }
@@ -79,22 +79,22 @@ class TestPersist
     {
         {
             cy::map_file file("file.db", 0, 0, 0, 16384, 16384, cy::create_new);
-            TestHeapLimit(file.data(), 16384);
+            TestHeapLimit(file, 16384);
         }
 
         {
             cy::map_file file("file.db", 0, 0, 0, 16384, 65536, cy::create_new);
-            TestHeapLimit(file.data(), 65536);
+            TestHeapLimit(file, 65536);
         }
 
         {
             cy::map_file file(nullptr, 0, 0, 0, 16384, 16384, cy::temp_heap);
-            TestHeapLimit(file.data(), 16384);
+            TestHeapLimit(file, 16384);
         }
 
         {
             cy::map_file file(nullptr, 0, 0, 0, 16384, 65536, cy::temp_heap);
-            TestHeapLimit(file.data(), 65536);
+            TestHeapLimit(file, 65536);
         }
     }
 
@@ -108,7 +108,7 @@ class TestPersist
             cy::check((char)i == c[i]);
     }
 
-    void TestHeapLimit(cy::detail::shared_record &mem, size_t expected_limit)
+    void TestHeapLimit(cy::map_file &mem, size_t expected_limit)
     {
         auto initial_capacity = mem.capacity();
 
@@ -146,13 +146,13 @@ class TestPersist
             cy::map_file file(nullptr, 0, 0, 0, 16384, 16384, cy::temp_heap);
             cy::check(file);
 
-            cy::map_data<Demo> data{file.data(), file.data()};
+            cy::map_data<Demo> data{file, file};
             data->value = 10;
 
             bool failed = false;
             for (int i = 0; i < 100; ++i)
             {
-                auto p = file.data().malloc(1000);
+                auto p = file.malloc(1000);
                 if (p)
                     ValidateMemory(p, 1000);
                 else
@@ -164,7 +164,7 @@ class TestPersist
         {
             cy::map_file file("file.db", 0, 0, 0, 16384, 10000, cy::create_new);
             cy::check(file);
-            cy::map_data<Demo> data{file.data(), file.data()};
+            cy::map_data<Demo> data{file, file};
             cy::check(0 == data->value);
             data->value = 10;
         }
@@ -172,7 +172,7 @@ class TestPersist
         {
             cy::map_file file("file.db", 0, 0, 0, 16384, 10000);
             cy::check(file);
-            cy::map_data<Demo> data{file.data(), file.data()};
+            cy::map_data<Demo> data{file, file};
             cy::check(10 == data->value);
         }
     }
@@ -182,7 +182,7 @@ class TestPersist
         cy::map_file file(nullptr, 0, 0, 0, 16384, 1000000, cy::temp_heap);
         cy::check(file);
 
-        cy::map_data<Demo> data{file.data(), file.data()};
+        cy::map_data<Demo> data{file, file};
     }
 } tp;
 

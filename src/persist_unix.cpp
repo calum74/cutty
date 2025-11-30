@@ -196,32 +196,34 @@ void cy::detail::shared_record::unmap()
 
 #define MREMAP 0    // 1 on Linux
 
-bool cy::detail::shared_record::extend_to(void * new_top)
+bool cy::map_file::extend_to(void * new_top)
 {
-    if(current_size == max_size) return false;
+    auto &d = data();
+
+    if(d.current_size == d.max_size) return false;
     
     // assert(map_address == base_address);
-    size_t old_length = current_size;
+    size_t old_length = d.current_size;
     size_t new_length = old_length + (old_length>>1);
-    size_t min_length = (char*)new_top - (char*)this;
+    size_t min_length = (char*)new_top - (char*)&d;
     
     
-    while(new_length < max_size && new_length < min_length)
+    while(new_length < d.max_size && new_length < min_length)
         new_length += (new_length>>1);
 
-    if(new_length > max_size)
-        new_length = max_size;
+    if(new_length > d.max_size)
+        new_length = d.max_size;
 
     if(new_length < min_length) return false;
 
     
     // extend the file a bit
     // fd==-1 when we use an anomymous/temporary mapping.
-    if(this->extra.fd_deleteme != -1)
+    if(d.extra.fd_deleteme != -1)
     {
         char c=0;
-        lseek(this->extra.fd_deleteme, new_length-1, SEEK_SET);
-        write(this->extra.fd_deleteme, &c, 1);
+        lseek(d.extra.fd_deleteme, new_length-1, SEEK_SET);
+        write(d.extra.fd_deleteme, &c, 1);
     }
 #if MREMAP
     void *new_address = mremap((char*)map_address, old_length, new_length, 0);  // Do NOT relocate it
@@ -233,26 +235,26 @@ bool cy::detail::shared_record::extend_to(void * new_top)
     }
 #else
 
-    int mapFlags = this->extra.mapFlags;
-    int fd = this->extra.fd_deleteme;
+    int mapFlags = d.extra.mapFlags;
+    int fd = d.extra.fd_deleteme;
     
-    munmap((char*)this, old_length);
+    munmap((char*)&d, old_length);
 
-    char *m = (char*)mmap((char*)this, new_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
+    char *m = (char*)mmap((char*)&d, new_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
 
     if(m == MAP_FAILED)
     {
         // Go back to the original map then
-        char *m = (char*)mmap((char*)this, old_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
+        char *m = (char*)mmap((char*)&d, old_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
         assert(m != MAP_FAILED);
-        assert(m == (char*)this);
+        assert(m == (char*)&d);
         return false;
     }
     else
     {
-        assert(m == (char*)this);
-        current_size = new_length;
-        end = (char*)this + new_length;
+        assert(m == (char*)&d);
+        d.current_size = new_length;
+        d.end = (char*)&d + new_length;
         return true;
     }
 

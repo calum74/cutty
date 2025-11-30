@@ -58,11 +58,7 @@ Persist
 Satellite article
 
 # Persist
-Need a better abstraction for shared memory.
-
-```
-shared_memory x(filename, flags, size=all, map_address_hint=all);
-x.data()
-x.size();
-
-```
+- shared_memory working on Windows
+- Test also on Linux
+- Rewrite persist so that the pointer is to map_file and not shared_record
+- Can be inline
