@@ -56,3 +56,13 @@ Persist
 
 # Documentation
 Satellite article
+
+# Persist
+Need a better abstraction for shared memory.
+
+```
+shared_memory x(filename, flags, size=all, map_address_hint=all);
+x.data()
+x.size();
+
+```
