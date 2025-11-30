@@ -55,18 +55,11 @@ endif()
 
 include_directories(include)
 
-if(WIN32)
-    set(PLATFORM_PERSIST_IMPL src/persist.cpp)
-else()
-    set(PLATFORM_PERSIST_IMPL src/persist_unix.cpp)
-endif()
-
 add_library(cutty
     include/cutty/check.hpp
     src/check.cpp
     src/cutty.cpp
     src/persist.cpp
-    ${PLATFORM_PERSIST_IMPL}
     src/shared_memory.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
@@ -75,12 +68,6 @@ add_library(cutty
     src/dynamic/types.cpp)
 
 link_libraries(cutty)
-
-if(NOT WIN32)
-    add_executable(persist_test test/persist_test.cpp)
-    add_test(persist persist_test)
-endif()
-
 
 add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
@@ -95,6 +82,7 @@ add_executable(dynamic_maps samples/dynamic/maps.cpp)
 add_executable(dynamic_tutorial samples/dynamic/tutorial.cpp)
 add_executable(pretty_type test/pretty_type.cpp)
 add_executable(scope_hooks samples/scope_hooks.cpp)
+add_executable(persist_test test/persist_test.cpp)
 add_executable(property_test test/property.cpp)
 add_executable(property_sample samples/property.cpp)
 add_executable(sequence_test test/sequence/test_sequence.cpp)
@@ -123,6 +111,7 @@ add_test(dynamic_user_type dynamic_user_type)
 add_test(dynamic_hello dynamic_hello)
 add_test(dynamic_maps dynamic_maps)
 add_test(dynamic_tutorial dynamic_tutorial)
+add_test(persist persist_test)
 add_test(pretty_type pretty_type)
 add_test(scope_hooks scope_hooks)
 add_test(property_test property_test)

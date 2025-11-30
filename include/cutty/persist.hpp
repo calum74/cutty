@@ -1,14 +1,7 @@
 // Copyright (C) Calum Grant 2003-2021
 // Copying permitted under the terms of the GNU Public Licence (GPL)
 
-#ifndef PERSIST_H
-#define PERSIST_H
-
-#ifdef _WIN32
-#include "persist_win32.h"
-#else
-#include "persist_unix.h"
-#endif
+#pragma once
 
 #include "shared_memory.hpp"
 
@@ -329,5 +322,3 @@ template <class T> class map_data
 
 void *operator new(size_t size, cutty::map_file &mem);
 void operator delete(void *p, cutty::map_file &mem);
-
-#endif
