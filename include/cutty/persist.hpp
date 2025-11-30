@@ -15,7 +15,9 @@
 #include <atomic>
 #include <cassert>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
+
 
 namespace cutty
 {
@@ -31,6 +33,14 @@ class map_file;
 
 namespace detail
 {
+const size_t default_map_address = 0x188000000000ll;
+
+class shared_base // unix version
+{
+  public:
+    std::mutex mem_mutex, user_mutex;
+};
+
 class shared_record
 {
   public:
@@ -84,7 +94,7 @@ class shared_record
     void lockMem();
     void unlockMem();
 };
-}
+} // namespace detail
 
 enum
 {
@@ -107,12 +117,12 @@ class map_file
     map_file();
 
     map_file(const char *filename, int applicationId, short majorVersion, short minorVersion, size_t length = 16384,
-             size_t limit = 1000000, int flags = 0, size_t base = default_map_address);
+             size_t limit = 1000000, int flags = 0, size_t base = detail::default_map_address);
 
     ~map_file();
 
     void open(const char *filename, int applicationId, short majorVersion, short minorVersion, size_t length = 16384,
-              size_t limit = 1000000, int flags = 0, size_t base = default_map_address);
+              size_t limit = 1000000, int flags = 0, size_t base = detail::default_map_address);
 
     void close();
 
@@ -122,12 +132,27 @@ class map_file
         return !!memory;
     }
 
-    bool empty() const { return data().empty(); }
-    void * root() { return data().root(); }
-    void * malloc(size_t x);
-    size_t capacity() const { return data().capacity(); }
-    void free(void*p, size_t s) { data().free(p, s); }
-    void clear() { data().clear(); }
+    bool empty() const
+    {
+        return data().empty();
+    }
+    void *root()
+    {
+        return data().root();
+    }
+    void *malloc(size_t x);
+    size_t capacity() const
+    {
+        return data().capacity();
+    }
+    void free(void *p, size_t s)
+    {
+        data().free(p, s);
+    }
+    void clear()
+    {
+        data().clear();
+    }
 
     void *fast_malloc(size_t size)
     {
@@ -151,10 +176,16 @@ class map_file
         return result - size;
     }
 
-    bool extend_to(void * new_top);
+    bool extend_to(void *new_top);
 
-    detail::shared_record &data() { return *(detail::shared_record*)memory.data(); }
-    const detail::shared_record &data() const { return *(const detail::shared_record*)memory.data(); }
+    detail::shared_record &data()
+    {
+        return *(detail::shared_record *)memory.data();
+    }
+    const detail::shared_record &data() const
+    {
+        return *(const detail::shared_record *)memory.data();
+    }
 };
 
 template <class T> class fast_allocator : public std::allocator<T>
