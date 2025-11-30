@@ -2,12 +2,11 @@
 
 #include <cutty/check.hpp>
 
-#include <filesystem>
 #include <cstring>
+#include <filesystem>
 #include <iostream>
 
-
-namespace cy=cutty;
+namespace cy = cutty;
 
 struct Tmpfile
 {
@@ -24,6 +23,20 @@ struct Tmpfile
     }
 };
 
+void fill(cy::shared_memory &sm)
+{
+    std::fill((char *)sm.data(), (char *)sm.data() + sm.size(), 100);
+}
+
+void check(const cy::shared_memory &sm)
+{
+    const char *str = (const char *)sm.data();
+    for (auto i = 0; i < sm.size(); ++i)
+    {
+        cy::check(str[1] == 100);
+    }
+}
+
 int main()
 {
     {
@@ -38,15 +51,52 @@ int main()
             cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
             cy::check(m);
             cy::check(m.size() == 1024);
-            strcpy((char*)m.data(), "Hello");
+            fill(m);
         }
 
         {
-            cy::shared_memory m(tmp.path.c_str(), ec, 0, 1024);
+            cy::shared_memory m(tmp.path.c_str(), ec);
+            if (!m)
+            {
+                std::cout << ec.message() << std::endl;
+            }
             cy::check(m);
             cy::check(m.size() == 1024);
-            cy::check(strcmp((const char*)m.data(), "Hello") == 0);
+            check(m);
         }
 
+        {
+            // Moving test
+            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+        }
+
+        {
+            // Extend to 5000
+            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::check(m);
+            auto old_address = m.data();
+            m.resize(ec, 5000);
+            cy::check(m);
+            cy::check(old_address == m.data()); // Should not have moved
+            cy::check(m.size() == 5000);
+            fill(m);
+        }
+
+        {
+            // Check the file now contains 5000
+            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::check(m);
+            cy::check(m.size() == 5000);
+            check(m);
+            m.resize(ec, 1000);
+            cy::check(m.size() == 1000);
+            check(m);
+
+            auto new_address = (char *)m.data() + 16384;
+            m.reopen_at(ec, new_address);
+            cy::check(m);
+            cy::check(m.data() == new_address);
+            check(m);
+        }
     }
 }
