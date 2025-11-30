@@ -19,7 +19,7 @@ namespace cutty
         void *hMemoryMutex;
         void *hEvent;
 
-        const char *sharename;
+        // const char *sharename;
         int mapFlags;
     };
 }

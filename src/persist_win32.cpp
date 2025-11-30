@@ -5,14 +5,13 @@
 
 #include <windows.h>
 
-#include "persist.h"
-#include "shared_data.h"
+#include <cutty/persist.hpp>
+#include "persist_shared_data.h"
 
 #include <cassert>
 #include <iostream>
 
-using namespace std;
-using namespace persist;
+namespace cy = cutty;
 
 unsigned maxMapSizeHi = 0;
 unsigned maxMapSizeLo = 0x40000000;
@@ -25,13 +24,14 @@ unsigned maxMapSizeLo = 0x40000000;
 // We first map the start of the file, and read the previous map parameters
 // if they differ, we remap the memory to the previous location and size.
 
-map_file::map_file(const char *filename, size_t length, int f, size_t base)
+cy::map_file::map_file(const char *filename, int applicationId, short majorVersion, short minorVersion, size_t length,
+                       size_t limit, int flags, size_t base)
 {
     map_address = 0;
-    hFile = INVALID_HANDLE_VALUE;
+    // hFile = INVALID_HANDLE_VALUE;
 
-    open(filename, length, f, base);
-
+    open(filename, applicationId, majorVersion, minorVersion, length, limit, flags, base);
+    // open(filename, length, f, base);
 }
 
 
@@ -39,31 +39,35 @@ map_file::map_file(const char *filename, size_t length, int f, size_t base)
 //
 // Unmaps the memory and closes all the handles we have previously created.
 
-map_file::~map_file()
+cy::map_file::~map_file()
 {
     close();
-    global = 0;
+    // global = 0;
 }
 
 
-void map_file::open(const char *filename, size_t length, int f, size_t base)
+void cy::map_file::open(const char *filename, int applicationId, short majorVersion, short minorVersion, size_t length,
+                        size_t limit, int flags, size_t base)
 {
     close();
 
-    base_address = (void*)base;
-    sharename = 0;  // Unused currently - todo get rid of this
-    flags = f;
+    auto base_address = (void*)base;
+    // sharename = 0;  // Unused currently - todo get rid of this
+    // flags = f;
+
+    int mapFlags;
 
     if(flags & read_only) mapFlags = PAGE_READONLY;
     else if(flags & private_map) mapFlags = PAGE_WRITECOPY;
     else mapFlags = PAGE_READWRITE;
 
-    if(!sharename) sharename = filename;
+    // if(!sharename) sharename = filename;
 
     // VirtualAlloc(base_address, 0x80000000, MEM_RESERVE, 0);
     // Make sure nothing else uses this memory, so we can extend it at leisure
 
-    hMapFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, sharename);
+    HANDLE hMapFile = OpenFileMapping(FILE_MAP_ALL_ACCESS, FALSE, filename);
+    HANDLE hFile;
 
     // hMapFile = 0;
 
@@ -82,19 +86,19 @@ void map_file::open(const char *filename, size_t length, int f, size_t base)
         }
 
         // The file does not exist
-        hMapFile = CreateFileMapping(hFile, 0, mapFlags, 0, sizeof(shared_data), sharename);
+        hMapFile = CreateFileMapping(hFile, 0, mapFlags, 0, sizeof(shared_memory), filename);
     }
 
     if(hMapFile)
     {
-        map_address = (shared_data*)MapViewOfFileEx(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(shared_data), base_address);
+        map_address = (shared_memory*)MapViewOfFileEx(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(shared_memory), base_address);
 
         if(map_address)
         {
-            shared_data *previous_address = map_address->address;
-            size_t previous_length = map_address->length;
+            shared_memory *previous_address = map_address->address;
+            size_t previous_length = map_address->current_size;
     
-            unmap();
+            // unmap();
 
             // Remap the entire file
 
@@ -104,7 +108,7 @@ void map_file::open(const char *filename, size_t length, int f, size_t base)
                 base_address = previous_address;
             }
 
-            map(length);
+            // map(length);
         }
     }
     else 
@@ -128,11 +132,11 @@ void map_file::open(const char *filename, size_t length, int f, size_t base)
         else
         {
             map_address->address = map_address;
-            map_address->length = length;
+            map_address->current_size = length;
             map_address->end = (char*)map_address + length;
             map_address->top = (char*)(map_address+1);  // Parentheses important
-            map_address->root = map_address->top;
-            map_address->auto_grow = flags&auto_grow;
+            // map_address->root = map_address->top;
+            // map_address->auto_grow = flags&auto_grow;
         }
     }
     else
@@ -141,17 +145,17 @@ void map_file::open(const char *filename, size_t length, int f, size_t base)
     if(map_address)
     {
         // Initialize the shared mutex
-        hUserMutex = CreateMutex(0, 0, "My shared mutex");      // TODO - a sensible name
-        hMemoryMutex = CreateMutex(0, 0, "My memory mutex");    // TODO - a sensible name
-        hEvent = CreateEvent(0, 1, 0, "My shared event");
+        map_address->extra.hUserMutex = CreateMutex(0, 0, "My shared mutex");  // TODO - a sensible name
+        map_address->extra.hMemoryMutex = CreateMutex(0, 0, "My memory mutex"); // TODO - a sensible name
+        map_address->extra.hEvent = CreateEvent(0, 1, 0, "My shared event");
     }
 
-    global = this;
+    // global = this;
 
 }
 
 
-void map_file::close()
+void cy::map_file::close()
 {
     unmap();
 
@@ -165,7 +169,7 @@ void map_file::close()
 //
 // This removes all evidence of the map from the operating system
 
-void map_file::unmap()
+void cy::map_file::unmap()
 {
     if(map_address)
     {
@@ -180,7 +184,7 @@ void map_file::unmap()
 //
 // Creates a map using the size @new_size.  The map must be created at base_address.
 
-void map_file::map(size_t new_size)
+void cy::map_file::map(size_t new_size)
 {
     assert(!map_address);
 
@@ -209,7 +213,7 @@ void map_file::map(size_t new_size)
 // Extends the mapping by @extra bytes
 // This involves closing the map, then recreating it with the new size.
 
-void map_file::extend_mapping(size_t extra)
+void cy::map_file::extend_mapping(size_t extra)
 {
     void *old_address = map_address;
     size_t old_length = map_address->length;
@@ -247,7 +251,7 @@ void map_file::extend_mapping(size_t extra)
 // If it has, we must increase our size before doing anything else
 
 
-void map_file::remap()
+void cy::map_file::remap()
 {
     if(mapped_size < map_address->length)
     {
@@ -262,7 +266,7 @@ void map_file::remap()
 //
 // Locks the user mutex.  Returns true if mutex obtained
 
-bool map_file::lock(int ms)
+bool cy::map_file::lock(int ms)
 {
    remap();  // Make sure we haven't grown
 
@@ -278,7 +282,7 @@ bool map_file::lock(int ms)
 //
 // Unlocks the user mutex.
 
-void map_file::unlock()
+void cy::map_file::unlock()
 {
     ReleaseMutex(hUserMutex);
 }
@@ -288,7 +292,7 @@ void map_file::unlock()
 //
 // Locks the internal mutex used by the memory allocator
 
-void map_file::lockMem()
+void cy::map_file::lockMem()
 {
    remap();  // Make sure we haven't grown
 
@@ -300,7 +304,7 @@ void map_file::lockMem()
 //
 // Unlocks the internal mutex used by the memory allocator
 
-void map_file::unlockMem()
+void cy::map_file::unlockMem()
 {
     ReleaseMutex(hMemoryMutex);
 }
@@ -310,7 +314,7 @@ void map_file::unlockMem()
 //
 // Experimental: communicate between two processes
 
-void map_file::signal()
+void cy::map_file::signal()
 {
     SetEvent(hEvent);
 }
@@ -320,7 +324,7 @@ void map_file::signal()
 //
 // Wait for the event.  Experimental, unfinished, don't use.
 
-bool map_file::wait(int ms)
+bool cy::map_file::wait(int ms)
 {
     if(ms == 0) ms=INFINITE;
 

@@ -31,7 +31,7 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
     
     const int persistMagic = 0x99a10f0f;
     const int hardwareId = 0x00000001;
-
+    
     
     int mapFlags;
 

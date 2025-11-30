@@ -56,7 +56,7 @@ endif()
 include_directories(include)
 
 if(WIN32)
-    set(PLATFORM_PERSIST_IMPL src/persist_win32.cpp)
+    set(PLATFORM_PERSIST_IMPL src/persist.cpp)
 else()
     set(PLATFORM_PERSIST_IMPL src/persist_unix.cpp)
 endif()
@@ -74,6 +74,12 @@ add_library(cutty
     src/dynamic/types.cpp)
 
 link_libraries(cutty)
+
+if(NOT WIN32)
+    add_executable(persist_test test/persist_test.cpp)
+    add_test(persist persist_test)
+endif()
+
 
 add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
@@ -104,7 +110,6 @@ add_executable(sequence_transformations samples/sequence/transformations.cpp)
 add_executable(sequence_writers samples/sequence/writers.cpp)
 add_executable(tag_test test/tags.cpp)
 add_executable(unit_test test/units.cpp)
-add_executable(persist_test test/persist_test.cpp)
 
 add_test(approx approx_sample)
 add_test(mixins mixins)
@@ -118,7 +123,6 @@ add_test(dynamic_maps dynamic_maps)
 add_test(dynamic_tutorial dynamic_tutorial)
 add_test(pretty_type pretty_type)
 add_test(scope_hooks scope_hooks)
-add_test(persist persist_test)
 add_test(property_test property_test)
 add_test(property_sample property_sample)
 add_test(sequence sequence_test)
