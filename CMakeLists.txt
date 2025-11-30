@@ -67,6 +67,7 @@ add_library(cutty
     src/cutty.cpp
     src/persist.cpp
     ${PLATFORM_PERSIST_IMPL}
+    src/shared_memory.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
     src/dynamic/functions.cpp
@@ -108,6 +109,7 @@ add_executable(sequence_primes samples/sequence/primes.cpp)
 add_executable(sequence_templates samples/sequence/templates.cpp)
 add_executable(sequence_transformations samples/sequence/transformations.cpp)
 add_executable(sequence_writers samples/sequence/writers.cpp)
+add_executable(shared_memory_test test/shared_memory_test.cpp)
 add_executable(tag_test test/tags.cpp)
 add_executable(unit_test test/units.cpp)
 
@@ -137,6 +139,6 @@ add_test(sequence_primes sequence_primes)
 add_test(sequence_templates sequence_templates)
 add_test(sequence_transformations sequence_transformations)
 add_test(sequence_writers sequence_writers)
-
+add_test(shared_memory shared_memory_test)
 add_test(tag_test tag_test)
 add_test(unit_test unit_test)
