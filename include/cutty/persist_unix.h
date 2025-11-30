@@ -14,9 +14,7 @@ namespace cutty
     class shared_base   // unix version
     {
     public:
-        int fd_deleteme;  // Should not be in shared memory surely
         std::mutex mem_mutex, user_mutex;
-        int mapFlags;
     };
 
 }

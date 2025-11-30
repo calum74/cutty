@@ -102,7 +102,6 @@ enum
 class map_file
 {
     shared_memory memory;
-    detail::shared_record *map_address;
 
   public:
     map_file();
@@ -120,11 +119,11 @@ class map_file
     // Returns true if the heap is valid and usable
     operator bool() const
     {
-        return map_address != 0;
+        return !!memory;
     }
 
     bool empty() const { return data().empty(); }
-    void * root() const { return data().root(); }
+    void * root() { return data().root(); }
     void * malloc(size_t x);
     size_t capacity() const { return data().capacity(); }
     void free(void*p, size_t s) { data().free(p, s); }
@@ -154,7 +153,8 @@ class map_file
 
     bool extend_to(void * new_top);
 
-    detail::shared_record &data() const { return *map_address; }
+    detail::shared_record &data() { return *(detail::shared_record*)memory.data(); }
+    const detail::shared_record &data() const { return *(const detail::shared_record*)memory.data(); }
 };
 
 template <class T> class fast_allocator : public std::allocator<T>

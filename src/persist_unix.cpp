@@ -20,7 +20,6 @@ namespace cy = cutty;
 cy::map_file::map_file(const char *filename, int applicationId, short majorVersion, short minorVersion,
                    size_t length, size_t limit, int flags, size_t base)
 {
-    map_address = 0;
     open(filename, applicationId, majorVersion, minorVersion, length, limit, flags, base);
 }
 
@@ -31,70 +30,21 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
     const int persistMagic = 0x99a10f0f;
     const int hardwareId = 0x00000001;
     
-    
-    int mapFlags;
-
-    if(flags & private_map) mapFlags = MAP_PRIVATE|MAP_FIXED;
-    else mapFlags =  MAP_SHARED|MAP_FIXED;
-    
-    int fd = -1;
-    
-    int open_flags = O_RDWR;
-    if(flags & create_new) open_flags |= O_TRUNC;
-    
-    if(flags & temp_heap)
+    std::error_code ec;
+    int sh_flags = 0;
+    if (flags & create_new)
     {
-        char filename[] = "/tmp/persist-XXXXXX";
-        fd = mkstemp(filename);
-        remove(filename);
-        
-        char c=0;
-        lseek(fd, length-1, SEEK_SET);
-        write(fd, &c, 1);
+        sh_flags |= shared_memory::create | shared_memory::trunc;
     }
     else
     {
-        fd = ::open(filename, open_flags, S_IRWXU|S_IRGRP|S_IROTH);
-    
-        if(fd == -1)
-        {
-            // File did not exist, so we create it instead
-
-            fd = ::open(filename, O_CREAT|O_RDWR, S_IRWXU|S_IRGRP|S_IROTH);
-
-            if(fd == -1) return;  // Failed to create file
-
-            // Fill up the file with zeros
-
-            char c=0;
-            lseek(fd, length-1, SEEK_SET);
-            write(fd, &c, 1);
-        }
-        else if(flags & create_new)
-        {
-            char c=0;
-            lseek(fd, length-1, SEEK_SET);
-            write(fd, &c, 1);
-        }
+        sh_flags = shared_memory::create;
     }
+    shared_memory mem(filename, ec, sh_flags, length, (void*)base);
 
-    
-    // Seek to the end of the file: we need to ensure enough of the file is allocated
-    if(base == 0) mapFlags -= MAP_FIXED;
+    detail::shared_record *map_address = (detail::shared_record*)mem.data();
 
-    char *addr = (char*)mmap((char*)base, length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
-
-    if(addr == MAP_FAILED)
-        map_address = 0;
-    else
-        map_address = (detail::shared_record*)addr;
-
-    if(base == 0)
-    {
-        mapFlags += MAP_FIXED;
-    }
-
-    if(map_address)
+    if(mem)
     {
         // Remap the file according to the specifications in the header file
 
@@ -103,19 +53,8 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
         
         if(previous_address && (previous_length != length || previous_address != map_address))
         {
-             munmap((char*)map_address, length);
-             length = previous_length;
-             auto base_address = previous_address;
-
-             addr = (char*)mmap((char*)base_address, length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
-
-             if(addr == MAP_FAILED)
-                map_address = 0;
-             else
-             {
-                map_address = (detail::shared_record*)addr;        
-             }
-
+            mem.reopen_at(ec, previous_address);
+            detail::shared_record *map_address = (detail::shared_record*)mem.data();
         }
     }
 
@@ -158,13 +97,12 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
 
             new(&map_address->extra.mem_mutex) std::mutex();
             new(&map_address->extra.user_mutex) std::mutex();
-            map_address->extra.mapFlags = mapFlags;
-            map_address->extra.fd_deleteme = fd;
 
             // This is not needed
             for(int i=0; i<64; ++i) map_address->free_space[i] = 0;
         }
     }
+    memory = std::move(mem);
 
     // Report on where it ended up
     // std::cout << "Mapped to " << map_address << std::endl;
@@ -173,28 +111,18 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
 
 cy::map_file::~map_file()
 {
-    close();
 }
-
 
 void cy::map_file::close()
 {
-    if(map_address)
-    {
-        int fd = map_address->extra.fd_deleteme;
-        map_address->unmap();
-        ::close(fd);
-    }
+    memory.close();
 }
-
 
 void cy::detail::shared_record::unmap()
 {
     munmap((char*)this, current_size);
 }
 
-
-#define MREMAP 0    // 1 on Linux
 
 bool cy::map_file::extend_to(void * new_top)
 {
@@ -216,49 +144,15 @@ bool cy::map_file::extend_to(void * new_top)
 
     if(new_length < min_length) return false;
 
-    
-    // extend the file a bit
-    // fd==-1 when we use an anomymous/temporary mapping.
-    if(d.extra.fd_deleteme != -1)
-    {
-        char c=0;
-        lseek(d.extra.fd_deleteme, new_length-1, SEEK_SET);
-        write(d.extra.fd_deleteme, &c, 1);
-    }
-#if MREMAP
-    void *new_address = mremap((char*)map_address, old_length, new_length, 0);  // Do NOT relocate it
+    std::error_code ec;
+    memory.reserve(ec, new_length-1);  // ?? Should we try to recover?
 
-    if(new_address)
-    {
-        // remap successful
-        length = new_length;
-    }
-#else
+    if(!memory) return false;  // Catastrophe
 
-    int mapFlags = d.extra.mapFlags;
-    int fd = d.extra.fd_deleteme;
-    
-    munmap((char*)&d, old_length);
-
-    char *m = (char*)mmap((char*)&d, new_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
-
-    if(m == MAP_FAILED)
-    {
-        // Go back to the original map then
-        char *m = (char*)mmap((char*)&d, old_length, PROT_WRITE|PROT_READ, mapFlags, fd, 0);
-        assert(m != MAP_FAILED);
-        assert(m == (char*)&d);
-        return false;
-    }
-    else
-    {
-        assert(m == (char*)&d);
-        d.current_size = new_length;
-        d.end = (char*)&d + new_length;
-        return true;
-    }
-
-#endif
+    assert(memory.data() == (char*)&d);
+    data().current_size = new_length;
+    data().end = (char*)&data() + new_length;
+    return true;
 }
 
 
@@ -287,5 +181,4 @@ void cy::detail::shared_record::unlockMem()
 
 cy::map_file::map_file()
 {
-    map_address = nullptr;
 }

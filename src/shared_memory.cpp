@@ -11,6 +11,20 @@ cy::shared_memory::shared_memory() : m_data(0), m_size(0), m_fd(-1)
 {
 }
 
+cy::shared_memory & cy::shared_memory::operator=(cy::shared_memory&&src)
+{
+    close();
+
+    m_data = src.m_data;
+    m_size = src.m_size;
+    m_fd = src.m_fd;
+
+    src.m_data = 0;
+    src.m_size = 0;
+    src.m_fd = -1;
+    return *this;
+}
+
 cy::shared_memory::~shared_memory()
 {
     close();
@@ -42,6 +56,8 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
         fd_flags |= O_RDWR;
     if (flags & exclusive)
         fd_flags |= O_EXCL;
+    if (flags & trunc)
+        fd_flags |= O_TRUNC;
 
     int fd = -1;
     size_type mapped_size = initial_size;

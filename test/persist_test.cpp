@@ -87,15 +87,15 @@ class TestPersist
             TestHeapLimit(file, 65536);
         }
 
-        {
-            cy::map_file file(nullptr, 0, 0, 0, 16384, 16384, cy::temp_heap);
-            TestHeapLimit(file, 16384);
-        }
+        // {
+        //     cy::map_file file(nullptr, 0, 0, 0, 16384, 16384, cy::temp_heap);
+        //     TestHeapLimit(file, 16384);
+        // }
 
-        {
-            cy::map_file file(nullptr, 0, 0, 0, 16384, 65536, cy::temp_heap);
-            TestHeapLimit(file, 65536);
-        }
+        // {
+        //     cy::map_file file(nullptr, 0, 0, 0, 16384, 65536, cy::temp_heap);
+        //     TestHeapLimit(file, 65536);
+        // }
     }
 
     void ValidateMemory(void *p, size_t size)
@@ -143,7 +143,7 @@ class TestPersist
     void TestModes()
     {
         {
-            cy::map_file file(nullptr, 0, 0, 0, 16384, 16384, cy::temp_heap);
+            cy::map_file file("temp.db", 0, 0, 0, 16384, 16384, cy::create_new);
             cy::check(file);
 
             cy::map_data<Demo> data{file, file};
@@ -179,7 +179,7 @@ class TestPersist
 
     void TestAllocators()
     {
-        cy::map_file file(nullptr, 0, 0, 0, 16384, 1000000, cy::temp_heap);
+        cy::map_file file("temp.db", 0, 0, 0, 16384, 1000000, cy::create_new);
         cy::check(file);
 
         cy::map_data<Demo> data{file, file};

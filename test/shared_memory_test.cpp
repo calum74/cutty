@@ -98,5 +98,11 @@ int main()
             cy::check(m.data() == new_address);
             check(m);
         }
+
+        {
+            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::trunc, 1024);
+            cy::check(m);
+            cy::check(m.size() == 1024);
+        }
     }
 }
