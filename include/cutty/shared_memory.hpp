@@ -21,9 +21,8 @@ class shared_memory
         readonly = 2,   /// File and contents are not writable
         Private = 4,    /// Changes are discarded
         exclusive = 8,  /// Ensure not open by anyone else
-        fixed=16,       /// Fail if the specified address cannot be used
-        trunc=32,       /// Delete any existing file
-        temp=64         /// Create a temporary object
+        pinned=16,      /// Fail if the specified address cannot be used
+        trunc=32        /// Delete any existing file
     };
 
     /** Creates an empty shared_memory */

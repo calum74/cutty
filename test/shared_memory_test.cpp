@@ -99,15 +99,4 @@ int main()
             check(m);
         }
     }
-
-    // Temporary object
-    {
-        std::error_code ec;
-        cy::shared_memory m(nullptr, ec, cy::shared_memory::create|cy::shared_memory::temp, 1024);
-        cy::check(m);
-
-        m.resize(ec, 2000);
-        cy::check(m);
-        cy::check(m.size() == 2000);
-    }
 }

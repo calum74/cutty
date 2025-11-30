@@ -46,8 +46,6 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
     int fd = -1;
     size_type mapped_size = initial_size;
 
-    if(!(flags & temp))
-    {
         fd = open(filename, fd_flags, 0600); // ?? Permissions
 
         if (fd < 0)
@@ -60,7 +58,6 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
         struct stat st;
         fstat(fd, &st);
         mapped_size = st.st_size;
-    }
 
     if (mapped_size < initial_size)
     {
@@ -76,7 +73,6 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
 
     int prot_flags = flags & readonly ? PROT_READ : PROT_READ | PROT_WRITE;
     int map_flags = MAP_SHARED;
-    if(flags & temp) map_flags |= MAP_ANON;
     auto data = mmap(hint, mapped_size, prot_flags, map_flags, fd, 0);
 
     if (data == MAP_FAILED)
