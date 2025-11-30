@@ -10,6 +10,8 @@
 #include "persist_unix.h"
 #endif
 
+#include "shared_memory.hpp"
+
 #include <atomic>
 #include <cassert>
 #include <memory>
@@ -25,7 +27,11 @@ class InvalidVersion : public std::runtime_error
     InvalidVersion();
 };
 
-class shared_memory
+class map_file;
+
+namespace detail
+{
+class shared_record
 {
   public:
     typedef std::size_t size_type;
@@ -74,8 +80,8 @@ class shared_memory
     }
 
   private:
-    friend class map_file;
-    shared_memory(const shared_memory &) = delete;
+    friend map_file;
+    shared_record(const shared_record &) = delete;
 
     // Magic bytes to check we have loaded the correct version
     int magic;
@@ -84,7 +90,7 @@ class shared_memory
     short minorVersion;
     int hardwareId;
 
-    shared_memory *address; // The address we expect to be at - we need to reopen if this fails
+    shared_record *address; // The address we expect to be at - we need to reopen if this fails
 
     size_t current_size; // The size of the allocation
     size_t max_size;
@@ -102,6 +108,7 @@ class shared_memory
     void lockMem();
     void unlockMem();
 };
+}
 
 enum
 {
@@ -118,7 +125,8 @@ enum
 // extends the heap when necessary.
 class map_file
 {
-    shared_memory *map_address;
+    shared_memory memory;
+    detail::shared_record *map_address;
 
   public:
     map_file();
@@ -139,7 +147,7 @@ class map_file
         return map_address != 0;
     }
 
-    shared_memory &data() const;
+    detail::shared_record &data() const;
 };
 
 template <class T> class fast_allocator : public std::allocator<T>
@@ -148,7 +156,7 @@ template <class T> class fast_allocator : public std::allocator<T>
     fast_allocator(map_file &map) : map(map.data())
     {
     }
-    fast_allocator(shared_memory &mem) : map(mem)
+    fast_allocator(detail::shared_record &mem) : map(mem)
     {
     }
 
@@ -188,7 +196,7 @@ template <class T> class fast_allocator : public std::allocator<T>
         typedef fast_allocator<Other> other;
     };
 
-    shared_memory &map;
+    detail::shared_record &map;
 };
 
 template <class T> class allocator : public std::allocator<T>
@@ -197,7 +205,7 @@ template <class T> class allocator : public std::allocator<T>
     allocator(map_file &map) : map(map.data())
     {
     }
-    allocator(shared_memory &mem) : map(mem)
+    allocator(detail::shared_record &mem) : map(mem)
     {
     }
 
@@ -238,7 +246,7 @@ template <class T> class allocator : public std::allocator<T>
         typedef allocator<Other> other;
     };
 
-    shared_memory &map;
+    detail::shared_record &map;
 };
 
 template <class T> class map_data
@@ -246,7 +254,7 @@ template <class T> class map_data
   public:
     typedef T value_type;
 
-    template <typename... ConstructorArgs> map_data(shared_memory &mem, ConstructorArgs &&...init) : file(mem)
+    template <typename... ConstructorArgs> map_data(detail::shared_record &mem, ConstructorArgs &&...init) : file(mem)
     {
         if (mem.empty())
         {
@@ -254,7 +262,7 @@ template <class T> class map_data
         }
     }
 
-    map_data(shared_memory &mem) : file(mem)
+    map_data(detail::shared_record &mem) : file(mem)
     {
         if (this->file.empty())
         {
@@ -283,11 +291,11 @@ template <class T> class map_data
     }
 
   private:
-    shared_memory &file;
+    detail::shared_record &file;
 };
 } // namespace cutty
 
-void *operator new(size_t size, cutty::shared_memory &mem);
-void operator delete(void *p, cutty::shared_memory &mem);
+void *operator new(size_t size, cutty::detail::shared_record &mem);
+void operator delete(void *p, cutty::detail::shared_record &mem);
 
 #endif

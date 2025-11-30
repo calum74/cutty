@@ -1,6 +1,5 @@
 
 #include <cutty/persist.hpp>
-#include "persist_shared_data.h"
 
 #include <iostream>  // tmp
 using namespace std; // tmp
@@ -88,7 +87,7 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
     if(addr == MAP_FAILED)
         map_address = 0;
     else
-        map_address = (shared_memory*)addr;
+        map_address = (detail::shared_record*)addr;
 
     if(base == 0)
     {
@@ -114,7 +113,7 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
                 map_address = 0;
              else
              {
-                map_address = (shared_memory*)addr;        
+                map_address = (detail::shared_record*)addr;        
              }
 
         }
@@ -160,7 +159,7 @@ void cy::map_file::open(const char *filename,  int applicationId, short majorVer
             new(&map_address->extra.mem_mutex) std::mutex();
             new(&map_address->extra.user_mutex) std::mutex();
             map_address->extra.mapFlags = mapFlags;
-            map_address->extra.fd = fd;
+            map_address->extra.fd_deleteme = fd;
 
             // This is not needed
             for(int i=0; i<64; ++i) map_address->free_space[i] = 0;
@@ -182,14 +181,14 @@ void cy::map_file::close()
 {
     if(map_address)
     {
-        int fd = map_address->extra.fd;
+        int fd = map_address->extra.fd_deleteme;
         map_address->unmap();
         ::close(fd);
     }
 }
 
 
-void cy::shared_memory::unmap()
+void cy::detail::shared_record::unmap()
 {
     munmap((char*)this, current_size);
 }
@@ -197,7 +196,7 @@ void cy::shared_memory::unmap()
 
 #define MREMAP 0    // 1 on Linux
 
-bool cy::shared_memory::extend_to(void * new_top)
+bool cy::detail::shared_record::extend_to(void * new_top)
 {
     if(current_size == max_size) return false;
     
@@ -218,11 +217,11 @@ bool cy::shared_memory::extend_to(void * new_top)
     
     // extend the file a bit
     // fd==-1 when we use an anomymous/temporary mapping.
-    if(this->extra.fd != -1)
+    if(this->extra.fd_deleteme != -1)
     {
         char c=0;
-        lseek(this->extra.fd, new_length-1, SEEK_SET);
-        write(this->extra.fd, &c, 1);
+        lseek(this->extra.fd_deleteme, new_length-1, SEEK_SET);
+        write(this->extra.fd_deleteme, &c, 1);
     }
 #if MREMAP
     void *new_address = mremap((char*)map_address, old_length, new_length, 0);  // Do NOT relocate it
@@ -235,7 +234,7 @@ bool cy::shared_memory::extend_to(void * new_top)
 #else
 
     int mapFlags = this->extra.mapFlags;
-    int fd = this->extra.fd;
+    int fd = this->extra.fd_deleteme;
     
     munmap((char*)this, old_length);
 
@@ -261,25 +260,25 @@ bool cy::shared_memory::extend_to(void * new_top)
 }
 
 
-bool cy::shared_memory::lock(int ms)
+bool cy::detail::shared_record::lock(int ms)
 {
     extra.user_mutex.lock();
     return true;
 }
 
 
-void cy::shared_memory::unlock()
+void cy::detail::shared_record::unlock()
 {
     extra.user_mutex.unlock();
 }
 
-void cy::shared_memory::lockMem()
+void cy::detail::shared_record::lockMem()
 {
     extra.mem_mutex.lock();
 }
 
 
-void cy::shared_memory::unlockMem()
+void cy::detail::shared_record::unlockMem()
 {
     extra.mem_mutex.unlock();
 }

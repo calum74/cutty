@@ -64,7 +64,7 @@ class TestPersist
         std::shared_ptr<int> intptr;
         std::vector<pstring, cy::allocator<pstring>> vec;
 
-        Demo(cy::shared_memory &mem) : string1(mem), string2(mem), vec(cy::allocator<pstring>(mem))
+        Demo(cy::detail::shared_record &mem) : string1(mem), string2(mem), vec(cy::allocator<pstring>(mem))
         {
             intptr = std::allocate_shared<int, cy::fast_allocator<int>>(mem, 123);
         }
@@ -108,7 +108,7 @@ class TestPersist
             cy::check((char)i == c[i]);
     }
 
-    void TestHeapLimit(cy::shared_memory &mem, size_t expected_limit)
+    void TestHeapLimit(cy::detail::shared_record &mem, size_t expected_limit)
     {
         auto initial_capacity = mem.capacity();
 

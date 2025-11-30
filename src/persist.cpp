@@ -2,7 +2,6 @@
 // Copying permitted under the terms of the GNU Public Licence (GPL)
 
 #include <cutty/persist.hpp>
-#include "persist_shared_data.h"
 
 #include <cassert>
 #include <iostream>  // Debug only
@@ -23,7 +22,7 @@ namespace cy = cutty;
 //
 // Allocates space for one object in the shared memory
 
-void *operator new(size_t size, cy::shared_memory &file)
+void *operator new(size_t size, cy::detail::shared_record &file)
 {
     void *p = file.malloc(size);
 
@@ -37,7 +36,7 @@ void *operator new(size_t size, cy::shared_memory &file)
 //
 // Matches operator new.  Not used.
 
-void operator delete(void *p, cy::shared_memory &file)
+void operator delete(void *p, cy::detail::shared_record &file)
 {
 }
 
@@ -80,7 +79,7 @@ inline int object_cell(size_t &req_size)
 // If possible, use a block in the free_space instead of growing the heap.
 // Mutexed, threadsafe - very important.
 
-void *cy::shared_memory::malloc(size_t size)
+void *cy::detail::shared_record::malloc(size_t size)
 {
     if(size==0) return top;  // A valid address?  TODO
 
@@ -144,7 +143,7 @@ void *cy::shared_memory::malloc(size_t size)
 // Free blocks are stored in a linked list, starting at the vector free_cell.
 // The minimum allocation size is 4 bytes to accomodate the pointer
 
-void cy::shared_memory::free(void* block, size_t size)
+void cy::detail::shared_record::free(void* block, size_t size)
 {
     lockMem();
 
@@ -189,12 +188,12 @@ void cy::shared_memory::free(void* block, size_t size)
 //
 // Returns a pointer to the first object in the heap.
 
-void *cy::shared_memory::root()
+void *cy::detail::shared_record::root()
 {
     return this+1;
 }
 
-const void *cy::shared_memory::root() const
+const void *cy::detail::shared_record::root() const
 {
     return this+1;
 }
@@ -205,39 +204,39 @@ const void *cy::shared_memory::root() const
 // Returns true of the heap is empty - no objects have been allocated.
 // This tells us if we need to construct a root object.
 
-bool cy::shared_memory::empty() const
+bool cy::detail::shared_record::empty() const
 {
     return root() == top;  // No objects allocated
 }
 
-cy::shared_memory & cy::map_file::data() const
+cy::detail::shared_record & cy::map_file::data() const
 {
     return *map_address;
 }
 
-void cy::shared_memory::clear()
+void cy::detail::shared_record::clear()
 {
     top = (char*)root();
     for(int i=0; i<64; ++i)
         free_space[i] = nullptr;
 }
 
-size_t cy::shared_memory::capacity() const
+size_t cy::detail::shared_record::capacity() const
 {
     return (end-top) + (max_size - current_size);
 }
 
-size_t cy::shared_memory::size() const
+size_t cy::detail::shared_record::size() const
 {
     return top-(char*)root();
 }
 
-size_t cy::shared_memory::limit() const
+size_t cy::detail::shared_record::limit() const
 {
     return max_size;
 }
 
-void cy::shared_memory::limit(size_t size)
+void cy::detail::shared_record::limit(size_t size)
 {
     max_size = size;
 }
