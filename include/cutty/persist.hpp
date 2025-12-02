@@ -11,7 +11,6 @@
 #include <mutex>
 #include <stdexcept>
 
-
 namespace cutty
 {
 // Exception thrown when an invalid datafile is opened,

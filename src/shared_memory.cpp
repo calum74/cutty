@@ -257,7 +257,7 @@ bool cy::shared_memory::truncate(std::error_code &ec, size_type new_size)
 
     return false;
 #else
-    if (ftruncate(m_fd, new_min))
+    if (ftruncate(m_fd, new_size))
     {
         // resize failed
         ec = {errno, std::generic_category()};

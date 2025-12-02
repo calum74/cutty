@@ -17,12 +17,12 @@ class shared_memory
 
     enum flags
     {
-        create = 1,     /// File may be created if it does not exist
-        readonly = 2,   /// File and contents are not writable
-        Private = 4,    /// Changes are discarded
-        exclusive = 8,  /// Ensure not open by anyone else
-        pinned=16,      /// Fail if the specified address cannot be used
-        trunc=32        /// Delete any existing file
+        create = 1,    /// File may be created if it does not exist
+        readonly = 2,  /// File and contents are not writable
+        Private = 4,   /// Changes are discarded
+        exclusive = 8, /// Ensure not open by anyone else
+        pinned = 16,   /// Fail if the specified address cannot be used
+        trunc = 32     /// Delete any existing file
     };
 
     /** Creates an empty shared_memory */
@@ -83,12 +83,12 @@ class shared_memory
     /**
         Resizes the current file if it has grown on disk
      */
-    void sync (std::error_code &ec);
+    void sync(std::error_code &ec);
 
     /**
         Resizes (grows or shrinks) the current file to the new size.
      */
-    void resize (std::error_code &ec, size_type new_size = 0);
+    void resize(std::error_code &ec, size_type new_size = 0);
 
     /**
         Attempts to map the memory at a specified address.
