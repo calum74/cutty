@@ -112,6 +112,7 @@ class shared_memory
     size_type m_size;
     int m_fd;
     void *m_file_handle, *m_map_handle;
+    int m_map_flags;
 
     void remap(std::error_code &ec, size_type new_size);
     bool truncate(std::error_code &ec, size_type new_size);

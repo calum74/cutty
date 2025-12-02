@@ -26,10 +26,19 @@ cy::shared_memory & cy::shared_memory::operator=(cy::shared_memory&&src)
     m_data = src.m_data;
     m_size = src.m_size;
     m_fd = src.m_fd;
+    m_map_handle = src.m_map_handle;
+    m_file_handle = src.m_file_handle;
+    m_map_flags = src.m_map_flags;
 
     src.m_data = 0;
     src.m_size = 0;
     src.m_fd = -1;
+
+#if WIN32
+    src.m_map_handle = INVALID_HANDLE_VALUE;
+    src.m_file_handle = INVALID_HANDLE_VALUE;
+#endif
+
     return *this;
 }
 
@@ -65,7 +74,9 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
 {
     #if WIN32
 
-    auto hFile = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ, 0, OPEN_ALWAYS,
+    int open_flags = (flags & trunc) ? CREATE_ALWAYS : OPEN_ALWAYS;
+
+    auto hFile = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ, 0, open_flags,
                             FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, 0);
 
     if (hFile == INVALID_HANDLE_VALUE)
@@ -88,18 +99,16 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
         initial_size = size.QuadPart;
     }
 
-    int mapFlags;
-
     if (flags & readonly)
-        mapFlags = PAGE_READONLY;
+        m_map_flags = PAGE_READONLY;
     else if (flags & Private)
-        mapFlags = PAGE_WRITECOPY;
+        m_map_flags = PAGE_WRITECOPY;
     else
-        mapFlags = PAGE_READWRITE;
+        m_map_flags = PAGE_READWRITE;
 
-   auto  hMapFile = CreateFileMapping(hFile, 0, mapFlags, 0, initial_size, 0);
+   auto  hMapFile = CreateFileMapping(hFile, 0, m_map_flags, 0, initial_size, 0);
 
-   if (!hMapFile) // hMapFile == INVALID_HANDLE_VALUE)
+   if (!hMapFile)
    {
        ec = {int(GetLastError()), std::system_category()};
        CloseHandle(hFile);
@@ -111,8 +120,8 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
 
    if (!p)
    {
+       ec = {int(GetLastError()), std::system_category()};
        CloseHandle(hMapFile);
-       // error!!
        return;
    }
 
@@ -142,7 +151,6 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
         if (fd < 0)
         {
             ec = {errno, std::generic_category()};
-            // std::cout << "Failed to open file! " << ec.message() << std::endl;
             return;
         }
 
@@ -163,8 +171,8 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
     }
 
     int prot_flags = flags & readonly ? PROT_READ : PROT_READ | PROT_WRITE;
-    int map_flags = MAP_SHARED;
-    auto data = mmap(hint, mapped_size, prot_flags, map_flags, fd, 0);
+    m_map_flags = MAP_SHARED;
+    auto data = mmap(hint, mapped_size, prot_flags, m_map_flags, fd, 0);
 
     if (data == MAP_FAILED)
     {
@@ -177,7 +185,7 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
     m_fd = fd;
     m_size = mapped_size;
     m_data = data;
-    #endif
+#endif
 }
 
 void cy::shared_memory::sync(std::error_code &ec)
@@ -200,8 +208,7 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
         UnmapViewOfFile(m_data);
 
         CloseHandle(m_map_handle);
-        // TODO: Respect the original mapping flags.
-        m_map_handle = CreateFileMapping(m_file_handle, 0, PAGE_READWRITE, 0, mapped_size, 0);
+        m_map_handle = CreateFileMapping(m_file_handle, 0, m_map_flags, 0, mapped_size, 0);
 
         auto p = 
         MapViewOfFileEx(m_map_handle, FILE_MAP_ALL_ACCESS, 0, 0, mapped_size, m_data);
@@ -218,11 +225,8 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
 
         #else
         // Need to remap
-        // !! TODO: Need to respect the map flags here
         munmap(m_data, m_size);
-        int map_flags = MAP_SHARED;
-        if(m_fd<0) map_flags |= MAP_ANON;
-        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, map_flags, m_fd, 0);
+        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, m_map_flags, m_fd, 0);
 
         if (data == MAP_FAILED)
         {
@@ -269,9 +273,7 @@ bool cy::shared_memory::truncate(std::error_code &ec, size_type new_size)
 
 void cy::shared_memory::reserve(std::error_code &ec, size_type new_min)
 {
-    struct stat st;
-    fstat(m_fd, &st);
-    size_type mapped_size = st.st_size;
+    size_type mapped_size = get_size();
 
     if (mapped_size < new_min)
     {
