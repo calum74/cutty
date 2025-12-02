@@ -298,11 +298,28 @@ cy::shared_memory::size_type cy::shared_memory::get_size() const
 #endif
 }
 
+void cy::shared_memory::unmap()
+{
+    if (m_data)
+    {
+
+#if WIN32
+        UnmapViewOfFile(m_data);
+        m_data = 0;
+        m_size = 0;
+        CloseHandle(m_map_handle);
+        m_map_handle = INVALID_HANDLE_VALUE;
+#else
+#endif
+    }
+}
+
 void cy::shared_memory::resize(std::error_code &ec, size_type new_size)
 {
     if (get_size() != new_size)
     {
-        // Need to extend the file
+        unmap();
+        // Need to extend or shrink the file
         if (truncate(ec, new_size))
         {
             return;
@@ -316,6 +333,19 @@ void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
     if (new_address != m_data)
     {
         #if WIN32
+        UnmapViewOfFile(m_data);
+
+        auto p = MapViewOfFileEx(m_map_handle, FILE_MAP_ALL_ACCESS, 0, 0, m_size, new_address);
+
+        if (!p)
+        {
+            ec = {int(GetLastError()), std::system_category()};
+            close();
+            return; // Failed
+        }
+
+        m_data = p;
+
         #else
         // !! TODO: Need to respect the map flags here
         // ?? Should we use MAP_FIXED here and fail

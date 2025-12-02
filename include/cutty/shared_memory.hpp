@@ -116,5 +116,6 @@ class shared_memory
     void remap(std::error_code &ec, size_type new_size);
     bool truncate(std::error_code &ec, size_type new_size);
     size_type get_size() const;
+    void unmap();
 };
 } // namespace cutty

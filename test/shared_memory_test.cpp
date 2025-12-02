@@ -92,7 +92,7 @@ int main()
             cy::check(m.size() == 1000);
             check(m);
 
-            auto new_address = (char *)m.data() + 16384;
+            auto new_address = (char *)m.data() + 65536;
             m.reopen_at(ec, new_address);
             cy::check(m);
             cy::check(m.data() == new_address);
