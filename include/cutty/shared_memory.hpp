@@ -111,8 +111,10 @@ class shared_memory
     void *m_data;
     size_type m_size;
     int m_fd;
-    void *m_handle;
+    void *m_file_handle, *m_map_handle;
 
     void remap(std::error_code &ec, size_type new_size);
+    bool truncate(std::error_code &ec, size_type new_size);
+    size_type get_size() const;
 };
 } // namespace cutty

@@ -1,14 +1,22 @@
 #include <cutty/shared_memory.hpp>
 
+#if WIN32
+#include <windows.h>
+#else
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#endif
 
 namespace cy = cutty;
 
 cy::shared_memory::shared_memory() : m_data(0), m_size(0), m_fd(-1)
 {
+#if WIN32
+    m_map_handle = INVALID_HANDLE_VALUE;
+    m_file_handle = INVALID_HANDLE_VALUE;
+#endif
 }
 
 cy::shared_memory & cy::shared_memory::operator=(cy::shared_memory&&src)
@@ -34,9 +42,17 @@ void cy::shared_memory::close()
 {
     if (m_data)
     {
+#if WIN32
+        UnmapViewOfFile(m_data);
+        CloseHandle(m_map_handle);
+        CloseHandle(m_file_handle);
+        m_file_handle = INVALID_HANDLE_VALUE;
+        m_map_handle = INVALID_HANDLE_VALUE;
+#else
         msync(m_data, m_size, MS_SYNC);
         munmap(m_data, m_size);
         ::close(m_fd);
+#endif
         m_data = 0;
         m_size = 0;
         m_fd = -1;
@@ -47,6 +63,65 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
                                  void *hint)
     : shared_memory()
 {
+    #if WIN32
+
+    auto hFile = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ, 0, OPEN_ALWAYS,
+                            FILE_ATTRIBUTE_NORMAL | FILE_FLAG_RANDOM_ACCESS, 0);
+
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        ec = {int(GetLastError()), std::system_category()};
+        return;
+    }
+
+    // Get the size of the file
+    LARGE_INTEGER size;
+    if (!GetFileSizeEx(hFile, &size))
+    {
+        ec = {int(GetLastError()), std::system_category()};
+        CloseHandle(hFile);
+        return;
+    }
+
+    if (initial_size < size.QuadPart)
+    {
+        initial_size = size.QuadPart;
+    }
+
+    int mapFlags;
+
+    if (flags & readonly)
+        mapFlags = PAGE_READONLY;
+    else if (flags & Private)
+        mapFlags = PAGE_WRITECOPY;
+    else
+        mapFlags = PAGE_READWRITE;
+
+   auto  hMapFile = CreateFileMapping(hFile, 0, mapFlags, 0, initial_size, 0);
+
+   if (!hMapFile) // hMapFile == INVALID_HANDLE_VALUE)
+   {
+       ec = {int(GetLastError()), std::system_category()};
+       CloseHandle(hFile);
+       return;
+   }
+
+   auto p =
+       MapViewOfFileEx(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, initial_size, hint);
+
+   if (!p)
+   {
+       CloseHandle(hMapFile);
+       // error!!
+       return;
+   }
+
+       m_data = p;
+       m_size = initial_size;
+       m_file_handle = hFile;
+       m_map_handle = hMapFile;
+
+ #else
     int fd_flags = 0;
     if (flags & create)
         fd_flags |= O_CREAT;
@@ -102,6 +177,7 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
     m_fd = fd;
     m_size = mapped_size;
     m_data = data;
+    #endif
 }
 
 void cy::shared_memory::sync(std::error_code &ec)
@@ -120,6 +196,27 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
 {
     if (m_size != mapped_size)
     {
+        #if WIN32
+        UnmapViewOfFile(m_data);
+
+        CloseHandle(m_map_handle);
+        // TODO: Respect the original mapping flags.
+        m_map_handle = CreateFileMapping(m_file_handle, 0, PAGE_READWRITE, 0, mapped_size, 0);
+
+        auto p = 
+        MapViewOfFileEx(m_map_handle, FILE_MAP_ALL_ACCESS, 0, 0, mapped_size, m_data);
+
+        if (!p)
+        {
+            ec = {int(GetLastError()), std::system_category()};
+            close();
+            return;  // Failed
+        }
+
+        m_data = p;
+        m_size = mapped_size;
+
+        #else
         // Need to remap
         // !! TODO: Need to respect the map flags here
         munmap(m_data, m_size);
@@ -135,7 +232,39 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
         }
         m_data = data;
         m_size = mapped_size;
+        #endif
     }
+}
+
+bool cy::shared_memory::truncate(std::error_code &ec, size_type new_size)
+{
+#if WIN32
+
+    LARGE_INTEGER li;
+    li.QuadPart = new_size;
+    if (!SetFilePointerEx(m_file_handle, li, nullptr, FILE_BEGIN))
+    {
+        ec = {int(GetLastError()), std::system_category()};
+        return true;
+    }
+
+    // Set the end of file at the current pointer position
+    if (!SetEndOfFile(m_file_handle))
+    {
+        ec = {int(GetLastError()), std::system_category()};
+        return true;
+    }
+
+    return false;
+#else
+    if (ftruncate(m_fd, new_min))
+    {
+        // resize failed
+        ec = {errno, std::generic_category()};
+        return true;
+    }
+    return false;
+#endif
 }
 
 void cy::shared_memory::reserve(std::error_code &ec, size_type new_min)
@@ -147,10 +276,8 @@ void cy::shared_memory::reserve(std::error_code &ec, size_type new_min)
     if (mapped_size < new_min)
     {
         // Need to extend the file
-        if (ftruncate(m_fd, new_min))
+        if (truncate(ec, new_min))
         {
-            // resize failed
-            ec = {errno, std::generic_category()};
             return;
         }
         mapped_size = new_min;
@@ -158,31 +285,38 @@ void cy::shared_memory::reserve(std::error_code &ec, size_type new_min)
     remap(ec, mapped_size);
 }
 
+cy::shared_memory::size_type cy::shared_memory::get_size() const
+{
+#if WIN32
+    LARGE_INTEGER size;
+    GetFileSizeEx(m_file_handle, &size);
+    return size.QuadPart;
+#else
+    struct stat st;
+    fstat(m_fd, &st);
+    return st.st_size;
+#endif
+}
+
 void cy::shared_memory::resize(std::error_code &ec, size_type new_size)
 {
-    if(m_fd>=0)
+    if (get_size() != new_size)
     {
-        struct stat st;
-        fstat(m_fd, &st);
-
-        if (st.st_size != new_size)
+        // Need to extend the file
+        if (truncate(ec, new_size))
         {
-            // Need to extend the file
-            if (ftruncate(m_fd, new_size))
-            {
-                // resize failed
-                ec = {errno, std::generic_category()};
-                return;
-            }
+            return;
         }
+        remap(ec, new_size);
     }
-    remap(ec, new_size);
 }
 
 void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
 {
     if (new_address != m_data)
     {
+        #if WIN32
+        #else
         // !! TODO: Need to respect the map flags here
         // ?? Should we use MAP_FIXED here and fail
 
@@ -199,5 +333,6 @@ void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
             return;
         }
         m_data = data;
+        #endif
     }
 }

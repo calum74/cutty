@@ -48,14 +48,14 @@ int main()
         Tmpfile tmp;
         std::error_code ec;
         {
-            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::shared_memory m(tmp.path.string().c_str(), ec, cy::shared_memory::create, 1024);
             cy::check(m);
             cy::check(m.size() == 1024);
             fill(m);
         }
 
         {
-            cy::shared_memory m(tmp.path.c_str(), ec);
+            cy::shared_memory m(tmp.path.string().c_str(), ec);
             if (!m)
             {
                 std::cout << ec.message() << std::endl;
@@ -67,12 +67,12 @@ int main()
 
         {
             // Moving test
-            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::shared_memory m(tmp.path.string().c_str(), ec, cy::shared_memory::create, 1024);
         }
 
         {
             // Extend to 5000
-            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::shared_memory m(tmp.path.string().c_str(), ec, cy::shared_memory::create, 1024);
             cy::check(m);
             auto old_address = m.data();
             m.resize(ec, 5000);
@@ -84,7 +84,7 @@ int main()
 
         {
             // Check the file now contains 5000
-            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::create, 1024);
+            cy::shared_memory m(tmp.path.string().c_str(), ec, cy::shared_memory::create, 1024);
             cy::check(m);
             cy::check(m.size() == 5000);
             check(m);
@@ -100,7 +100,7 @@ int main()
         }
 
         {
-            cy::shared_memory m(tmp.path.c_str(), ec, cy::shared_memory::trunc, 1024);
+            cy::shared_memory m(tmp.path.string().c_str(), ec, cy::shared_memory::trunc, 1024);
             cy::check(m);
             cy::check(m.size() == 1024);
         }
