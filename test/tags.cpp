@@ -65,7 +65,11 @@ int main()
 
     // Addition of the same tag type
     {
-        cy::check(cy::tag<cy::Farenheit>(3) == cy::tag<cy::Farenheit>(1) + cy::tag<cy::Farenheit>(2));
+        cy::check_equal(cy::tag<cy::Farenheit>(3), cy::tag<cy::Farenheit>(1) + cy::tag<cy::Farenheit>(2));
+    }
+
+    // Addition of compatible types
+    {
     }
 
     // Comparisons    

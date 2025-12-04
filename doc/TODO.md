@@ -59,6 +59,9 @@ Satellite article
 
 # Persist
 - shared_memory working on Windows
+- Test create_new?
 - Test also on Linux
 - Rewrite persist so that the pointer is to map_file and not shared_record
 - Can be inline
+- Think about allocators, for example we moved the file descriptor into the shared memory. Could we use satellite instead?
+- Problem is growing the heap.

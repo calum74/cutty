@@ -1,7 +1,10 @@
 #pragma once
 
+#include "print.hpp"
+
 #include <exception>
 #include <source_location>
+#include <sstream>
 #include <string_view>
 
 /** Namespace for all cutty functionality */
@@ -49,6 +52,25 @@ void check_throws(auto &&fn, const char *expected_text,
     }
 }
 
+class check_failed : public std::runtime_error
+{
+  public:
+    check_failed(const char *msg, const std::source_location &src);
+};
+
 // TODO
-void check_equal(auto &&lhs, auto &&rhs, const std::source_location &src = std::source_location::current());
+void check_equal(auto &&lhs, auto &&rhs, const std::source_location &src = std::source_location::current())
+{
+    if (lhs != rhs)
+    {
+        std::stringstream ss;
+        ss << "'";
+        print_stream(ss, lhs);
+        ss << "' != '";
+        print_stream(ss, rhs);
+        ss << "' at " << src.file_name() << ":" << src.line();
+        throw check_failed(ss.str().c_str(), src);
+    }
+}
+
 } // namespace cutty

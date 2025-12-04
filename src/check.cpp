@@ -2,23 +2,29 @@
 #include <exception>
 #include <sstream>
 
-void cutty::check(detail::convertible_boolean cond, const char *msg, const std::source_location &src)
+namespace cy = cutty;
+
+void cy::check(detail::convertible_boolean cond, const char *msg, const std::source_location &src)
 {
     if (!cond.value)
     {
         std::stringstream ss;
         ss << msg << " at " << src.file_name() << ":" << src.line();
-        throw std::runtime_error(ss.str());
+        throw check_failed (ss.str().c_str(), src);
     }
 }
 
-void cutty::detail::check_expected_exception(const char * expected, const char *actual, const std::source_location &src)
+void cy::detail::check_expected_exception(const char * expected, const char *actual, const std::source_location &src)
 {
     if (std::string_view (expected) != std::string_view(actual))
     {
         std::stringstream ss;
         ss << "Expected exception not thrown: expected '" << expected << "' but got '" << actual << "'";
         ss << " at " << src.file_name() << ":" << src.line();
-        throw std::runtime_error(ss.str());
+        throw check_failed(ss.str().c_str(), src);
     }
+}
+
+cy::check_failed::check_failed(const char * msg, const std::source_location &src) : std::runtime_error(msg)
+{
 }
