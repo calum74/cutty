@@ -49,7 +49,7 @@ int main()
     {
         auto x = cy::tag<cy::Farenheit>(80.0);
         cy::tagged<double, cy::Celcius> y = x;
-        cy::check(*y == cy::approx(26.67, 0.1));
+        cy::check_equal(*y, cy::approx(26.67, 0.1));
         std::cout << x << std::endl;
         std::cout << y << std::endl;
     }
@@ -70,6 +70,11 @@ int main()
 
     // Addition of compatible types
     {
+        auto c = cy::tag<cy::Celcius>(2.0);
+        auto d = cy::delta<cy::Farenheit>(c);
+        cy::check_equal(*d, cy::approx(4.6));
+        auto e = cy::tag<cy::Farenheit>(1.0) + cy::tag<cy::Celcius>(2.0);
+        cy::check_equal(*e, cy::approx(36.6));
     }
 
     // Comparisons    

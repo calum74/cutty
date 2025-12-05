@@ -2,8 +2,7 @@
 
 #include "fraction.hpp"
 
-// ?? Forward only
-#include <iostream>
+#include <iosfwd>
 
 namespace cutty
 {
@@ -137,7 +136,7 @@ template <typename Tag> constexpr tagged<int, Tag> unit{1};
 
 template <typename Tag, typename T, typename Tag2> tagged<T, Tag> tag(const tagged<T, Tag2> &src)
 {
-    return tagged<T, Tag>{*src};
+    return tagged<T, Tag>{src};
 }
 
 /// A list of builtin tags
@@ -222,6 +221,13 @@ bool operator==(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
 }
 
 template <typename T1, typename Tag1, typename T2, typename Tag2>
+tagged<T1, Tag1> operator-(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
+{
+    const tagged<T1, Tag1> y2 = y;
+    return tagged<T1, Tag1>{*x - *y2};
+}
+
+template <typename T1, typename Tag1, typename T2, typename Tag2>
 tagged<T1, Tag1> operator+(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
 {
     const tagged<T1, Tag1> y2 = y;
@@ -236,6 +242,12 @@ template <typename T, typename Tag> auto operator<=>(const tagged<T, Tag> &x, co
 template <typename T, typename Tag> tagged<T, Tag> operator*(const T &x, const tagged<T, Tag> &y)
 {
     return tagged<T, Tag>{x * *y};
+}
+
+template<typename Tag, typename T, typename Tag2>
+tagged<T, Tag> delta(const tagged<T, Tag2> &src)
+{
+    return tagged<T, Tag> {*tag<Tag>(src) - *tag<Tag>(tag<Tag2>(0))};   
 }
 
 } // namespace cutty

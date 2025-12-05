@@ -28,6 +28,10 @@ Implement!
 - policies on addition and multiplication
 - complex numbers
 
+Delta types:
+- delta<celcius>
+- delta<time>
+
 # Dynamic
 Get map test passing
 Finish stuff
@@ -50,9 +54,15 @@ We need a way to chain mixins
 Entropy
 Numbers and traits
 Parsing
-Persist
 
-# Test suite
+# Test suite library
+
+```
+test_suite("foo", []
+{
+
+});
+```
 
 # Documentation
 Satellite article
@@ -65,3 +75,7 @@ Satellite article
 - Can be inline
 - Think about allocators, for example we moved the file descriptor into the shared memory. Could we use satellite instead?
 - Problem is growing the heap.
+
+## Headers that are in combination
+For example <iostream> + <string> = <iostream_string>
+
