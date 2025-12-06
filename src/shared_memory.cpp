@@ -240,7 +240,7 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
         auto data = mremap(m_data, m_size, mapped_size, MREMAP_MAYMOVE, 0);
 #else
         munmap(m_data, m_size);
-        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, m_map_flags, m_fd, m_data);
+        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, m_map_flags, m_fd, 0);
 #endif
 
         // TODO: We need to implement a "pinned" flag here
