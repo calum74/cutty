@@ -1,15 +1,33 @@
+/**
+    Cutty Tags library
+
+    A "tag" is a way to wrap "naked" data types with information, which improves documentation
+    and reduces common errors. Tags are a compile-time feature and do not have runtime overheads.
+ */
+
+// This is the main header file for this library.
+#include <cutty/tags.hpp>
+
+// This library includes lots of predefined units, such as time,
+// SI units, bytes etc.
+#include <cutty/units.hpp>
+
+// Header files for testing
 #include <cutty/approx.hpp>
 #include <cutty/check.hpp>
-#include <cutty/tags.hpp>
-#include <cutty/units.hpp>
 
 namespace cy = cutty;
 
+/*
+    User-defined tags.
+ */
 struct tag1;
 struct tag2;
 
 namespace cutty
 {
+    // A user-defined conversion between tags of different types.
+    // Specialise
 template <typename T> void convert(const cy::tagged<T, tag1> &src, cy::tagged<T, tag2> &dest)
 {
     *dest = *src;
@@ -30,7 +48,7 @@ int main()
     a = cy::tag<tag1>(0.0);
 
     cy::tagged<double, tag2> y{10};
-    y = x; // x = y;
+    y = x;
     x = x;
     x = y;
     y = cy::tag<tag2>(1.0);
@@ -78,4 +96,21 @@ int main()
     }
 
     // Comparisons    
+    {
+        cy::check(cy::tag<cy::Celcius>(0) > cy::tag<cy::Farenheit>(0));
+    }
+
+    // Scaling conversions
+    {
+        static_assert(cy::common_tags<cy::bytes, cy::tags::product<cy::tags::scalar<{1,8}>, cy::bytes>>);
+        static_assert(cy::common_tags<cy::bytes, cy::tags::product<cy::bytes, cy::tags::scalar<{1,8}>>>);
+        cy::check_equal(*cy::tag<cy::bits>(cy::tag<cy::bytes>(2)), 16);
+
+        cy::check_equal(cy::tag<cy::second>(60), cy::tag<cy::minute>(1));
+    };
+
+    // SI units
+    {
+        cy::print("5 seconds = ", cy::tag<cy::second>(5));
+    }
 }

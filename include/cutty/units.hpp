@@ -2,6 +2,8 @@
 
 #include "tags.hpp"
 
+#include <iostream>
+
 namespace cutty
 {
 /// Scalars
@@ -43,7 +45,7 @@ struct tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>>
         }
         else
         {
-            auto output = [&](const char *name, fraction p) {
+            auto output = [&](fraction p, const char *name) {
                 if (p != 0)
                 {
                     os << name;
@@ -163,7 +165,11 @@ struct Theta;
 using Polar = tags::sum<R, Theta>;
 
 struct bytes;
-using bits = tags::product<bytes, tags::scalar<{1, 8}>>; // ?? product_tag<types, scalar_tag<{1,8}>>
+template <> const char *tag_suffix<bytes> = " bytes";
+
+using bits = tags::product<bytes, tags::scalar<{1, 8}>>;
+template <> const char *tag_suffix<bits> = " bits";
+
 // using kilobytes = scalar_tag<bytes, {1024}>;
 // using megabytes = scalar_tag<kilobytes, {1024}>;
 // using gigabytes = scalar_tag<megabytes, 1024>;

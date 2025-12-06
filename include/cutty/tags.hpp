@@ -3,6 +3,7 @@
 #include "fraction.hpp"
 
 #include <iosfwd>
+#include <tuple>
 
 namespace cutty
 {
@@ -90,10 +91,19 @@ template <typename T, typename Tag> class tagged
 
 template <typename T> const char *tag_suffix = "";
 
+namespace detail
+{
+template <typename Tag> struct strip_scalars
+{
+    using type = Tag;
+    static constexpr fraction multiplier{1, 1};
+};
+}; // namespace detail
+
 template <typename Tag> struct default_tag_traits
 {
     using tag_type = Tag;
-    using common_type = Tag;
+    using common_type = typename detail::strip_scalars<Tag>::type;
 
     static void write_tag(std::ostream &os)
     {
@@ -111,13 +121,27 @@ template <typename Tag> struct tag_traits : public default_tag_traits<Tag>
 template <typename Tag1, typename Tag2>
 concept common_tags = std::same_as<typename tag_traits<Tag1>::common_type, typename tag_traits<Tag2>::common_type>;
 
+template <typename Tag1, typename Tag2>
+concept has_scalar_conversion =
+    std::same_as<typename detail::strip_scalars<Tag1>::type, typename detail::strip_scalars<Tag2>::type>;
+
 template <typename T1, typename Tag1, typename T2, typename Tag2>
 void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
-    requires common_tags<Tag1, Tag2>
+    requires(common_tags<Tag1, Tag2> && !has_scalar_conversion<Tag1, Tag2>)
 {
     tagged<T1, typename tag_traits<Tag1>::common_type> i;
     convert(from, i);
     convert(i, to);
+}
+
+template <typename T1, typename Tag1, typename T2, typename Tag2>
+void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
+    requires has_scalar_conversion<Tag1, Tag2>
+{
+    // ?? A general functor library, for example
+    // functor::offset, functor::product, functor::inverse
+    // functor::apply
+    *to = *from * (detail::strip_scalars<Tag1>::multiplier / detail::strip_scalars<Tag2>::multiplier);
 }
 
 template <typename T, typename Tag> std::ostream &operator<<(std::ostream &os, const tagged<T, Tag> &t)
@@ -201,6 +225,21 @@ template <typename Tag1, typename Tag2> struct add_tags
 template <typename From, typename To>
 concept convertible = requires(const tagged<double, From> &from, tagged<double, To> &to) { convert(from, to); };
 
+template <fraction F, typename... Tags>
+struct strip_scalars<tags::product<tags::scalar<F>, Tags...>> : strip_scalars<tags::product<Tags...>>
+{
+    static constexpr fraction multiplier = F * strip_scalars<tags::product<Tags...>>::multiplier;
+};
+
+template <typename Tag> struct strip_scalars<tags::product<Tag>> : strip_scalars<Tag>
+{
+};
+
+template <fraction F, typename Tag> struct strip_scalars<tags::product<Tag, tags::scalar<F>>> : strip_scalars<Tag>
+{
+    static constexpr fraction multiplier = F * strip_scalars<Tag>::multiplier;
+};
+
 } // namespace detail
 
 template <typename T, typename Tag> tagged<T, Tag> operator*(const tagged<T, Tag> &x, const T &y)
@@ -211,13 +250,6 @@ template <typename T, typename Tag> tagged<T, Tag> operator*(const tagged<T, Tag
 template <typename T1, typename T2, typename Tag> bool operator==(const tagged<T1, Tag> &x, const tagged<T2, Tag> &y)
 {
     return *x == *y;
-}
-
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-bool operator==(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
-{
-    const tagged<T1, Tag1> y2 = y;
-    return *x == *y2;
 }
 
 template <typename T1, typename Tag1, typename T2, typename Tag2>
@@ -244,10 +276,21 @@ template <typename T, typename Tag> tagged<T, Tag> operator*(const T &x, const t
     return tagged<T, Tag>{x * *y};
 }
 
-template<typename Tag, typename T, typename Tag2>
-tagged<T, Tag> delta(const tagged<T, Tag2> &src)
+template <typename T1, typename Tag1, typename T2, typename Tag2>
+auto operator<=>(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
 {
-    return tagged<T, Tag> {*tag<Tag>(src) - *tag<Tag>(tag<Tag2>(0))};   
+    return *lhs <=> *tag<Tag1>(rhs);
+}
+
+template <typename T1, typename Tag1, typename T2, typename Tag2>
+bool operator==(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
+{
+    return *lhs == *tag<Tag1>(rhs);
+}
+
+template <typename Tag, typename T, typename Tag2> tagged<T, Tag> delta(const tagged<T, Tag2> &src)
+{
+    return tagged<T, Tag>{*tag<Tag>(src) - *tag<Tag>(tag<Tag2>(0))};
 }
 
 } // namespace cutty
