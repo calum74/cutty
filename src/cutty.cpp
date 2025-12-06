@@ -1,7 +1,6 @@
 #include <cutty/approx.hpp>
 #include <cutty/fraction.hpp>
 
-#include <compare>
 #include <iostream>
 
 namespace cy = cutty;

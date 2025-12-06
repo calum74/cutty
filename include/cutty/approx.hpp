@@ -22,4 +22,9 @@ class approx
     value_type value, tolerance;
 };
 
+bool operator==(const double &lhs, const approx &rhs);
+std::ostream &operator<<(std::ostream &os, const approx &x);
+std::weak_ordering operator<=>(const double &lhs, const approx &rhs);
+std::weak_ordering operator<=>(const approx &lhs, const double &rhs);
+
 } // namespace cutty
