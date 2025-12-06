@@ -22,6 +22,9 @@ template <> const char *tag_suffix<milli> = "m";
 using micro = tags::scalar<{1, 1000000}>;
 template <> const char *tag_suffix<micro> = "µ";
 
+using centi = tags::scalar<{1, 100}>;
+template <> const char *tag_suffix<centi> = "c";
+
 struct nano;
 struct pico;
 
@@ -29,8 +32,6 @@ struct pico;
 template <fraction Meter = 0, fraction Kilogram = 0, fraction Seconds = 0, fraction Ampere = 0, fraction Kelvin = 0,
           fraction Mole = 0, fraction Candela = 0>
 struct SI;
-
-// ?? How to write out SI units in full ??
 
 template <fraction Meter, fraction Kilogram, fraction Second, fraction Ampere, fraction Kelvin, fraction Mole,
           fraction Candela>
@@ -74,15 +75,15 @@ using Kelvin = SI<0, 0, 0, 0, 1>;
 using mol = SI<0, 0, 0, 0, 0, 1>;
 using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
-using Joules = SI<2, 1, -2>;
-template <> const char *tag_suffix<Joules> = "J";
-using Volts = SI<2, 1, -3, -1>;
-template <> const char *tag_suffix<Volts> = "V";
-using Newtons = SI<1, 1, -2>;
-template <> const char *tag_suffix<Newtons> = "N";
+using Joule = SI<2, 1, -2>;
+template <> const char *tag_suffix<Joule> = "J";
+using Volt = SI<2, 1, -3, -1>;
+template <> const char *tag_suffix<Volt> = "V";
+using Newton = SI<1, 1, -2>;
+template <> const char *tag_suffix<Newton> = "N";
 
-using Ohms = SI<2, 1, -3, -2>;
-template <> const char *tag_suffix<Ohms> = "Ω";
+using Ohm = SI<2, 1, -3, -2>;
+template <> const char *tag_suffix<Ohm> = "Ω";
 
 /// Temperature
 struct Celcius;
@@ -125,9 +126,6 @@ template <typename T> void convert(const tagged<T, Farenheit> &f, tagged<T, Kelv
 
 /// Time
 
-// struct seconds;
-// template <> const char *tag_suffix<seconds> = "s";
-
 using milliseconds = tags::product<milli, second>;
 using minute = tags::product<second, tags::scalar<60>>;
 template <> const char *tag_suffix<minute> = " minutes";
@@ -147,8 +145,32 @@ using years = tags::product<months, tags::scalar<12>>;
 using centuries = tags::product<years, tags::scalar<100>>;
 using millenia = tags::product<years, tags::scalar<1000>>;
 
+// Length
+using yard = tags::product<meter, tags::scalar<{9144, 10000}>>;
+template <> const char *tag_suffix<yard> = " yards";
+using foot = tags::product<yard, tags::scalar<{1, 3}>>;
+template <> const char *tag_suffix<foot> = "\'";
+using inch = tags::product<foot, tags::scalar<{1, 12}>>;
+template <> const char *tag_suffix<inch> = "\"";
+using mile = tags::product<yard, tags::scalar<1760>>;
+template <> const char *tag_suffix<mile> = " miles";
+
+using cm = tags::product<centi, meter>;
+
+// Mass
+using gram = tags::product<tags::scalar<{1, 1000}>, kilogram>;
+template <> const char *tag_suffix<gram> = "g";
+
+using ounce = tags::product<gram, tags::scalar<{283495, 10000}>>;
+template <> const char *tag_suffix<ounce> = "oz";
+
+using pound = tags::product<ounce, tags::scalar<16>>;
+template <> const char *tag_suffix<pound> = "lb";
+using stone = tags::product<pound, tags::scalar<14>>;
+template <> const char *tag_suffix<stone> = "st";
+
 using percent = tags::scalar<{1, 100}>;
-template <> const char *tag_suffix<percent> = "%";
+// template <> const char *tag_suffix<percent> = "%";
 
 // !! Conversion from chrono
 struct epoch_time;

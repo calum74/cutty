@@ -6,6 +6,7 @@
 #include "pretty_type.hpp"
 
 #include <iostream>
+#include <sstream>
 
 namespace cutty
 {
@@ -39,6 +40,13 @@ template <typename T> void print_stream(std::ostream &os)
 template <typename... Ts> void print(const Ts &...ts)
 {
     print_stream(std::cout, ts..., '\n');
+}
+
+template <typename... Ts> std::string print_str(const Ts &...ts)
+{
+    std::stringstream ss;
+    print_stream(ss, ts...);
+    return ss.str();
 }
 
 // print_str

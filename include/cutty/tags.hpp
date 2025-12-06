@@ -2,7 +2,7 @@
 
 #include "fraction.hpp"
 
-#include <iosfwd>
+#include <iostream>
 #include <tuple>
 
 namespace cutty
@@ -89,7 +89,7 @@ template <typename T, typename Tag> class tagged
     value_type value;
 };
 
-template <typename T> const char *tag_suffix = "";
+template <typename T> const char *tag_suffix = nullptr;
 
 namespace detail
 {
@@ -231,6 +231,11 @@ struct strip_scalars<tags::product<tags::scalar<F>, Tags...>> : strip_scalars<ta
     static constexpr fraction multiplier = F * strip_scalars<tags::product<Tags...>>::multiplier;
 };
 
+template <fraction F> struct strip_scalars<tags::product<tags::scalar<F>>> : strip_scalars<tags::product<>>
+{
+    static constexpr fraction multiplier = F;
+};
+
 template <typename Tag> struct strip_scalars<tags::product<Tag>> : strip_scalars<Tag>
 {
 };
@@ -291,6 +296,69 @@ bool operator==(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
 template <typename Tag, typename T, typename Tag2> tagged<T, Tag> delta(const tagged<T, Tag2> &src)
 {
     return tagged<T, Tag>{*tag<Tag>(src) - *tag<Tag>(tag<Tag2>(0))};
+}
+
+template <typename Tag, typename... Tags>
+struct tag_traits<tags::product<Tag, Tags...>> : public default_tag_traits<tags::product<Tag, Tags...>>
+{
+    static void write_tag(std::ostream &os)
+    {
+        if (auto s = tag_suffix<tags::product<Tag, Tags...>>)
+        {
+            os << s;
+        }
+        else
+        {
+            tag_traits<Tag>::write_tag(os);
+            tag_traits<tags::product<Tags...>>::write_tag(os);
+        }
+    }
+};
+
+template <fraction P, typename Tag>
+struct tag_traits<tags::power<Tag, P>> : public default_tag_traits<tags::power<Tag, P>>
+{
+    static void write_tag(std::ostream &os)
+    {
+        if constexpr (P == -1)
+        {
+            os << "/";
+            tag_traits<Tag>::write_tag(os);  // TODO: We need a way to write the denominator better.
+        }
+        else
+        {
+            tag_traits<Tag>::write_tag(os);
+            os << "^" << P;
+        }
+    }
+
+};
+
+template<typename Tag>
+struct simplify_tag
+{
+    using type = Tag;
+};
+
+template<typename Tag>
+using simplify_t = typename simplify_tag<Tag>::type;
+
+template<typename Tag1, typename Tag2>
+struct multiply_tags
+{
+    using type = simplify_t<tags::product<Tag1, Tag2>>;
+};
+
+template<typename T1, typename Tag1, typename T2, typename Tag2>
+auto operator*(const tagged<T1, Tag1> & lhs, const tagged<T2, Tag2> &rhs)
+{
+    return tagged<T1, typename multiply_tags<Tag1, Tag2>::type> { *lhs * *rhs };
+}
+
+template<typename T1, typename Tag1, typename T2, typename Tag2>
+auto operator/(const tagged<T1, Tag1> & lhs, const tagged<T2, Tag2> &rhs)
+{
+    return tagged<T1, typename multiply_tags<Tag1, tags::power<Tag2, -1>>::type> { *lhs / *rhs };
 }
 
 } // namespace cutty

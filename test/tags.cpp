@@ -109,8 +109,38 @@ int main()
         cy::check_equal(cy::tag<cy::second>(60), cy::tag<cy::minute>(1));
     };
 
+    // Length conversions
+    cy::print(cy::tag<cy::yard>(1), '=', cy::tag<cy::meter>(cy::tag<cy::yard>(1.0)));
+    cy::print(cy::tag<cy::yard>(1), '=', cy::tag<cy::inch>(cy::tag<cy::yard>(1.0)));
+    cy::print(cy::tag<cy::inch>(1), '=', cy::tag<cy::cm>(cy::tag<cy::inch>(1.0)));
+    cy::check_equal(cy::print_str(cy::tag<cy::inch>(1)), "1\"");
+
+    // Weight conversions
+    cy::check_equal(cy::print_str(cy::tag<cy::gram>(10)), "10g");
+    cy::check_equal(cy::print_str(cy::tag<cy::gram>(cy::tag<cy::ounce>(1.0))), "28.3495g");
+
     // SI units
     {
         cy::print("5 seconds = ", cy::tag<cy::second>(5));
+        cy::print("5 seconds = ", cy::tag<cy::hour>(cy::tag<cy::second>(5.0)));
     }
+
+    // Convert meters to second to miles per hour
+    {
+        auto x = cy::tag<cy::mile>(70.0);
+        auto y = cy::tag<cy::hour>(2.0);
+        cy::print(x, "in", y, "=", x/y);
+
+        auto a = cy::tag<cy::meter>(10.0);
+        auto b = cy::tag<cy::second>(2.0);
+        cy::print(a, "in", b, "=", a/b);
+
+        // TODO: Need to name speed easily
+        auto z = x/y;
+        auto c = a/b;
+        
+        // z = c;
+    }
+
+    // Literals
 }
