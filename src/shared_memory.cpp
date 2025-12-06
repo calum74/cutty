@@ -1,5 +1,15 @@
 #include <cutty/shared_memory.hpp>
 
+#include <cutty/print.hpp>
+
+#if defined(__linux__)
+#define HAVE_MREMAP 1
+#define DEFAULT_ADDRESS 0x600000000000
+#else
+#define HAVE_MREMAP 0
+#define DEFAULT_ADDRESS 0x0
+#endif
+
 #if WIN32
 #include <windows.h>
 #else
@@ -171,6 +181,9 @@ cy::shared_memory::shared_memory(const char *filename, std::error_code &ec, int 
 
     int prot_flags = flags & readonly ? PROT_READ : PROT_READ | PROT_WRITE;
     m_map_flags = MAP_SHARED;
+
+    if(!hint) hint = (void*)DEFAULT_ADDRESS;
+
     auto data = mmap(hint, mapped_size, prot_flags, m_map_flags, fd, 0);
 
     if (data == MAP_FAILED)
@@ -222,13 +235,20 @@ void cy::shared_memory::remap(std::error_code &ec, size_type mapped_size)
         m_size = mapped_size;
 
 #else
-        // Need to remap
+
+#if HAVE_MREMAP
+        auto data = mremap(m_data, m_size, mapped_size, MREMAP_MAYMOVE, 0);
+#else
         munmap(m_data, m_size);
-        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, m_map_flags, m_fd, 0);
+        auto data = mmap(m_data, mapped_size, PROT_READ | PROT_WRITE, m_map_flags, m_fd, m_data);
+#endif
+
+        // TODO: We need to implement a "pinned" flag here
 
         if (data == MAP_FAILED)
         {
             ec = {errno, std::generic_category()};
+            print(ec.message());
             close();
             return;
         }
@@ -347,6 +367,10 @@ void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
         m_data = p;
 
 #else
+
+#if HAVE_MREMAP
+        auto data = mremap(m_data, m_size, m_size, MREMAP_MAYMOVE | MREMAP_FIXED, new_address);
+#else
         // !! TODO: Need to respect the map flags here
         // ?? Should we use MAP_FIXED here and fail
 
@@ -356,7 +380,7 @@ void cy::shared_memory::reopen_at(std::error_code &ec, void *new_address)
         if (m_fd < 0)
             map_flags |= MAP_ANON;
         auto data = mmap(new_address, m_size, PROT_READ | PROT_WRITE, map_flags, m_fd, 0);
-
+#endif
         if (data == MAP_FAILED)
         {
             ec = {errno, std::generic_category()};
