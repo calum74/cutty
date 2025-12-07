@@ -11,7 +11,9 @@ struct degree;
 struct radian;
 struct gradian;
 
-struct kilo;
+using kilo = tags::scalar<1000>;
+template <> const char *tag_suffix<kilo> = "k";
+
 struct tera;
 struct giga;
 struct mega;
@@ -67,6 +69,29 @@ struct tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>>
     }
 };
 
+template<>
+struct simplify<SI<>> : simplify<tags::unit> {};
+
+template <fraction Meter, fraction Kilogram, fraction Second, fraction Ampere, fraction Kelvin, fraction Mole,
+          fraction Candela, fraction P>
+struct simplify<tags::power<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>, P>> :
+    simplify<SI<Meter*P, Kilogram*P, Second*P, Ampere*P, Kelvin*P, Mole*P, Candela*P>>
+{
+};
+
+template <fraction Meter1, fraction Kilogram1, fraction Second1, fraction Ampere1, fraction Kelvin1, fraction Mole1,
+          fraction Candela1,
+          fraction Meter2, fraction Kilogram2, fraction Second2, fraction Ampere2, fraction Kelvin2, fraction Mole2,
+          fraction Candela2,
+          typename... Tags
+          >
+struct simplify<
+    tags::product<SI<Meter1, Kilogram1, Second1, Ampere1, Kelvin1, Mole1, Candela1>, SI<Meter2, Kilogram2, Second2, Ampere2, Kelvin2, Mole2, Candela2>, Tags...>> :
+    simplify<tags::product<SI<Meter1+Meter2, Kilogram1+Kilogram2, Second1+Second2, Ampere1+Ampere2, Kelvin1+Kelvin2, Mole1+Mole2, Candela1+Candela2>, Tags...>>
+{
+};
+
+
 using meter = SI<1>;
 using kilogram = SI<0, 1>;
 using second = SI<0, 0, 1>;
@@ -84,6 +109,8 @@ template <> const char *tag_suffix<Newton> = "N";
 
 using Ohm = SI<2, 1, -3, -2>;
 template <> const char *tag_suffix<Ohm> = "Ω";
+
+using speed = tags::divide<meter, second>;
 
 /// Temperature
 struct Celcius;
@@ -145,6 +172,7 @@ using years = tags::product<months, tags::scalar<12>>;
 using centuries = tags::product<years, tags::scalar<100>>;
 using millenia = tags::product<years, tags::scalar<1000>>;
 
+///////////////////////////////////////////////////////////////////////////////
 // Length
 using yard = tags::product<meter, tags::scalar<{9144, 10000}>>;
 template <> const char *tag_suffix<yard> = " yards";
@@ -156,6 +184,7 @@ using mile = tags::product<yard, tags::scalar<1760>>;
 template <> const char *tag_suffix<mile> = " miles";
 
 using cm = tags::product<centi, meter>;
+using kilometer = tags::product<kilo, meter>;
 
 // Mass
 using gram = tags::product<tags::scalar<{1, 1000}>, kilogram>;

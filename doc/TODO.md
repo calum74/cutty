@@ -1,3 +1,15 @@
+# Next steps
+- Fix the bug in speed conversion
+
+- Convert speeds etc 
+- Convert speeds with different units
+- Add tests for mph conversions
+- Tidy up text of units e.g. plurals and per hour.
+- Auto print unit using the type name
+
+- tagged<bool, plurality>
+
+
 # Project
 Doxygen
 Readme

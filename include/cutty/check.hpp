@@ -6,6 +6,7 @@
 #include <source_location>
 #include <sstream>
 #include <string_view>
+#include <iomanip>
 
 /** Namespace for all cutty functionality */
 namespace cutty
@@ -65,6 +66,7 @@ void check_equal(auto &&lhs, auto &&rhs, const std::source_location &src = std::
     {
         std::stringstream ss;
         ss << "'";
+        ss << std::setprecision(10);
         print_stream(ss, lhs);
         ss << "' != '";
         print_stream(ss, rhs);

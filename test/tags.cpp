@@ -67,6 +67,7 @@ int main()
     {
         auto x = cy::tag<cy::Farenheit>(80.0);
         cy::tagged<double, cy::Celcius> y = x;
+        cy::print(cy::tag<cy::Celcius>(x));
         cy::check_equal(*y, cy::approx(26.67, 0.1));
         std::cout << x << std::endl;
         std::cout << y << std::endl;
@@ -111,6 +112,10 @@ int main()
 
     // Length conversions
     cy::print(cy::tag<cy::yard>(1), '=', cy::tag<cy::meter>(cy::tag<cy::yard>(1.0)));
+    cy::check_equal(*cy::tag<cy::meter>(cy::tag<cy::yard>(1.0)), cy::approx(0.9144));
+
+    static_assert(std::same_as<cy::meter, cy::detail::strip_scalars_t<cy::inch>>);
+
     cy::print(cy::tag<cy::yard>(1), '=', cy::tag<cy::inch>(cy::tag<cy::yard>(1.0)));
     cy::print(cy::tag<cy::inch>(1), '=', cy::tag<cy::cm>(cy::tag<cy::inch>(1.0)));
     cy::check_equal(cy::print_str(cy::tag<cy::inch>(1)), "1\"");
@@ -135,11 +140,17 @@ int main()
         auto b = cy::tag<cy::second>(2.0);
         cy::print(a, "in", b, "=", a/b);
 
-        // TODO: Need to name speed easily
         auto z = x/y;
-        auto c = a/b;
-        
-        // z = c;
+        cy::tagged<double, cy::speed> c = a/b;
+
+        using T1 = cy::speed;
+        using T2 = cy::tags::divide<cy::mile, cy::hour>;
+        using S1 = typename cy::detail::strip_scalars<T1>::type;
+        using S2 = typename cy::detail::strip_scalars<T2>::type;
+        static_assert(std::same_as<S1, S2>);
+        z = c;
+        cy::check_equal(*cy::tag<cy::tags::divide<cy::mile, cy::hour>>(c), cy::approx(11.18468146));
+        cy::check_equal(*cy::tag<cy::kilometer>(cy::tag<cy::mile>(1.0)), cy::approx(1.609344));
     }
 
     // Literals
