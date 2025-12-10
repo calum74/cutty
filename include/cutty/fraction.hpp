@@ -46,7 +46,7 @@ constexpr fraction operator+(const fraction &lhs, const fraction &rhs)
 // !! Concept here
 template <typename T> constexpr T operator*(const T &lhs, const fraction &rhs)
 {
-    return lhs * rhs.numerator / rhs.denominator;
+    return (lhs * rhs.numerator) / rhs.denominator;
 }
 
 constexpr fraction operator/(const fraction &lhs, const fraction &rhs)

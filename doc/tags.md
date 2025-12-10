@@ -64,19 +64,15 @@ void wait(cy::tagged<std::size_t, cy::milliseconds> timeout, cy::tagged<bool, bl
 
 The [units](units.md) library provide a large number of built-in tags covering common metric and imperial units, distance, mass, time, temperature etc.
 
-## Tuples
-
-
-
 # Reference
 
 ## Types
 
-### `cy::tagged<T, Tag>`
+### `cy::tagged<V, T>`
 
 Types:
-- `using value_type = T;`
-- `using tag_type = Tag;`
+- `using value_type = V;`
+- `using tag_type = T;`
 
 Constructors
 
@@ -118,26 +114,3 @@ Converts one tag into another, performing conversion operations as needed.
 
 ### `template<typename Tag, text_type> const char * tag_symbol`
 
-
-
-
-
-## cy::composite<>
-Allows tagged tuples, for example
-
-```
-struct imaginary_tag;
-
-template<typename T>
-struct cy::tag_traits<imaginary_tag, T>
-{
-    // Special multiplication rules
-};
-
-template<typename T>
-T operator*(cy::tagged<imaginary_tag, T> x, cy::tagged<imaginary_tag, T> y)
-{
-    return -x*y;
-}
-
-```
