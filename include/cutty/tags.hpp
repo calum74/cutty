@@ -8,70 +8,41 @@
 
 namespace cutty
 {
-template <typename T, typename Tag> class tagged;
+template <typename V, typename T> class tagged;
 
-template <typename T, typename Tag> void initialise(tagged<T, Tag> &v)
+template <typename V, typename T> void initialise(tagged<V, T> &v)
 {
-    *v = T();
+    *v = V();
 }
 
-template <typename T1, typename T2, typename Tag> void convert(const tagged<T1, Tag> &src, tagged<T2, Tag> &dest)
+template <typename V1, typename V2, typename T>
+void convert(const tagged<V1, T> &src, tagged<V2, T> &dest)
 {
     *dest = *src;
-}
-
-template <typename T1, typename T2, typename Tag> auto add(const tagged<T1, Tag> &lhs, const tagged<T2, Tag> &rhs)
-{
-    return tag<Tag>(*lhs * *rhs);
-}
-
-// Naive and wrong
-template <typename T1, typename T2, typename Tag1, typename Tag2>
-auto add(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
-{
-    return tag<std::tuple<Tag1, Tag2>>(std::tuple{*lhs, *rhs});
-}
-
-template <typename T>
-concept multiplicative = requires(T t) { t * t; };
-
-template <typename T>
-concept additive = requires(T t) { t + t; };
-
-template <typename T1, multiplicative T2, typename Tag> auto mul(const tagged<T1, Tag> &lhs, const T2 &rhs)
-{
-    return tag<Tag>(*lhs * rhs);
-}
-
-template <multiplicative T1, typename T2, typename Tag> auto mul(const T1 &lhs, const tagged<T2, Tag> &rhs)
-{
-    return tag<Tag>(lhs * *rhs);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // class tagged
 
-template <typename T, typename Tag> class tagged
+template <typename V, typename T> class tagged
 {
   public:
-    using value_type = T;
-    using tag_type = Tag;
+    using value_type = V;
+    using tag_type = T;
 
     tagged() // !! Concept requires has_default_value<Tag,T>
     {
         initialise(*this);
     }
 
-    template <typename T2, typename Tag2> tagged(const tagged<T2, Tag2> &src)
+    template <typename V2, typename T2> tagged(const tagged<V2, T2> &src)
     {
         convert(src, *this);
     }
 
-    explicit constexpr tagged(const T &v) : value(v)
+    explicit constexpr tagged(const V &v) : value(v)
     {
     }
-
-    // explicit tagged(value_type v) : value(std::move(v)) {}
 
     const value_type &operator*() const
     {
@@ -83,7 +54,7 @@ template <typename T, typename Tag> class tagged
         return value;
     }
 
-    template <typename T2, typename Tag2> tagged &operator=(const tagged<T2, Tag2> &src)
+    template <typename V2, typename T2> tagged &operator=(const tagged<V2, T2> &src)
     {
         convert(src, *this);
         return *this;
@@ -102,11 +73,11 @@ namespace tags
 {
 struct unit;
 
-template <typename... Tags> struct product;
+template <typename... Ts> struct product;
 
-template <typename... Tags> struct sum;
+template <typename... Ts> struct sum;
 
-template <typename Tag, fraction Power> struct power;
+template <typename T, fraction P> struct power;
 
 template <fraction F> struct scalar;
 } // namespace tags
@@ -114,25 +85,25 @@ template <fraction F> struct scalar;
 ///////////////////////////////////////////////////////////////////////////////
 // Simplify
 
-template<typename Tag>
+template<typename T>
 struct simplify
 {
-    using type = Tag;
+    using type = T;
 };
 
-template <typename Tag> struct simplify<tags::power<Tag, 0>> : simplify<tags::unit>
+template <typename T> struct simplify<tags::power<T, 0>> : simplify<tags::unit>
 {
 };
 
-template <typename Tag> struct simplify<tags::power<Tag, 1>> : simplify<Tag>
+template <typename T> struct simplify<tags::power<T, 1>> : simplify<T>
 {
 };
 
-template <typename Tag> struct simplify<tags::sum<Tag>> : simplify<Tag>
+template <typename T> struct simplify<tags::sum<T>> : simplify<T>
 {
 };
 
-template <typename Tag> struct simplify<tags::product<Tag>> : simplify<Tag>
+template <typename T> struct simplify<tags::product<T>> : simplify<T>
 {
 };
 
@@ -146,18 +117,18 @@ struct simplify<typename tags::product<>> : simplify<tags::unit>
 {
 };
 
-template<typename... Tags1, typename...Tags2>
-struct simplify<tags::product<tags::product<Tags1...>, Tags2...>> : simplify<tags::product<Tags1..., Tags2...>>
+template<typename... Ts1, typename...Ts2>
+struct simplify<tags::product<tags::product<Ts1...>, Ts2...>> : simplify<tags::product<Ts1..., Ts2...>>
 {
 };
 
-template<typename... Tags>
-struct simplify<tags::product<tags::unit, Tags...>> : simplify<tags::product<Tags...>>
+template<typename... Ts>
+struct simplify<tags::product<tags::unit, Ts...>> : simplify<tags::product<Ts...>>
 {
 };
 
-template<typename Tag>
-struct simplify<tags::product<Tag, tags::unit>> : simplify<Tag>
+template<typename T>
+struct simplify<tags::product<T, tags::unit>> : simplify<T>
 {
 };
 
@@ -166,8 +137,8 @@ struct simplify<tags::scalar<1>> : simplify<tags::unit>
 {
 };
 
-template<typename Tag>
-using simplify_t = typename simplify<Tag>::type;
+template<typename T>
+using simplify_t = typename simplify<T>::type;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Strip scalars
@@ -175,34 +146,34 @@ using simplify_t = typename simplify<Tag>::type;
 namespace detail
 {
 
-template <typename Tag> struct strip_scalars
+template <typename T> struct strip_scalars
 {
-    using type = simplify_t<Tag>;
+    using type = simplify_t<T>;
     static constexpr fraction multiplier{1, 1};
 };
 
-template<typename Tag>
-using strip_scalars_t = simplify_t<typename strip_scalars<simplify_t<Tag>>::type>;
+template<typename T>
+using strip_scalars_t = simplify_t<typename strip_scalars<simplify_t<T>>::type>;
 
-template <fraction F, typename... Tags>
-struct strip_scalars<tags::product<tags::scalar<F>, Tags...>> : strip_scalars<tags::product<Tags...>>
+template <fraction F, typename... Ts>
+struct strip_scalars<tags::product<tags::scalar<F>, Ts...>> : strip_scalars<tags::product<Ts...>>
 {
-    static constexpr fraction multiplier = F * strip_scalars<tags::product<Tags...>>::multiplier;
+    static constexpr fraction multiplier = F * strip_scalars<tags::product<Ts...>>::multiplier;
 };
 
-template <typename Tag, typename... Tags>
-struct strip_scalars<tags::product<Tag, Tags...>>
+template <typename T, typename... Ts>
+struct strip_scalars<tags::product<T, Ts...>>
 {
-    using t1 = strip_scalars<Tag>;
-    using t2 = strip_scalars<tags::product<Tags...>>;
+    using t1 = strip_scalars<T>;
+    using t2 = strip_scalars<tags::product<Ts...>>;
     static constexpr fraction multiplier = t1::multiplier * t2::multiplier;
     using type = simplify_t<tags::product<typename t1::type, typename t2::type>>;
 };
 
 
-template <fraction P, typename Tag> struct strip_scalars<tags::power<Tag, P>>
+template <fraction P, typename T> struct strip_scalars<tags::power<T, P>>
 {
-    using t = strip_scalars<simplify_t<Tag>>;
+    using t = strip_scalars<simplify_t<T>>;
     using type = tags::power<typename t::type, P>;
     static constexpr fraction multiplier = pow(t::multiplier, P);
 };
@@ -212,10 +183,10 @@ template <fraction P, typename Tag> struct strip_scalars<tags::power<Tag, P>>
 ///////////////////////////////////////////////////////////////////////////////
 // Tag traits
 
-template <typename Tag> struct default_tag_traits
+template <typename T> struct default_tag_traits
 {
-    using tag_type = Tag;
-    using common_type = detail::strip_scalars_t<simplify_t<Tag>>;
+    using tag_type = T;
+    using common_type = detail::strip_scalars_t<T>;
 
     static void write_tag(std::ostream &os)
     {
@@ -225,48 +196,48 @@ template <typename Tag> struct default_tag_traits
         }
         else
         {
-            os << pretty_type<Tag>();
+            os << pretty_type<T>();
         }
     }
 };
 
-template <typename Tag> struct tag_traits : public default_tag_traits<Tag>
+template <typename T> struct tag_traits : public default_tag_traits<T>
 {
 };
 
-template <typename Tag, typename... Tags>
-struct tag_traits<tags::product<Tag, Tags...>> : public default_tag_traits<tags::product<Tag, Tags...>>
+template <typename T, typename... Ts>
+struct tag_traits<tags::product<T, Ts...>> : public default_tag_traits<tags::product<T, Ts...>>
 {
     static void write_tag(std::ostream &os)
     {
-        if (auto s = tag_suffix<tags::product<Tag, Tags...>>)
+        if (auto s = tag_suffix<tags::product<T, Ts...>>)
         {
             os << s;
         }
         else
         {
-            tag_traits<Tag>::write_tag(os);
-            if constexpr (sizeof...(Tags)>0)
+            tag_traits<T>::write_tag(os);
+            if constexpr (sizeof...(Ts)>0)
             {
-                tag_traits<tags::product<Tags...>>::write_tag(os);
+                tag_traits<tags::product<Ts...>>::write_tag(os);
             }
         }
     }
 };
 
-template <fraction P, typename Tag>
-struct tag_traits<tags::power<Tag, P>> : public default_tag_traits<tags::power<Tag, P>>
+template <fraction P, typename T>
+struct tag_traits<tags::power<T, P>> : public default_tag_traits<tags::power<T, P>>
 {
     static void write_tag(std::ostream &os)
     {
         if constexpr (P == -1)
         {
             os << "/";
-            tag_traits<Tag>::write_tag(os);  // TODO: We need a way to write the denominator better.
+            tag_traits<T>::write_tag(os);  // TODO: We need a way to write the denominator better.
         }
         else
         {
-            tag_traits<Tag>::write_tag(os);
+            tag_traits<T>::write_tag(os);
             os << "^" << P;
         }
     }
@@ -293,16 +264,16 @@ struct tag_traits<tags::scalar<P>> : public default_tag_traits<tags::scalar<P>>
 // Conversion helpers
 
 
-template <typename Tag1, typename Tag2>
-concept common_tags = std::same_as<typename tag_traits<Tag1>::common_type, typename tag_traits<Tag2>::common_type>;
+template <typename T1, typename T2>
+concept common_tags = std::same_as<typename tag_traits<T1>::common_type, typename tag_traits<T2>::common_type>;
 
-template <typename Tag1, typename Tag2>
+template <typename T1, typename T2>
 concept has_scalar_conversion =
-    std::same_as<typename detail::strip_scalars<Tag1>::type, typename detail::strip_scalars<Tag2>::type>;
+    std::same_as<typename detail::strip_scalars<T1>::type, typename detail::strip_scalars<T2>::type>;
 
-template <typename Tag1, typename Tag2>
+template <typename T1, typename T2>
 concept has_scalar_common_conversion =
-    common_tags<typename detail::strip_scalars<Tag1>::type, typename detail::strip_scalars<Tag2>::type>;
+    common_tags<typename detail::strip_scalars<T1>::type, typename detail::strip_scalars<T2>::type>;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Conversion
@@ -316,200 +287,149 @@ concept has_scalar_common_conversion =
 
 namespace detail
 {
-    template<typename Tag>
-    concept needs_scalar_conversion = !std::same_as<Tag, detail::strip_scalars_t<Tag>>;
+    template<typename T>
+    concept needs_scalar_conversion = !std::same_as<T, detail::strip_scalars_t<T>>;
 
-    template<typename Tag>
-    concept needs_common_conversion = !std::same_as<Tag, typename tag_traits<Tag>::common_type>;
+    template<typename T>
+    concept needs_common_conversion = !std::same_as<T, typename tag_traits<T>::common_type>;
 }
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
-    requires(detail::needs_scalar_conversion<Tag1> || detail::needs_scalar_conversion<Tag2>)
+template <typename V1, typename T1, typename V2, typename T2>
+void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
+    requires(detail::needs_scalar_conversion<T1> || detail::needs_scalar_conversion<T2>)
 {
-    using S1 = detail::strip_scalars_t<Tag1>;
-    using S2 = detail::strip_scalars_t<Tag2>;
+    using S1 = detail::strip_scalars_t<T1>;
+    using S2 = detail::strip_scalars_t<T2>;
     static_assert(!detail::needs_scalar_conversion<S1>, "strip_scalars should not need further scalar conversion");
     static_assert(!detail::needs_scalar_conversion<S2>, "strip_scalars should not need further scalar conversion");
-    tagged<T1, S1> scale1{*from};
-    tagged<T2, S2> scale2;
+    tagged<V1, S1> scale1{*from};
+    tagged<V2, S2> scale2;
     convert(scale1, scale2);
-    *to = *scale2 * (detail::strip_scalars<Tag1>::multiplier / detail::strip_scalars<Tag2>::multiplier);
+    *to = *scale2 * (detail::strip_scalars<T1>::multiplier / detail::strip_scalars<T2>::multiplier);
 }
 
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
-    requires ((detail::needs_common_conversion<Tag1> || detail::needs_common_conversion<Tag2>) && !detail::needs_scalar_conversion<Tag1> && !detail::needs_scalar_conversion<Tag2>)
+template <typename V1, typename T1, typename V2, typename T2>
+void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
+    requires ((detail::needs_common_conversion<T1> || detail::needs_common_conversion<T2>) && !detail::needs_scalar_conversion<T1> && !detail::needs_scalar_conversion<T2>)
 {
-    tagged<T1, typename tag_traits<Tag1>::common_type> i;
+    tagged<V1, typename tag_traits<T1>::common_type> i;
     convert(from, i);
     convert(i, to);
 }
 
-// template <typename T1, typename Tag1, typename T2, typename Tag2>
-// void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
-//     requires (has_scalar_conversion<Tag1, Tag2> && !has_scalar_common_conversion<Tag1,Tag2>)
-// {
-//     // ?? A general functor library, for example
-//     // functor::offset, functor::product, functor::inverse
-//     // functor::apply
-//     *to = *from * (detail::strip_scalars<Tag1>::multiplier / detail::strip_scalars<Tag2>::multiplier);
-// }
+///////////////////////////////////////////////////////////////////////////////
+// Functions
 
-// template<typename Tag>
-// auto get_scale(const tagged<T, Tag> &src)
-// {
-//     using Tag2 = detail::strip_scalars<Tag>;
-//     return std::pair { tagged<T, typename Tag2::type>(*src), 
-// }
-
-// template<typename Tag>
-// concept needs_scalar_conversion = !std::same_as<Tag, detail::strip_scalars_t<Tag>>;
-
-// template <typename T1, typename Tag1, typename T2, typename Tag2>
-// void convert(const tagged<T1, Tag1> &from, tagged<T2, Tag2> &to)
-//     requires has_scalar_common_conversion<Tag1, Tag2> && (
-//         needs_scalar_conversion<Tag1> || needs_scalar_conversion<Tag2>)
-// {
-//     // ?? A general functor library, for example
-//     // functor::offset, functor::product, functor::inverse
-//     // functor::apply
-//     *to = *from * (detail::strip_scalars<Tag1>::multiplier / detail::strip_scalars<Tag2>::multiplier);
-// }
-
-
-template <typename T, typename Tag> std::ostream &operator<<(std::ostream &os, const tagged<T, Tag> &t)
+template <typename V, typename T> std::ostream &operator<<(std::ostream &os, const tagged<V, T> &t)
 {
     os << *t;
-    tag_traits<Tag>::write_tag(os);
+    tag_traits<T>::write_tag(os);
     return os;
 }
 
-template <typename Tag, typename T> tagged<T, Tag> tag(const T &v)
+template <typename T, typename V> tagged<V, T> tag(const V &v)
 {
-    return tagged<T, Tag>{v};
+    return tagged<V, T>{v};
 }
 
-template <typename Tag> constexpr tagged<int, Tag> unit{1};
+template <typename T> constexpr tagged<int, T> unit{1};
 
-template <typename Tag, typename T, typename Tag2> tagged<T, Tag> tag(const tagged<T, Tag2> &src)
+template <typename T, typename V, typename T2> tagged<V, T> tag(const tagged<V, T2> &src)
 {
-    return tagged<T, Tag>{src};
+    return tagged<V, T>{src};
 }
 
-
-namespace detail
+template <typename T, typename V, typename T2> tagged<V, T> delta(const tagged<V, T2> &src)
 {
-
-
-// template<typename Tag, typename...List>
-
-// Indicates that a value in one tag should be converted to another tag
-// possibly with a calculation.
-template <typename From, typename To> struct converts : public std::false_type
-{
-};
-
-// A tag can always be converted to itself
-template <typename Tag> struct converts<Tag, Tag> : public std::true_type
-{
-};
-
-// template<typename From, typename To>
-// struct converts<
-
-// !! requires no conversion
-template <typename Tag1, typename Tag2> struct add_tags
-{
-    using type = tags::sum<Tag1, Tag2>;
-};
-
-template <typename From, typename To>
-concept convertible = requires(const tagged<double, From> &from, tagged<double, To> &to) { convert(from, to); };
-
-
-
-} // namespace detail
-
-template <typename T, typename Tag> tagged<T, Tag> operator*(const tagged<T, Tag> &x, const T &y)
-{
-    return tagged<T, Tag>{*x * y};
+    return tagged<V, T>{*tag<T>(src) - *tag<T>(tag<T2>(0))};
 }
 
-template <typename T1, typename T2, typename Tag> bool operator==(const tagged<T1, Tag> &x, const tagged<T2, Tag> &y)
+///////////////////////////////////////////////////////////////////////////////
+// Operators
+
+template <typename V1, typename V2, typename T> bool operator==(const tagged<V1, T> &x, const tagged<V2, T> &y)
 {
     return *x == *y;
 }
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-tagged<T1, Tag1> operator-(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
+template <typename V1, typename T1, typename V2, typename T2>
+tagged<V1, T1> operator-(const tagged<V1, T1> &x, const tagged<V2, T2> &y)
 {
-    const tagged<T1, Tag1> y2 = y;
-    return tagged<T1, Tag1>{*x - *y2};
+    const tagged<V1, T1> y2 = y;
+    return tagged<V1, T1>{*x - *y2};
 }
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-tagged<T1, Tag1> operator+(const tagged<T1, Tag1> &x, const tagged<T2, Tag2> &y)
+template <typename V1, typename T1, typename V2, typename T2>
+tagged<V1, T1> operator+(const tagged<V1, T1> &x, const tagged<V2, T2> &y)
 {
-    const tagged<T1, Tag1> y2 = y;
-    return tagged<T1, Tag1>{*x + *y2};
+    const tagged<V1, T1> y2 = y;
+    return tagged<V1, T1>{*x + *y2};
 }
 
-template <typename T, typename Tag> auto operator<=>(const tagged<T, Tag> &x, const tagged<T, Tag> &y)
+template <typename V1, typename T1, typename V2, typename T2>
+auto operator<=>(const tagged<V1, T1> &lhs, const tagged<V2, T2> &rhs)
 {
-    return *x <=> *y;
+    return *lhs <=> *tag<T1>(rhs);
 }
 
-template <typename T, typename Tag> tagged<T, Tag> operator*(const T &x, const tagged<T, Tag> &y)
+template <typename V1, typename T1, typename V2, typename T2>
+bool operator==(const tagged<V1, T1> &lhs, const tagged<V2, T2> &rhs)
 {
-    return tagged<T, Tag>{x * *y};
+    return *lhs == *tag<T1>(rhs);
 }
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-auto operator<=>(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
+///////////////////////////////////////////////////////////////////////////////
+// Multiplication
+
+template <typename V, typename T> tagged<V, T> operator*(const V &x, const tagged<V, T> &y)
 {
-    return *lhs <=> *tag<Tag1>(rhs);
+    return tagged<V, T>{x * *y};
 }
 
-template <typename T1, typename Tag1, typename T2, typename Tag2>
-bool operator==(const tagged<T1, Tag1> &lhs, const tagged<T2, Tag2> &rhs)
+template <typename V, typename T> tagged<V, T> operator*(const tagged<V, T> &x, const V &y)
 {
-    return *lhs == *tag<Tag1>(rhs);
+    return tagged<V, T>{*x * y};
 }
 
-template <typename Tag, typename T, typename Tag2> tagged<T, Tag> delta(const tagged<T, Tag2> &src)
+namespace detail
 {
-    return tagged<T, Tag>{*tag<Tag>(src) - *tag<Tag>(tag<Tag2>(0))};
-}
-
-
-
-template<typename Tag1, typename Tag2>
+template<typename T1, typename T2>
 struct multiply_tags
 {
-    using type = tags::product<Tag1, Tag2>;
+    using type = tags::product<T1, T2>;
 };
-
-template<typename T1, typename Tag1, typename T2, typename Tag2>
-auto operator*(const tagged<T1, Tag1> & lhs, const tagged<T2, Tag2> &rhs)
-{
-    return tagged<T1, typename multiply_tags<Tag1, Tag2>::type> { *lhs * *rhs };
 }
 
-template<typename T1, typename Tag1, typename T2, typename Tag2>
-auto operator/(const tagged<T1, Tag1> & lhs, const tagged<T2, Tag2> &rhs)
+template<typename V1, typename T1, typename V2, typename T2>
+auto operator*(const tagged<V1, T1> & lhs, const tagged<V2, T2> &rhs)
 {
-    return tagged<T1, typename multiply_tags<Tag1, tags::power<Tag2, -1>>::type> { *lhs / *rhs };
+    return tagged<V1, typename detail::multiply_tags<T1, T2>::type> { *lhs * *rhs };
+}
+
+template<typename V1, typename T1, typename V2, typename T2>
+auto operator/(const tagged<V1, T1> & lhs, const tagged<V2, T2> &rhs)
+{
+    return tagged<V1, typename detail::multiply_tags<T1, tags::power<T2, -1>>::type> { *lhs / *rhs };
 }
 
 namespace tags
 {
-    template<typename Tag1, typename Tag2>
-    using multiply = typename multiply_tags<Tag1, Tag2>::type;
+    template<typename T1, typename T2>
+    using multiply = typename detail::multiply_tags<T1, T2>::type;
 
-    template<typename Tag1, typename Tag2>
-    using divide = multiply<Tag1, power<Tag2, -1>>;
+    template<typename T1, typename T2>
+    using divide = multiply<T1, power<T2, -1>>;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+// Unknown junk
+
+namespace detail
+{
+template <typename From, typename To>
+concept convertible = requires(const tagged<double, From> &from, tagged<double, To> &to) { convert(from, to); };
+} // namespace detail
+
 
 } // namespace cutty
