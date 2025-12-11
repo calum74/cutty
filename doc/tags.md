@@ -3,96 +3,134 @@
 A *tag* is a lightweight wrapper around a datatype (for example a `string`, `double`, or `int`) which labels it in some way, to enable
 
 - better documentation of raw numbers or strings
-- prevent accidental or illogical operations
-- easily implement allowable conversions 
+- prevent accidental or invalid operations
+- implement allowable conversions 
 - makes it simpler to implement wrapper types
 
-It is a generalisation of the idea of *units* (for example distance, mass, time), but is extensible to user types.
+It is a generalisation of the idea of *units* (for example distance, mass, time), but its main purpose is for user types.
 
 ## Tutorial
 
-A tag is just any data type, for example
+A tag is just any data type, for example `struct bytes_t` or `struct hostname_t`. You can then  define bespoke datatypes representing particular types of data, for example:
 
 ```c++
-struct bytes;
-struct compression_level;
-struct blocking;
-struct uri;
-struct port;
-struct force_ssl;
+using ChunkSize = cy::tagged<size_t, struct bytes_t>;
+using CompressionLevel = cy::tagged<int, struct comp_level_t>;
+using Blocking = cy::tagged<bool, struct blocking_t>;
+using Hostname = cy::tagged<std::string, struct hostname_t>;
+using Uri = cy::tagged<std::string, struct uri_t>;
+using Port = cy::tagged<int, struct port_t>;
+using Ssl = cy::tagged<bool, force_ssl_t>;
 ```
 
-You can then define functions that take particular argument types, for example
+Function signatures can be changed to take more specific tagged types, for example
 
 ```c++
-void wait(cy::tagged<std::size_t, cy::milliseconds> time, cy::tagged<bool, blocking> block);
+#include <cutty/tags.hpp>
+namespace cy = cutty;
+
+void wait(
+    cy::tagged<std::size_t, cy::milliseconds> time, 
+    Blocking block);
 
 void send(
-    cy::tagged<std::string, host> host_name, 
-    cy::tagged<int, port> port_number,
-    cy::tagged<std::string, uri> uri,
-    cy::tagged<size_t, bytes> max_size,
-    cy::tagged<bool, force_ssl> ssl,
-    cy::tagged<int, compression_level> compression);
+    Hostname hostname, 
+    Port port,
+    Uri uri,
+    ChunkSize chunksize,
+    Ssl force_ssl,
+    CompressionLevel compression);
 ```
 
-To create a tag, use the `cy::tag<T>()` function, for example
+To create a tag, pass the value to the `tagged` constructor, or use the `cy::tag<T>()` function. For example
 
 ```c++
-cy::tagged<bool, force_ssl> using_ssl{true};
-
-wait(cy::tag<cy::seconds>(5), cy::tag<blocking>(false));
+Ssl using_ssl{true};
+wait(cy::tag<cy::seconds>(5), Blocking(false));
 ```
 
+Note that the tag takes care of units, for example converting seconds to milliseconds.
 To access the value of a tag, use the `*` operator
 
 ```c++
-void wait(cy::tagged<std::size_t, cy::milliseconds> timeout, cy::tagged<bool, blocking> block)
+void wait(cy::tagged<std::size_t, cy::milliseconds> timeout, Blocking block)
 {
     if(*block)
     {
-        ::Sleep(*timeout);
+        Sleep(*timeout);
     }
 }
 ```
 
-# Advanced tag usage
+Writing a tag to a stream will output the appropriate unit if available.
 
-## Tag IO
-
-## Metric and other units
+```c++
+std::cout << cy::tag<cy::seconds>(10);  // Outputs "10s"
+```
 
 The [units](units.md) library provide a large number of built-in tags covering common metric and imperial units, distance, mass, time, temperature etc.
 
 # Reference
 
+## Header and namespace
+
+```c++
+#include <cutty/tags.hpp>
+```
+
+All names are in the `cutty` namespace.
+
 ## Types
 
 ### `cy::tagged<V, T>`
+### `class tagged<V, T>`
 
-Types:
+Member types:
 - `using value_type = V;`
 - `using tag_type = T;`
 
-Constructors
+Constructors:
+- `tagged()`: Initialise with a default value as defined by `cy::initialize()`.
+- `explicit tagged(const V&)`: Initialise with a given value
+- `explicit tagged(V&&)`: Initialise with a given rvalue
+- `tagged(const tagged<T2, V2>&)`: Initialise from another compatible tag, performing conversion as necessary.
 
-Operators
-- `template<typename T1, Tag2, typename T2 ,Tag2> operator+(const tagged<T1,Tag1>&lhs, const tagged<T2, Tag2>&rhs);`
-- operator *
-- ...
+Operators:
+- `operator=(const tagged<V2,T2>&other)`: Assign from another tag.
+- `operator*()`: Access the underlying value, for reading or writing. 
+- `bool operator ==(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required.
+- `auto operator <=>(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required.
 
-Comparators
+Tag-preserving arithmetic:
 
-### `enum cy::text_type`
+- `tagged<V1,T1> operator+(const tagged<V1,T1>&lhs, const tagged<V2, T2>&rhs)`
+- `tagged<V1,T1> operator-(const tagged<V1,T1>&lhs, const tagged<V2, T2>&rhs)`
+- `tagged<V,T> operator*(const V&lhs, const tagged<V, T>&rhs)`: Perform a scalar multiplication, resulting in a tagged value of the same type.
+- `tagged<V,T> operator*(const tagged<V, T>&lhs, const V&rhs)`:  Perform a scalar multiplication, resulting in a tagged value of the same type.
+- `tagged<V,T> operator/(const tagged<V, T>&lhs, const V&rhs)`:  Perform a scalar division, resulting in a tagged value of the same type.
 
-- all
-- singular (defaults to all)
-- plural (defaults to all)
-- denominator (defaults to all)
+Tag-modifying arithmetic:
+
+- `operator*` and `operator/` 
+
+### `struct tag_traits<T>` 
+
+Provides a customisation point for tags. This type can be specialised. (See source code for details.)
+
+## Concepts
+
+### `concept convertible_to<T1, T2>`
+
+Holds if the tag `T1` is convertible to `T2`. It means that the `convert()` function will succeed.
 
 ## Functions
 
-### `template<typename T, typename Tag> cy::tagged<T, Tag> cy::tag(const T &)`
+### `tag<T>()`
+
+```c++
+template<typename T, typename Tag>
+cy::tagged<T, Tag>cy::tag(const T &)
+```
 
 Creates a tag of a given type.
 
@@ -100,17 +138,55 @@ Creates a tag of a given type.
 auto temp = cy::tag<cy::Kelvin>(0.0001);
 ```
 
-### `template<typename T, typename Tag, typename Tag2> cy::tagged<T, Tag> cy::tag(const tagged<T, Tag2> &)`
+```c++
+template<typename T1, typename V, convertible_to<T1> T2>
+cy::tagged<V, T1> cy::tag(const tagged<V, T2> &)
+```
 
 Converts one tag into another, performing conversion operations as needed.
 
-### `template<typename T, typename Tag, typename Tag2> cy::tagged<T, Tag> cy::delta(const tagged<T, Tag2> &)`
+### `cy::delta<T>()`
 
-### `template<typename V1, typename T1, typename V2, typename T2> convert(const tagged<V1,T1> &src, tagged<V2,T2> &dest)`
+```c++
+template<typename T1, typename V, convertible_to<T1> T2>
+cy::tagged<V, T1> cy::delta(const tagged<V, T2> &)
+```
+
+Converts one tag to another type, but treats the value as a "delta". This is for conversions like
+
+```c++
+t1 + cy::delta<cy::Celcius>(t2)
+```
+
+where a naive conversion of `t2` from `Farenheit` to `Celcius` would be the wrong thing to do.
+
+### `cy::convert<T1, T2>()`
+
+Converts one tagged value to another. This can be specialised to implement custom conversions.
+
+```c++
+template<typename V1, typename T1, typename V2, typename T2>
+void convert(const tagged<V1,T1> &src, tagged<V2,T2> &dest)
+```
+
+By default, conversions are applied multi-stage:
+
+1. Remove scalar differences
+2. Convert src to the common type
+3. Convert dest to the common type.
+
+For example the common type of `cy::Celcius` and `cy::Farenheit` is `cy::Kelvin`.
+
+### `cy::initialize<V,T>()`
+
+Initialises a tag with a default value. This can be specialised to implement custom initialisation.
 
 ## Constants
 
-### `template<typename Tag, text_type> const char * tag_text`
+### `template<typename T> const char * tag_text`
 
-### `template<typename Tag, text_type> const char * tag_symbol`
+Override this to provide a custom name for your tag when printing it.
 
+### `template<typename T> const char * tag_symbol`
+
+Override this to provide a custom symbol for your tag when printing it.
