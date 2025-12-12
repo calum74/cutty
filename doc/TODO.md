@@ -1,7 +1,8 @@
 # Next steps
 - Tidy up text of units e.g. plurals and per hour.
-- tagged<bool>
-- Subtraction
+- Test the outputs
+- Test suite
+
 - Units
 
 # Project

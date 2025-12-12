@@ -115,7 +115,7 @@ Tag-preserving arithmetic:
 
 Tag-modifying arithmetic:
 
-- `operator*` and `operator/` 
+- `operator*` and `operator/`: always compile, generate a new tag with the unit being the product or quotient of the original units.
 
 ### `struct tag_traits<T>` 
 
@@ -191,9 +191,6 @@ Initialises a tag with a default value. This can be specialised to implement cus
 
 Override this to provide a custom name for your tag when printing it. This will insert a space and automatically append an "s". If this is not desired, use `tag_symbol` instead.
 
-It is a compile-time error to specify both `tag_text` and `tag_symbol` for the same tag.
-
 ### `template<typename T> const char * tag_symbol`
 
-Override this to provide a custom symbol for your tag when printing it. It is a compile-time error to specify both `tag_text` and `tag_symbol` for the same tag.
-
+Override this to provide a custom symbol for your tag when printing it. 

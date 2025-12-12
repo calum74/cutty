@@ -134,11 +134,12 @@ int main()
     {
         auto x = cy::tag<cy::mile>(70.0);
         auto y = cy::tag<cy::hour>(2.0);
-        cy::print(x, "in", y, "=", x/y);
+        cy::check_equal(cy::print_str(x, "in", y, "=", x/y), "70 miles in 2 hours = 35 miles/hour");
+
 
         auto a = cy::tag<cy::meter>(10.0);
         auto b = cy::tag<cy::second>(2.0);
-        cy::print(a, "in", b, "=", a/b);
+        cy::check_equal(cy::print_str(a, "in", b, "=", a/b), "10m in 2s = 5m/s");
 
         auto z = x/y;
         cy::tagged<double, cy::speed> c = a/b;
