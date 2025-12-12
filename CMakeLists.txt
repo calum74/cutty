@@ -61,6 +61,7 @@ add_library(cutty
     src/cutty.cpp
     src/persist.cpp
     src/shared_memory.cpp
+    src/test.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
     src/dynamic/functions.cpp
@@ -101,6 +102,7 @@ add_executable(sequence_writers samples/sequence/writers.cpp)
 add_executable(shared_memory_test test/shared_memory_test.cpp)
 add_executable(tag_test test/tags.cpp)
 add_executable(unit_test test/units.cpp)
+add_executable(test_test samples/test.cpp)
 
 add_test(approx approx_sample)
 add_test(mixins mixins)
@@ -132,4 +134,5 @@ add_test(sequence_transformations sequence_transformations)
 add_test(sequence_writers sequence_writers)
 add_test(shared_memory shared_memory_test)
 add_test(tag_test tag_test)
+add_test(test_test test_test)
 add_test(unit_test unit_test)
