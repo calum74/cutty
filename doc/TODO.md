@@ -1,6 +1,6 @@
 # Next steps
 - Tidy up text of units e.g. plurals and per hour.
-- tagged<bool, plurality>
+- tagged<bool>
 - Subtraction
 - Units
 
@@ -19,24 +19,8 @@ Output sequence is a bit weird as it's not a sequence.
 In/out sequence?
 
 # Tags
-What about difference types
-- temperature
-- times and dates
-Multiple conversions
-Requirements and concepts
-Addition
-Multiplication
-Complex numbers
-
-Implement!
-- temperature
-- times
-- policies on addition and multiplication
-- complex numbers
-
-Delta types:
-- delta<celcius>
-- delta<time>
+Use mixin hooks
+e.g. temperature::freezing()
 
 # Dynamic
 Get map test passing

@@ -77,7 +77,9 @@ template <typename V, typename T> class tagged
     value_type value;
 };
 
-template <typename T> const char *tag_suffix = nullptr;
+template <typename T> const char *tag_text = nullptr;
+
+template <typename T> const char *tag_symbol = nullptr;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Tags
@@ -186,20 +188,41 @@ template <fraction P, typename T> struct strip_scalars<tags::power<T, P>>
 ///////////////////////////////////////////////////////////////////////////////
 // Tag traits
 
+using Plural = tagged<bool, struct singular_tag>;
+using PadWithSpace = tagged<bool, struct pad_tag>;
+
+namespace detail
+{    
+    template<typename T>
+    bool write_tag(std::ostream &os, Plural plural, PadWithSpace pad)
+    {
+        if (auto s = tag_symbol<T>)
+        {
+            os << s;
+            return true;
+        }
+        if(auto s = tag_text<T>)
+        {
+            if(*pad) os << ' ';
+            os << s;
+            if(*plural) os << 's';
+            return true;
+        }
+        return false;
+    }
+}
+
 template <typename T> struct default_tag_traits
 {
     using tag_type = T;
     using common_type = detail::strip_scalars_t<T>;
     using value_type = double;
 
-    static void write_tag(std::ostream &os)
+    static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if (auto s = tag_suffix<tag_type>)
+        if(!detail::write_tag<T>(os, plural, pad))
         {
-            os << s;
-        }
-        else
-        {
+            if(*pad) os << ' ';
             os << pretty_type<T>();
         }
     }
@@ -212,18 +235,18 @@ template <typename T> struct tag_traits : public default_tag_traits<T>
 template <typename T, typename... Ts>
 struct tag_traits<tags::product<T, Ts...>> : public default_tag_traits<tags::product<T, Ts...>>
 {
-    static void write_tag(std::ostream &os)
+    static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if (auto s = tag_suffix<tags::product<T, Ts...>>)
+        if(!detail::write_tag<tags::product<T, Ts...>>(os, plural, pad))
         {
-            os << s;
-        }
-        else
-        {
-            tag_traits<T>::write_tag(os);
             if constexpr (sizeof...(Ts) > 0)
             {
-                tag_traits<tags::product<Ts...>>::write_tag(os);
+                tag_traits<T>::write(os, plural, pad);
+                tag_traits<tags::product<Ts...>>::write(os, plural, pad);
+            }
+            else
+            {
+                tag_traits<T>::write(os, plural, pad);
             }
         }
     }
@@ -231,16 +254,16 @@ struct tag_traits<tags::product<T, Ts...>> : public default_tag_traits<tags::pro
 
 template <fraction P, typename T> struct tag_traits<tags::power<T, P>> : public default_tag_traits<tags::power<T, P>>
 {
-    static void write_tag(std::ostream &os)
+    static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
         if constexpr (P == -1)
         {
             os << "/";
-            tag_traits<T>::write_tag(os); // TODO: We need a way to write the denominator better.
+            tag_traits<T>::write(os, Plural{false}, PadWithSpace{false}); // TODO: We need a way to write the denominator better.
         }
         else
         {
-            tag_traits<T>::write_tag(os);
+            tag_traits<T>::write(os, plural, pad);
             os << "^" << P;
         }
     }
@@ -248,13 +271,9 @@ template <fraction P, typename T> struct tag_traits<tags::power<T, P>> : public 
 
 template <fraction P> struct tag_traits<tags::scalar<P>> : public default_tag_traits<tags::scalar<P>>
 {
-    static void write_tag(std::ostream &os)
+    static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if (auto s = tag_suffix<tags::scalar<P>>)
-        {
-            os << s;
-        }
-        else
+        if(!detail::write_tag<tags::scalar<P>>(os, plural, pad))
         {
             os << "*(" << P << ")";
         }
@@ -324,7 +343,7 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
 template <typename V, typename T> std::ostream &operator<<(std::ostream &os, const tagged<V, T> &t)
 {
     os << *t;
-    tag_traits<T>::write_tag(os);
+    tag_traits<T>::write(os, Plural(*t!=1), PadWithSpace(true));
     return os;
 }
 

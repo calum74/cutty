@@ -12,20 +12,20 @@ struct radian;
 struct gradian;
 
 using kilo = tags::scalar<1000>;
-template <> const char *tag_suffix<kilo> = "k";
+template <> const char *tag_symbol<kilo> = "k";
 
 struct tera;
 struct giga;
 struct mega;
 
 using milli = tags::scalar<{1, 1000}>;
-template <> const char *tag_suffix<milli> = "m";
+template <> const char *tag_symbol<milli> = "m";
 
 using micro = tags::scalar<{1, 1000000}>;
-template <> const char *tag_suffix<micro> = "µ";
+template <> const char *tag_symbol<micro> = "µ";
 
 using centi = tags::scalar<{1, 100}>;
-template <> const char *tag_suffix<centi> = "c";
+template <> const char *tag_symbol<centi> = "c";
 
 struct nano;
 struct pico;
@@ -40,13 +40,10 @@ template <fraction Meter, fraction Kilogram, fraction Second, fraction Ampere, f
 struct tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>> : default_tag_traits<SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>>
 {
     using tag_type = SI<Meter, Kilogram, Second, Ampere, Kelvin, Mole, Candela>;
-    static void write_tag(std::ostream &os)
+
+    static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if (tag_suffix<tag_type>)
-        {
-            os << tag_suffix<tag_type>;
-        }
-        else
+        if(!detail::write_tag<tag_type>(os, plural, pad))
         {
             auto output = [&](fraction p, const char *name) {
                 if (p != 0)
@@ -101,20 +98,20 @@ using mol = SI<0, 0, 0, 0, 0, 1>;
 using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
 using Joule = SI<2, 1, -2>;
-template <> const char *tag_suffix<Joule> = "J";
+template <> const char *tag_symbol<Joule> = "J";
 using Volt = SI<2, 1, -3, -1>;
-template <> const char *tag_suffix<Volt> = "V";
+template <> const char *tag_symbol<Volt> = "V";
 using Newton = SI<1, 1, -2>;
-template <> const char *tag_suffix<Newton> = "N";
+template <> const char *tag_symbol<Newton> = "N";
 
 using Ohm = SI<2, 1, -3, -2>;
-template <> const char *tag_suffix<Ohm> = "Ω";
+template <> const char *tag_symbol<Ohm> = "Ω";
 
 using speed = tags::divide<meter, second>;
 
 /// Temperature
 struct Celcius;
-template <> const char *tag_suffix<Celcius> = "°C";
+template <> const char *tag_symbol<Celcius> = "°C";
 template <> struct tag_traits<Celcius> : default_tag_traits<Celcius>
 {
     using common_type = Kelvin;
@@ -123,7 +120,7 @@ template <> struct tag_traits<Celcius> : default_tag_traits<Celcius>
 using Centigrade = Celcius;
 
 struct Farenheit;
-template <> const char *tag_suffix<Farenheit> = "°F";
+template <> const char *tag_symbol<Farenheit> = "°F";
 template <> struct tag_traits<Farenheit> : default_tag_traits<Farenheit>
 {
     using common_type = Kelvin;
@@ -149,23 +146,21 @@ template <typename T> void convert(const tagged<T, Farenheit> &f, tagged<T, Kelv
     *k = 273.15 + 5 * (*f - 32) / 9;
 }
 
-// template <> const char *tag_suffix<Kelvin> = "K";
-
 /// Time
 
 using milliseconds = tags::product<milli, second>;
 using minute = tags::product<second, tags::scalar<60>>;
-template <> const char *tag_suffix<minute> = " minutes";
+template <> const char *tag_text<minute> = "minute";
 
 using hour = tags::product<minute, tags::scalar<60>>;
-template <> const char *tag_suffix<hour> = " hours";
+template <> const char *tag_text<hour> = "hour";
 
 using day = tags::product<hour, tags::scalar<24>>;
 
-template <> const char *tag_suffix<day> = " days";
+template <> const char *tag_text<day> = "day";
 
 using week = tags::product<day, tags::scalar<7>>;
-template <> const char *tag_suffix<week> = " weeks";
+template <> const char *tag_text<week> = "week";
 
 struct months;
 using years = tags::product<months, tags::scalar<12>>;
@@ -175,28 +170,28 @@ using millenia = tags::product<years, tags::scalar<1000>>;
 ///////////////////////////////////////////////////////////////////////////////
 // Length
 using yard = tags::product<meter, tags::scalar<{9144, 10000}>>;
-template <> const char *tag_suffix<yard> = " yards";
+template <> const char *tag_text<yard> = "yard";
 using foot = tags::product<yard, tags::scalar<{1, 3}>>;
-template <> const char *tag_suffix<foot> = "\'";
+template <> const char *tag_symbol<foot> = "\'";
 using inch = tags::product<foot, tags::scalar<{1, 12}>>;
-template <> const char *tag_suffix<inch> = "\"";
+template <> const char *tag_symbol<inch> = "\"";
 using mile = tags::product<yard, tags::scalar<1760>>;
-template <> const char *tag_suffix<mile> = " miles";
+template <> const char *tag_text<mile> = "mile";
 
 using cm = tags::product<centi, meter>;
 using kilometer = tags::product<kilo, meter>;
 
 // Mass
 using gram = tags::product<tags::scalar<{1, 1000}>, kilogram>;
-template <> const char *tag_suffix<gram> = "g";
+template <> const char *tag_symbol<gram> = "g";
 
 using ounce = tags::product<gram, tags::scalar<{283495, 10000}>>;
-template <> const char *tag_suffix<ounce> = "oz";
+template <> const char *tag_symbol<ounce> = "oz";
 
 using pound = tags::product<ounce, tags::scalar<16>>;
-template <> const char *tag_suffix<pound> = "lb";
+template <> const char *tag_symbol<pound> = "lb";
 using stone = tags::product<pound, tags::scalar<14>>;
-template <> const char *tag_suffix<stone> = "st";
+template <> const char *tag_symbol<stone> = "st";
 
 // Volume
 // !! TODO
@@ -208,21 +203,11 @@ using percent = tags::scalar<{1, 100}>;
 struct epoch_time;
 struct unix_time;
 
-struct Im;
-template <> const char *tag_suffix<Im> = "i";
+struct byte;
+template <> const char *tag_text<byte> = "byte";
 
-struct Re;
-using Complex = tags::sum<Re, Im>;
-
-struct R;
-struct Theta;
-using Polar = tags::sum<R, Theta>;
-
-struct bytes;
-template <> const char *tag_suffix<bytes> = " bytes";
-
-using bits = tags::product<bytes, tags::scalar<{1, 8}>>;
-template <> const char *tag_suffix<bits> = " bits";
+using bit = tags::product<byte, tags::scalar<{1, 8}>>;
+template <> const char *tag_text<bit> = "bit";
 
 // using kilobytes = scalar_tag<bytes, {1024}>;
 // using megabytes = scalar_tag<kilobytes, {1024}>;

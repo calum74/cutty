@@ -70,6 +70,10 @@ std::cout << cy::tag<cy::seconds>(10);  // Outputs "10s"
 
 The [units](units.md) library provide a large number of built-in tags covering common metric and imperial units, distance, mass, time, temperature etc.
 
+## Configuration points
+
+The available specialisations are: `tag_traits<T>`, `tag_text<T>`, `tag_symbol<T>`, `initialize<T>`, `convert`.
+
 # Reference
 
 ## Header and namespace
@@ -185,8 +189,11 @@ Initialises a tag with a default value. This can be specialised to implement cus
 
 ### `template<typename T> const char * tag_text`
 
-Override this to provide a custom name for your tag when printing it.
+Override this to provide a custom name for your tag when printing it. This will insert a space and automatically append an "s". If this is not desired, use `tag_symbol` instead.
+
+It is a compile-time error to specify both `tag_text` and `tag_symbol` for the same tag.
 
 ### `template<typename T> const char * tag_symbol`
 
-Override this to provide a custom symbol for your tag when printing it.
+Override this to provide a custom symbol for your tag when printing it. It is a compile-time error to specify both `tag_text` and `tag_symbol` for the same tag.
+

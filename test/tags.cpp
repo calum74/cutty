@@ -103,9 +103,9 @@ int main()
 
     // Scaling conversions
     {
-        static_assert(cy::common_tags<cy::bytes, cy::tags::product<cy::tags::scalar<{1,8}>, cy::bytes>>);
-        static_assert(cy::common_tags<cy::bytes, cy::tags::product<cy::bytes, cy::tags::scalar<{1,8}>>>);
-        cy::check_equal(*cy::tag<cy::bits>(cy::tag<cy::bytes>(2)), 16);
+        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::tags::scalar<{1,8}>, cy::byte>>);
+        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::byte, cy::tags::scalar<{1,8}>>>);
+        cy::check_equal(*cy::tag<cy::bit>(cy::tag<cy::byte>(2)), 16);
 
         cy::check_equal(cy::tag<cy::second>(60), cy::tag<cy::minute>(1));
     };
