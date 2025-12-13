@@ -1,9 +1,11 @@
 # Next steps
 - Tidy up text of units e.g. plurals and per hour.
 - Test the outputs
-- Test suite
 
 - Units
+
+- Should we have a "test case" local variable, and use satellite to specify it?
+
 
 # Project
 Doxygen

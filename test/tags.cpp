@@ -13,36 +13,159 @@
 #include <cutty/units.hpp>
 
 // Header files for testing
-#include <cutty/approx.hpp>
-#include <cutty/check.hpp>
+#include <cutty/test.hpp>
 
 namespace cy = cutty;
 
-/*
-    User-defined tags.
- */
-struct tag1;
-struct tag2;
+// Basic usage
+// Decide on a unique tag name, for example verbosity_t,
+// then define a tagged type to use it.
+
+using Verbose = cy::tagged<bool, struct verbosity_t>;
+
+void welcome(Verbose verbose)
+{
+    // The * operator can be used to access the underlying value
+    if (*verbose)
+    {
+        cy::print("Welcome to tags!");
+    }
+}
+
+void basic_tags()
+{
+    welcome(Verbose{false});
+}
+
+void conversions()
+{
+    // The cy::tag function creates a tagged value of a given tag.
+    // The units library provides many tags representing different quantities
+    auto grams = cy::tag<cy::gram>(1000);
+
+    // Compatible tags are automatically scaled as needed
+    cy::check_equal(1000, *cy::tag<cy::gram>(cy::tag<cy::kilogram>(1)));
+    cy::check_equal(cy::tag<cy::gram>(1000), cy::tag<cy::kilogram>(1));
+
+    // Passing or assigning one unit to another will automatically convert the value
+    // to the new unit.
+    grams = cy::tag<cy::pound>(4);
+    cy::check_equal(cy::tag<cy::gram>(1814), cy::tag<cy::pound>(4));
+
+    // Be a bit careful with integers however, as they might get rounded down
+    cy::check_equal(cy::tag<cy::stone>(0), cy::tag<cy::kilogram>(1));
+}
+
+// User-defined conversions
+
+struct USD;
+struct GBP;
+
+double rate = 1.1;
 
 namespace cutty
 {
-    // A user-defined conversion between tags of different types.
-    // Specialise
-template <typename T> void convert(const cy::tagged<T, tag1> &src, cy::tagged<T, tag2> &dest)
+// A user-defined conversion between tags of different types.
+template <typename T> void convert(const cy::tagged<T, USD> &src, cy::tagged<T, GBP> &dest)
 {
-    *dest = *src;
+    *dest = *src / rate;
 }
 
-template <typename T> void convert(const cy::tagged<T, tag2> &src, cy::tagged<T, tag1> &dest)
+template <typename T> void convert(const cy::tagged<T, GBP> &src, cy::tagged<T, USD> &dest)
 {
-    *dest = *src;
+    *dest = *src * rate;
 }
-
 } // namespace cutty
 
-// You can define mixins on tagged type
-template<cy::common_type<cy::Celcius> T, typename V>
-struct cy::mixin<cy::tagged<V,T>, cy::tagged_methods<T>>
+// Scalar conversions are defined using the scalar type as follows:
+using GBp = cy::tags::product<GBP, cy::tags::scalar<{1,100}>>;
+
+void pay_me(cy::tagged<double, USD> amount)
+{
+}
+
+void user_conversions()
+{
+    // Different units are all converted correctly
+    pay_me(cy::tag<USD>(10.0));
+    pay_me(cy::tag<GBP>(1.0));
+    pay_me(cy::tag<GBp>(250.0));
+
+    cy::check_equal(cy::tag<GBP>(4), cy::tag<GBp>(400));
+}
+
+// Tag IO
+
+template <> const char *cy::tag_text<USD> = "dollar";
+template <> const char *cy::tag_text<GBP> = "pound";
+template <> const char *cy::tag_symbol<GBp> = "p";
+
+void io()
+{
+    // Output: 10 dollars
+    std::cout << cy::tag<USD>(10) << std::endl;
+    cy::check_equal(cy::print_str(cy::tag<USD>(1)), "1 dollar");
+    cy::check_equal(cy::print_str(cy::tag<GBP>(2)), "2 pounds");
+    cy::check_equal(cy::print_str(cy::tag<GBp>(5)), "5p");
+}
+
+void arithmetic()
+{
+    // Addition and subtraction can be done between compatible types
+    cy::check_equal(cy::tag<USD>(5), cy::tag<USD>(2) + cy::tag<USD>(3));
+    cy::check_equal(cy::tag<USD>(5), cy::tag<USD>(7) - cy::tag<USD>(2));
+
+    // Addition of incompatible types is not allowed
+    // cy::tag<USD>(2) + 3;
+
+    // Multiplication and division by a scalar results in the same type
+    cy::check_equal(cy::tag<USD>(15), cy::tag<USD>(5) * 3);
+    cy::check_equal(cy::tag<USD>(10), 2 * cy::tag<USD>(5));
+    cy::check_equal(cy::tag<USD>(4), cy::tag<USD>(12)/3);
+
+    // Addition and subtraction of convertible types results in the LHS type
+    cy::check_equal(cy::tag<GBP>(4), cy::tag<GBP>(3) + cy::tag<GBp>(100));
+
+    // Multiplication of general tags multiplies the tags together
+    cy::check_equal(cy::tag<cy::meter>(1) * cy::tag<cy::foot>(1), cy::tag<cy::cm>(100) * cy::tag<cy::inch>(12));  
+    cy::check_equal(cy::tag<cy::Joule>(10), cy::tag<cy::meter>(2) * cy::tag<cy::Newton>(5));
+
+    auto rate = cy::tag<USD>(20) / cy::tag<cy::mile>(4);
+    cy::check_equal("Cost is 5 dollars/mile", cy::print_str("Cost is", rate));
+}
+
+void comparisons()
+{
+    // Identical tags can be compared
+    cy::check(cy::tag<cy::meter>(1) < cy::tag<cy::meter>(2));
+
+    // Convertible tags can also be compared
+    cy::check(cy::tag<USD>(1.00) < cy::tag<GBP>(1.00));
+}
+
+// Mixins
+
+// You can define mixins on cy::tagged, using the mixin cy::tagged_methods<T>
+
+struct Version;
+using Verbosity = cy::tagged<int, struct verbosity_tag>;
+
+template <typename V> struct cy::mixin<cy::tagged<V, Version>, cy::tagged_methods<Version>>
+{
+    bool supports_feature_A(this const cy::tagged<V, Version> &v)
+    {
+        return *v >= 2;
+    }
+
+    bool compatible_with(this const cy::tagged<V, Version> &v, const cy::tagged<V, Version> &v2)
+    {
+        return *v >= *v2;
+    }
+};
+
+// In this case, this mixin applies to *any* temperature type T
+
+template <typename V, cy::common_type<cy::Celcius> T> struct cy::mixin<cy::tagged<V, T>, cy::tagged_methods<T>>
 {
     bool freezing(this const cy::tagged<V, T> &v)
     {
@@ -50,29 +173,37 @@ struct cy::mixin<cy::tagged<V,T>, cy::tagged_methods<T>>
     }
 };
 
-int main()
+// This mixin applies to a specific tagged type, Verbosity.
+// Note that we need to specify the *tag* verbosity_tag in tagged_methods.
+template <> struct cy::mixin<Verbosity, cy::tagged_methods<verbosity_tag>>
 {
-    cy::tagged<double, tag1> x;
-    cy::tagged<double, tag1> a{12.0};
-    *a = 12;
-    a = cy::tag<tag1>(0.0);
-
-    cy::tagged<double, tag2> y{10};
-    y = x;
-    x = x;
-    x = y;
-    y = cy::tag<tag2>(1.0);
-
-    auto d = cy::tag<cy::Farenheit>(12);
-    std::cout << cy::tag<cy::Farenheit>(12) << std::endl;
-
+    bool quiet(this const Verbosity &v)
     {
-        auto x = cy::unit<tag1>;
-
-        // Get could just be an accessor?
-        // Idea: auto& y = x / cy::units<tag1>;
+        return *v == 0;
     }
 
+    bool output_progress(this const Verbosity &v)
+    {
+        return *v >= 2;
+    }
+};
+
+void mixins()
+{
+    cy::check(cy::tag<Version>(5).supports_feature_A());
+    cy::check(cy::tag<Version>(5).compatible_with(cy::tag<Version>(4)));
+
+    cy::check(cy::tag<cutty::Celcius>(-1).freezing());
+    cy::check(!cy::tag<cutty::Celcius>(1).freezing());
+    cy::check(cy::tag<cutty::Kelvin>(100).freezing());
+    cy::check(!cy::tag<cutty::Farenheit>(80).freezing());
+    cy::check(cy::tag<cutty::Farenheit>(10).freezing());
+
+    cy::check(Verbosity(0).quiet());
+}
+
+int main()
+{
     // Conversions
     {
         auto x = cy::tag<cy::Farenheit>(80.0);
@@ -106,15 +237,15 @@ int main()
         cy::check_equal(*e, cy::approx(36.6));
     }
 
-    // Comparisons    
+    // Comparisons
     {
         cy::check(cy::tag<cy::Celcius>(0) > cy::tag<cy::Farenheit>(0));
     }
 
     // Scaling conversions
     {
-        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::tags::scalar<{1,8}>, cy::byte>>);
-        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::byte, cy::tags::scalar<{1,8}>>>);
+        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::tags::scalar<{1, 8}>, cy::byte>>);
+        static_assert(cy::common_tags<cy::byte, cy::tags::product<cy::byte, cy::tags::scalar<{1, 8}>>>);
         cy::check_equal(*cy::tag<cy::bit>(cy::tag<cy::byte>(2)), 16);
 
         cy::check_equal(cy::tag<cy::second>(60), cy::tag<cy::minute>(1));
@@ -144,15 +275,14 @@ int main()
     {
         auto x = cy::tag<cy::mile>(70.0);
         auto y = cy::tag<cy::hour>(2.0);
-        cy::check_equal(cy::print_str(x, "in", y, "=", x/y), "70 miles in 2 hours = 35 miles/hour");
-
+        cy::check_equal(cy::print_str(x, "in", y, "=", x / y), "70 miles in 2 hours = 35 miles/hour");
 
         auto a = cy::tag<cy::meter>(10.0);
         auto b = cy::tag<cy::second>(2.0);
-        cy::check_equal(cy::print_str(a, "in", b, "=", a/b), "10m in 2s = 5m/s");
+        cy::check_equal(cy::print_str(a, "in", b, "=", a / b), "10m in 2s = 5m/s");
 
-        auto z = x/y;
-        cy::tagged<double, cy::speed> c = a/b;
+        auto z = x / y;
+        cy::tagged<double, cy::speed> c = a / b;
 
         using T1 = cy::speed;
         using T2 = cy::tags::divide<cy::mile, cy::hour>;
@@ -166,12 +296,5 @@ int main()
 
     // Literals
 
-    // Mixins
-    {
-        cy::check(cy::tag<cutty::Celcius>(-1).freezing());
-        cy::check(!cy::tag<cutty::Celcius>(1).freezing());
-        cy::check(cy::tag<cutty::Kelvin>(100).freezing());
-        cy::check(!cy::tag<cutty::Farenheit>(80).freezing());
-        cy::check(cy::tag<cutty::Farenheit>(10).freezing());
-    }
+    return cy::test({basic_tags, io, conversions, arithmetic, comparisons, user_conversions, mixins});
 }

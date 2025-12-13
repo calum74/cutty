@@ -135,8 +135,8 @@ template <> struct simplify<typename tags::product<>> : simplify<tags::unit>
 {
 };
 
-template <typename... Ts1, typename... Ts2>
-struct simplify<tags::product<tags::product<Ts1...>, Ts2...>> : simplify<tags::product<Ts1..., Ts2...>>
+template <typename... Ts1, typename T2, typename... Ts2>
+struct simplify<tags::product<tags::product<Ts1...>, T2, Ts2...>> : simplify<tags::product<Ts1..., T2, Ts2...>>
 {
 };
 
@@ -410,6 +410,11 @@ template <typename V, typename T> tagged<V, T> operator*(const V &x, const tagge
 template <typename V, typename T> tagged<V, T> operator*(const tagged<V, T> &x, const V &y)
 {
     return tagged<V, T>{*x * y};
+}
+
+template <typename V, typename T> tagged<V, T> operator/(const tagged<V, T> &x, const V &y)
+{
+    return tagged<V, T>{*x / y};
 }
 
 namespace detail

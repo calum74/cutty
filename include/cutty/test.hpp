@@ -1,5 +1,8 @@
 #pragma once
 
+#include "approx.hpp"
+#include "check.hpp"
+
 #include <initializer_list>
 
 namespace cutty
