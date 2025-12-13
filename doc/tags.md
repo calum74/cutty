@@ -70,9 +70,7 @@ std::cout << cy::tag<cy::seconds>(10);  // Outputs "10s"
 
 The [units](units.md) library provide a large number of built-in tags covering common metric and imperial units, distance, mass, time, temperature etc.
 
-## Configuration points
-
-The available specialisations are: `tag_traits<T>`, `tag_text<T>`, `tag_symbol<T>`, `initialize<T>`, `convert`.
+See [tags.cpp](../test/tags.cpp) for more examples and advanced usage.
 
 # Reference
 
@@ -86,8 +84,14 @@ All names are in the `cutty` namespace.
 
 ## Types
 
-### `cy::tagged<V, T>`
 ### `class tagged<V, T>`
+
+```c++
+template<typename V, typename T> class tagged;
+```
+
+Mixins:
+- `tagged_methods<T>`
 
 Member types:
 - `using value_type = V;`
@@ -102,8 +106,8 @@ Constructors:
 Operators:
 - `operator=(const tagged<V2,T2>&other)`: Assign from another tag.
 - `operator*()`: Access the underlying value, for reading or writing. 
-- `bool operator ==(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required.
-- `auto operator <=>(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required.
+- `bool operator ==(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required. `!=` is synthesised.
+- `auto operator <=>(const tagged<V2,T2>&) const`: Compare with another tagged value, performing conversions as required. `<`, `<=`, `>` and `>=` are synthesised.
 
 Tag-preserving arithmetic:
 
@@ -127,6 +131,10 @@ Provides a customisation point for tags. This type can be specialised. (See sour
 
 Holds if the tag `T1` is convertible to `T2`. It means that the `convert()` function will succeed.
 
+### `concept common_type<T1, T2>`
+
+Holds if `T1` and `T2` share a common type. A slightly weaker form of `convertible_to` which is sometimes needed for template deduction.
+
 ## Functions
 
 ### `tag<T>()`
@@ -136,11 +144,7 @@ template<typename T, typename Tag>
 cy::tagged<T, Tag>cy::tag(const T &)
 ```
 
-Creates a tag of a given type.
-
-```c++
-auto temp = cy::tag<cy::Kelvin>(0.0001);
-```
+Creates a tag of a given type, for example `cy::tag<cy::Kelvin>(0.0001)`.
 
 ```c++
 template<typename T1, typename V, convertible_to<T1> T2>
@@ -149,7 +153,7 @@ cy::tagged<V, T1> cy::tag(const tagged<V, T2> &)
 
 Converts one tag into another, performing conversion operations as needed.
 
-### `cy::delta<T>()`
+### `delta<T>()`
 
 ```c++
 template<typename T1, typename V, convertible_to<T1> T2>
@@ -162,9 +166,9 @@ Converts one tag to another type, but treats the value as a "delta". This is for
 t1 + cy::delta<cy::Celcius>(t2)
 ```
 
-where a naive conversion of `t2` from `Farenheit` to `Celcius` would be the wrong thing to do.
+where a naive conversion of `t2` from `Farenheit` to `Celcius` would do the wrong thing.
 
-### `cy::convert<T1, T2>()`
+### `convert<T1, T2>()`
 
 Converts one tagged value to another. This can be specialised to implement custom conversions.
 
@@ -181,16 +185,33 @@ By default, conversions are applied multi-stage:
 
 For example the common type of `cy::Celcius` and `cy::Farenheit` is `cy::Kelvin`.
 
-### `cy::initialize<V,T>()`
+### `initialize()`
+
+```c++
+template<typename V, typename T>
+void initialize(tagged<V,T>&);
+```
 
 Initialises a tag with a default value. This can be specialised to implement custom initialisation.
 
 ## Constants
 
-### `template<typename T> const char * tag_text`
+### `tag_text`
 
-Override this to provide a custom name for your tag when printing it. This will insert a space and automatically append an "s". If this is not desired, use `tag_symbol` instead.
+```
+template<typename T> const char * tag_text;
+```
 
-### `template<typename T> const char * tag_symbol`
+Specialise this to provide a custom name for your tag when printing it. This will insert a space and automatically append `s` for plurals. If this is not desired, use `tag_symbol` instead.
 
-Override this to provide a custom symbol for your tag when printing it. 
+### `tag_symbol`
+
+```
+template<typename T> const char * tag_symbol;
+```
+
+Specialise this to provide a custom symbol for your tag when printing it. 
+
+## Configuration points
+
+The available specialisations are: `struct tag_traits<T>`, `const char *tag_text<T>`, `const char *tag_symbol<T>`, `initialize<T>()` and `convert()`.
