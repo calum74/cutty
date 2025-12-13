@@ -152,14 +152,17 @@ using Verbosity = cy::tagged<int, struct verbosity_tag>;
 
 template <typename V> struct cy::mixin<cy::tagged<V, Version>, cy::tagged_methods<Version>>
 {
-    bool supports_feature_A(this const cy::tagged<V, Version> &v)
+    // Sadly, g++ does not support this yet:
+    // bool supports_feature_A(this const cy::tagged<V, Version> &v)
+    bool supports_feature_A() const
     {
-        return *v >= 2;
+        return **static_cast<const cy::tagged<V, Version>*>(this) >= 2;
     }
 
-    bool compatible_with(this const cy::tagged<V, Version> &v, const cy::tagged<V, Version> &v2)
+    // bool compatible_with(this const cy::tagged<V, Version> &v, const cy::tagged<V, Version> &v2)
+    bool compatible_with(const cy::tagged<V, Version> &v2) const
     {
-        return *v >= *v2;
+        return **static_cast<const cy::tagged<V, Version>*>(this) >= *v2;
     }
 };
 
@@ -167,9 +170,10 @@ template <typename V> struct cy::mixin<cy::tagged<V, Version>, cy::tagged_method
 
 template <typename V, cy::common_type<cy::Celcius> T> struct cy::mixin<cy::tagged<V, T>, cy::tagged_methods<T>>
 {
-    bool freezing(this const cy::tagged<V, T> &v)
+    // bool freezing(this const cy::tagged<V, T> &v)
+    bool freezing() const
     {
-        return v <= cy::tag<Celcius>(0);
+        return *static_cast<const cy::tagged<V, T>*>(this) <= cy::tag<Celcius>(0);
     }
 };
 
@@ -177,14 +181,16 @@ template <typename V, cy::common_type<cy::Celcius> T> struct cy::mixin<cy::tagge
 // Note that we need to specify the *tag* verbosity_tag in tagged_methods.
 template <> struct cy::mixin<Verbosity, cy::tagged_methods<verbosity_tag>>
 {
-    bool quiet(this const Verbosity &v)
+    // bool quiet(this const Verbosity &v)
+    bool quiet() const
     {
-        return *v == 0;
+        return **static_cast<const Verbosity*>(this) == 0;
     }
 
-    bool output_progress(this const Verbosity &v)
+    // bool output_progress(this const Verbosity &v)
+    bool output_progress() const
     {
-        return *v >= 2;
+        return **static_cast<const Verbosity*>(this) >= 2;
     }
 };
 
