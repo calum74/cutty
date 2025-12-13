@@ -40,6 +40,16 @@ template <typename T> void convert(const cy::tagged<T, tag2> &src, cy::tagged<T,
 
 } // namespace cutty
 
+// You can define mixins on tagged type
+template<cy::common_type<cy::Celcius> T, typename V>
+struct cy::mixin<cy::tagged<V,T>, cy::tagged_methods<T>>
+{
+    bool freezing(this const cy::tagged<V, T> &v)
+    {
+        return v <= cy::tag<Celcius>(0);
+    }
+};
+
 int main()
 {
     cy::tagged<double, tag1> x;
@@ -155,4 +165,13 @@ int main()
     }
 
     // Literals
+
+    // Mixins
+    {
+        cy::check(cy::tag<cutty::Celcius>(-1).freezing());
+        cy::check(!cy::tag<cutty::Celcius>(1).freezing());
+        cy::check(cy::tag<cutty::Kelvin>(100).freezing());
+        cy::check(!cy::tag<cutty::Farenheit>(80).freezing());
+        cy::check(cy::tag<cutty::Farenheit>(10).freezing());
+    }
 }

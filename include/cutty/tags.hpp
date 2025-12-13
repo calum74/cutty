@@ -2,6 +2,7 @@
 
 #include "fraction.hpp"
 #include "pretty_type.hpp"
+#include "mixins.hpp"
 
 #include <iostream>
 
@@ -30,10 +31,15 @@ concept convertible_to = requires(
     convert(from, to);
 };
 
+template<typename T1, typename T2>
+concept common_type = std::same_as<typename tag_traits<T1>::common_type, typename tag_traits<T2>::common_type>;
+
 ///////////////////////////////////////////////////////////////////////////////
 // class tagged
 
-template <typename V, typename T> class tagged
+template<typename T> struct tagged_methods;
+
+template <typename V, typename T> class tagged : public implements<tagged<V,T>, tagged_methods<T>>
 {
   public:
     using value_type = V;
@@ -259,7 +265,7 @@ template <fraction P, typename T> struct tag_traits<tags::power<T, P>> : public 
         if constexpr (P == -1)
         {
             os << "/";
-            tag_traits<T>::write(os, Plural{false}, PadWithSpace{false}); // TODO: We need a way to write the denominator better.
+            tag_traits<T>::write(os, Plural{false}, PadWithSpace{false});
         }
         else
         {
