@@ -352,7 +352,7 @@ In the ideal world we could just return a sequence from a function, as follows:
 
 This doesn't quite work for a few reasons. Firstly, `sequence<>` is an abstract class that can't be instantiated or returned. Secondly, we don't really know how the sequence should be stored - if at all. Finally, if the sequence is computed lazily, then it might contain dangling references or iterators that go out of scope when the function returns.
 
-Instead we use `class output_sequence<T>` to receive a sequence of type `T`. This is a very simple class that works much like a visitor. `output_sequence<>` has only one method, `add()` to write an item to the sequence. There is also the `<<` operator to write an item or a sequence.
+Instead we use `class output_sequence<T>` to receive a sequence of type `T`. This is a very simple class that works much like a visitor. `output_sequence<>` has only one method, `push_back()` to write an item to the sequence. There is also the `<<` operator to write an item or a sequence.
 
 ```c++
     void getItems(const output_sequence<std::string> & items)

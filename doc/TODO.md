@@ -4,11 +4,6 @@
 - Satellite
 - Links to samples
 
-# Satellite
-Tag is auto deduced.
-
-
-
 # Next steps
 - Implement sequences using linq
 - `push_back` for an output sequence
@@ -16,6 +11,12 @@ Tag is auto deduced.
 # Units
 - Make naming consistent
 - Bug converting $/mile int o £/km
+
+# Satellite
+- Think about the API a bit. We have mixed up the getter and setter API.
+`auto _ satellite<T>::set(abc)`.
+- The getter API could be easier, e.g. satellite<T>()
+- Throw on null?
 
 # Print
 - Print containers etc.

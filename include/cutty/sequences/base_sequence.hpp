@@ -365,7 +365,7 @@ template <typename T, typename Derived, typename Stored = Derived> class base_se
     template <typename U> void write_to(const output_sequence<U> &out) const
     {
         for (auto &i : *this)
-            out.add(i);
+            out.push_back(i);
     }
 
     // Writes the sequence to the container

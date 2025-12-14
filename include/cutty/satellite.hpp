@@ -10,7 +10,7 @@
 namespace cutty
 {
 
-template <typename T, typename Tag> class satellite
+template <typename T, typename Tag=T> class satellite
 {
   public:
     using value_type = T;
@@ -18,6 +18,8 @@ template <typename T, typename Tag> class satellite
     satellite() : m_previous(get())
     {
     }
+
+    satellite(value_type &&new_value) = delete;
 
     satellite(value_type &new_value) : m_previous(get())
     {
@@ -38,6 +40,8 @@ template <typename T, typename Tag> class satellite
         get() = &v;
         return *this;
     }
+
+    satellite &operator=(value_type &&v) = delete;
 
     value_type &operator*() const
     {

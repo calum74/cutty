@@ -17,8 +17,8 @@ void moreItems(const cy::output_sequence<std::string> & output)
 // This is a function that returns a sequence
 void getItems(const cy::output_sequence<std::string> & output)
 {
-    // Call the add() function to output a single element
-    output.add("Item 1");
+    // Call the push_back() function to output a single element
+    output.push_back("Item 1");
 
     // You can also use the << operator
     output << "Item 2";
@@ -31,6 +31,9 @@ void getItems(const cy::output_sequence<std::string> & output)
 
     // You can build up the output over several functions
     moreItems(output);
+
+    // Use std::back_inserter
+    std::ranges::copy(cy::list("Item 1", "Item2", "Item3"), std::back_inserter(output));
 }
 
 int main()

@@ -10,21 +10,21 @@ template <typename T> class output_sequence
     typedef T value_type;
 
     // Add an element to the sequence
-    virtual void add(const T &item) const = 0;
+    virtual void push_back(const T &item) const = 0;
 
     // Stream the contents of a sequence to the output
     template <typename Seq, typename = typename Seq::is_sequence>
     const output_sequence<T> &operator<<(const Seq &seq) const
     {
         for (auto &i : seq)
-            add(i);
+            push_back(i);
         return *this;
     }
 
     // Add an element to the sequence (alternative)
     const output_sequence<T> &operator<<(const T &item) const
     {
-        add(item);
+        push_back(item);
         return *this;
     }
 
@@ -44,7 +44,7 @@ template <typename T, typename Fn> class function_inserter : public output_seque
     {
     }
 
-    void add(const T &item) const override
+    void push_back(const T &item) const override
     {
         fn(item);
     }
