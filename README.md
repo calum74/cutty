@@ -1,6 +1,6 @@
 # Cutty
 
-C++ utility library. A collection of fun, interesting and useful C++ gadgets.
+C++ utility library. A collection of fun, interesting and useful C++ gadgets, with an emphasis on simplicity.
 
 ## List of libraries
 
@@ -8,6 +8,7 @@ Types:
 * [Mixins](samples/mixins.cpp) - general framework to add extension methods to existing types
 * [Tags](doc/tags.md) - a lightweight data wrapper
 * [Satellite](include/cutty/satellite.hpp) - taming global variables
+* [Sequence](doc/sequence.md) - universal sequences
 
 Testing:
 * [Approx](include/cutty/approx.hpp) - perform approximate comparisons
@@ -23,10 +24,9 @@ Utilities:
 ## List of libraries coming soon
 
 * Dynamic - full `dynamic` type available in C++
-* Linq - Emulate C# Linq
-* Units - 
+* Linq - Emulate C# LINQ notation
+* Units - SI units library built on tags
 * Property - Emulating C# property wrappers in C++
-* [Sequence](doc/sequence.md) - Universal sequences
 * Shared memory - cross platform memory mapped files
 * Persist - a storage manager for memory-mapped files
 

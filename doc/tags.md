@@ -14,13 +14,13 @@ It is a generalisation of the idea of *units* (for example distance, mass, time)
 A tag is just any data type, for example `struct bytes_t` or `struct hostname_t`. You can then  define bespoke datatypes representing particular types of data, for example:
 
 ```c++
-using ChunkSize = cy::tagged<size_t, struct bytes_t>;
+using ChunkSize        = cy::tagged<size_t, struct bytes_t>;
 using CompressionLevel = cy::tagged<int, struct comp_level_t>;
-using Blocking = cy::tagged<bool, struct blocking_t>;
-using Hostname = cy::tagged<std::string, struct hostname_t>;
-using Uri = cy::tagged<std::string, struct uri_t>;
-using Port = cy::tagged<int, struct port_t>;
-using Ssl = cy::tagged<bool, force_ssl_t>;
+using Blocking         = cy::tagged<bool, struct blocking_t>;
+using Hostname         = cy::tagged<std::string, struct hostname_t>;
+using Uri              = cy::tagged<std::string, struct uri_t>;
+using Port             = cy::tagged<int, struct port_t>;
+using Ssl              = cy::tagged<bool, force_ssl_t>;
 ```
 
 Function signatures can be changed to take more specific tagged types, for example

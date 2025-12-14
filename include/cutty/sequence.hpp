@@ -3,8 +3,6 @@
 
 #pragma once
 
-// We don't use this much so avoid including this by default
-
 #include <array>
 #include <cstring>
 #include <iterator>
