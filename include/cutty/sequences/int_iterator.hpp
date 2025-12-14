@@ -6,7 +6,7 @@ class int_iterator
     int value;
 
   public:
-    int_iterator(int value) : value(value)
+    int_iterator(int value=0) : value(value)
     {
     }
     typedef int value_type;
@@ -23,9 +23,17 @@ class int_iterator
         ++value;
         return *this;
     }
-    bool operator!=(const int_iterator &other) const
+
+    int_iterator operator++(int)
     {
-        return value != other.value;
+        auto i = *this;
+        ++value;
+        return i;
+    }
+
+    bool operator==(const int_iterator &other) const
+    {
+        return value == other.value;
     }
 
     int operator-(int_iterator other) const

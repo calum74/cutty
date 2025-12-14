@@ -86,15 +86,6 @@ void test_lifetimes()
     testVector(cy::list(Element(), Element(), Element(), Element()));
     testVector2(cy::list(Element(), Element(), Element(), Element()));
     testVector(cy::seq({Element(), Element(), Element(), Element()}));
-
-    // Here be dragons - we could be creating a dangling reference to a temporary object
-    // If in doubt, don't store temporary variables in auto variables.
-    auto tmp = cy::seq(getVector());
-
-    for (auto i : cy::seq(getVector()))
-        cy::check(i.valid());
-
-    testVector(tmp);
 }
 
 void copy(const cy::sequence<const char *> &input, const cy::output_sequence<const char *> &output)

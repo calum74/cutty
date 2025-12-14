@@ -39,28 +39,28 @@
 
 namespace cutty
 {
-// Constructs a sequence from a container
-template <std::ranges::input_range Container> auto seq(const Container &c)
+// Constructs a sequence from a range
+template <std::ranges::input_range Range> auto seq(Range &&c)
 {
     return sequences::iterator_sequence{std::ranges::begin(c), std::ranges::end(c)};
 }
 
-// Constructs a sequence from a container
-template <std::ranges::input_range Container> auto seq(Container &c)
+// Constructs a sequence from a contiguous range
+template <std::ranges::contiguous_range Range> auto seq(const Range &r)
 {
-    return sequences::iterator_sequence{std::begin(c), std::end(c)};
-}
-
-// Constructs a sequence from a fixed-length array
-template <typename T, int Size> pointer_sequence<T> seq(const T (&items)[Size])
-{
-    return {items, items + Size};
+    return pointer_sequence{std::ranges::data(r), std::ranges::data(r) + std::ranges::size(r)};
 }
 
 // Constructs a sequence from a list
 template <typename T, typename... Ts> sequences::stored_sequence<std::array<T, 1 + sizeof...(Ts)>> list(T t, Ts... ts)
 {
     return {std::array<T, 1 + sizeof...(Ts)>({t, ts...})};
+}
+
+// Constructs a sequence from a fixed-length array
+template <typename T, int Size> pointer_sequence<T> seq(const T (&items)[Size])
+{
+    return {items, items + Size};
 }
 
 // Constructs a sequence from a single element
@@ -112,8 +112,7 @@ template <std::ranges::contiguous_range T> pointer_sequence<std::ranges::range_v
 }
 
 // Constructs a sequence that stores the container
-// This is potentially quite slow so be careful.
-template <std::ranges::input_range T> sequences::stored_sequence<T> seq(T &&src)
+template <std::ranges::input_range T> sequences::stored_sequence<T> stored_seq(T &&src)
 {
     return {std::move(src)};
 }

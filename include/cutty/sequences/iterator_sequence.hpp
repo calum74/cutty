@@ -4,13 +4,13 @@ namespace cutty::sequences
 {
 template <typename It, typename EndIt>
 class iterator_sequence
-    : public base_sequence<typename std::iterator_traits<It>::value_type, iterator_sequence<It, EndIt>>
+    : public base_sequence<std::iter_value_t<It>, iterator_sequence<It, EndIt>>
 {
     It from, current;
     EndIt to;
 
   public:
-    typedef typename std::iterator_traits<It>::value_type value_type;
+    using value_type = std::iter_value_t<It>;
 
     iterator_sequence(It from, EndIt to) : from(from), to(to), current(from)
     {
@@ -30,7 +30,7 @@ class iterator_sequence
 
     std::size_t size() const
     {
-        return std::distance(from, to);
+        return std::ranges::distance(from, to);
     }
 };
 
