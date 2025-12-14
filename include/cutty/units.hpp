@@ -6,10 +6,22 @@
 
 namespace cutty
 {
-/// Scalars
-struct degree;
+////////////////////////////////////////////////////////////////////////    
+// Angles
 struct radian;
-struct gradian;
+template<> const char *tag_text<radian> = "radian";
+
+using degree = tags::product<tags::dscalar<M_PI/180>, radian>;
+template<> const char *tag_text<degree> = "degree";
+
+using gradian = tags::product<tags::scalar<{360,400}>, degree>;
+template<> const char *tag_text<gradian> = "gradian";
+
+using rotation = tags::product<tags::dscalar<2*M_PI>, radian>;
+template<> const char *tag_text<rotation> = "rotation";
+
+////////////////////////////////////////////////////////////////////////    
+// Scalars
 
 using kilo = tags::scalar<1000>;
 template <> const char *tag_symbol<kilo> = "k";
@@ -27,8 +39,8 @@ template <> const char *tag_symbol<micro> = "µ";
 using centi = tags::scalar<{1, 100}>;
 template <> const char *tag_symbol<centi> = "c";
 
-struct nano;
-struct pico;
+using nano = tags::dscalar<1e-9>;
+using pico = tags::dscalar<1e-12>;
 
 /// SI units
 template <fraction Meter = 0, fraction Kilogram = 0, fraction Seconds = 0, fraction Ampere = 0, fraction Kelvin = 0,
@@ -94,7 +106,7 @@ using kilogram = SI<0, 1>;
 using second = SI<0, 0, 1>;
 using amp = SI<0, 0, 0, 1>;
 using Kelvin = SI<0, 0, 0, 0, 1>;
-using mol = SI<0, 0, 0, 0, 0, 1>;
+using mole = SI<0, 0, 0, 0, 0, 1>;
 using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
 using Joule = SI<2, 1, -2>;
@@ -178,8 +190,14 @@ template <> const char *tag_symbol<inch> = "\"";
 using mile = tags::product<yard, tags::scalar<1760>>;
 template <> const char *tag_text<mile> = "mile";
 
-using cm = tags::product<centi, meter>;
+using centimeter = tags::product<centi, meter>;
 using kilometer = tags::product<kilo, meter>;
+
+using lightyear = tags::product<tags::dscalar<9460730472580800.0>, meter>;
+template<> const char * tag_text<lightyear> = "light-year";
+
+using parsec = tags::product<tags::dscalar<3.085677581491367e16>, meter>;
+template<> const char * tag_symbol<parsec> = "pc";
 
 // Mass
 using gram = tags::product<tags::scalar<{1, 1000}>, kilogram>;

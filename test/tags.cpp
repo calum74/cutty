@@ -127,7 +127,7 @@ void arithmetic()
     cy::check_equal(cy::tag<GBP>(4), cy::tag<GBP>(3) + cy::tag<GBp>(100));
 
     // Multiplication of general tags multiplies the tags together
-    cy::check_equal(cy::tag<cy::meter>(1) * cy::tag<cy::foot>(1), cy::tag<cy::cm>(100) * cy::tag<cy::inch>(12));  
+    cy::check_equal(cy::tag<cy::meter>(1) * cy::tag<cy::foot>(1), cy::tag<cy::centimeter>(100) * cy::tag<cy::inch>(12));  
     cy::check_equal(cy::tag<cy::Joule>(10), cy::tag<cy::meter>(2) * cy::tag<cy::Newton>(5));
 
     auto rate = cy::tag<USD>(20) / cy::tag<cy::mile>(4);
@@ -264,7 +264,7 @@ int main()
     static_assert(std::same_as<cy::meter, cy::detail::strip_scalars_t<cy::inch>>);
 
     cy::print(cy::tag<cy::yard>(1), '=', cy::tag<cy::inch>(cy::tag<cy::yard>(1.0)));
-    cy::print(cy::tag<cy::inch>(1), '=', cy::tag<cy::cm>(cy::tag<cy::inch>(1.0)));
+    cy::print(cy::tag<cy::inch>(1), '=', cy::tag<cy::centimeter>(cy::tag<cy::inch>(1.0)));
     cy::check_equal(cy::print_str(cy::tag<cy::inch>(1)), "1\"");
 
     // Weight conversions

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "fraction.hpp"
-#include "pretty_type.hpp"
 #include "mixins.hpp"
+#include "pretty_type.hpp"
 
 #include <iostream>
 
@@ -24,22 +24,18 @@ template <typename V1, typename V2, typename T> void convert(const tagged<V1, T>
 }
 
 template <typename From, typename To>
-concept convertible_to = requires(
-    const tagged<typename tag_traits<From>::value_type, From> &from,
-     tagged<typename tag_traits<To>::value_type, To> &to) 
-{
-    convert(from, to);
-};
+concept convertible_to = requires(const tagged<typename tag_traits<From>::value_type, From> &from,
+                                  tagged<typename tag_traits<To>::value_type, To> &to) { convert(from, to); };
 
-template<typename T1, typename T2>
+template <typename T1, typename T2>
 concept common_type = std::same_as<typename tag_traits<T1>::common_type, typename tag_traits<T2>::common_type>;
 
 ///////////////////////////////////////////////////////////////////////////////
 // class tagged
 
-template<typename T> struct tagged_methods;
+template <typename T> struct tagged_methods;
 
-template <typename V, typename T> class tagged : public implements<tagged<V,T>, tagged_methods<T>>
+template <typename V, typename T> class tagged : public implements<tagged<V, T>, tagged_methods<T>>
 {
   public:
     using value_type = V;
@@ -101,6 +97,8 @@ template <typename... Ts> struct sum;
 template <typename T, fraction P> struct power;
 
 template <fraction F> struct scalar;
+
+template <double D> struct dscalar;
 } // namespace tags
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,6 +162,7 @@ template <typename T> struct strip_scalars
 {
     using type = simplify_t<T>;
     static constexpr fraction multiplier{1, 1};
+    static constexpr double dmultiplier = 1.0;
 };
 
 template <typename T> using strip_scalars_t = simplify_t<typename strip_scalars<simplify_t<T>>::type>;
@@ -174,19 +173,36 @@ struct strip_scalars<tags::product<tags::scalar<F>, Ts...>> : strip_scalars<tags
     static constexpr fraction multiplier = F * strip_scalars<tags::product<Ts...>>::multiplier;
 };
 
+template <double D, typename... Ts>
+struct strip_scalars<tags::product<tags::dscalar<D>, Ts...>> : strip_scalars<tags::product<Ts...>>
+{
+    static constexpr double dmultiplier = D * strip_scalars<tags::product<Ts...>>::dmultiplier;
+};
+
+
 template <typename T, typename... Ts> struct strip_scalars<tags::product<T, Ts...>>
 {
     using t1 = strip_scalars<T>;
     using t2 = strip_scalars<tags::product<Ts...>>;
     static constexpr fraction multiplier = t1::multiplier * t2::multiplier;
+    static constexpr double dmultiplier = t1::dmultiplier * t2::dmultiplier;
     using type = simplify_t<tags::product<typename t1::type, typename t2::type>>;
 };
+
+constexpr double dpow(double d, fraction p)
+{
+    if (p.numerator==0) return 1.0;
+    if (p.numerator==1) return d;
+    if (p.numerator<0) return dpow(1/d, {-p.numerator});
+    return d * dpow(d, {p.numerator-1});
+}
 
 template <fraction P, typename T> struct strip_scalars<tags::power<T, P>>
 {
     using t = strip_scalars<simplify_t<T>>;
     using type = tags::power<typename t::type, P>;
     static constexpr fraction multiplier = pow(t::multiplier, P);
+    static constexpr double dmultiplier = dpow(t::dmultiplier, P);
 };
 
 }; // namespace detail
@@ -198,25 +214,26 @@ using Plural = tagged<bool, struct singular_tag>;
 using PadWithSpace = tagged<bool, struct pad_tag>;
 
 namespace detail
-{    
-    template<typename T>
-    bool write_tag(std::ostream &os, Plural plural, PadWithSpace pad)
+{
+template <typename T> bool write_tag(std::ostream &os, Plural plural, PadWithSpace pad)
+{
+    if (auto s = tag_symbol<T>)
     {
-        if (auto s = tag_symbol<T>)
-        {
-            os << s;
-            return true;
-        }
-        if(auto s = tag_text<T>)
-        {
-            if(*pad) os << ' ';
-            os << s;
-            if(*plural) os << 's';
-            return true;
-        }
-        return false;
+        os << s;
+        return true;
     }
+    if (auto s = tag_text<T>)
+    {
+        if (*pad)
+            os << ' ';
+        os << s;
+        if (*plural)
+            os << 's';
+        return true;
+    }
+    return false;
 }
+} // namespace detail
 
 template <typename T> struct default_tag_traits
 {
@@ -226,9 +243,10 @@ template <typename T> struct default_tag_traits
 
     static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if(!detail::write_tag<T>(os, plural, pad))
+        if (!detail::write_tag<T>(os, plural, pad))
         {
-            if(*pad) os << ' ';
+            if (*pad)
+                os << ' ';
             os << pretty_type<T>();
         }
     }
@@ -243,7 +261,7 @@ struct tag_traits<tags::product<T, Ts...>> : public default_tag_traits<tags::pro
 {
     static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if(!detail::write_tag<tags::product<T, Ts...>>(os, plural, pad))
+        if (!detail::write_tag<tags::product<T, Ts...>>(os, plural, pad))
         {
             if constexpr (sizeof...(Ts) > 0)
             {
@@ -279,7 +297,7 @@ template <fraction P> struct tag_traits<tags::scalar<P>> : public default_tag_tr
 {
     static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if(!detail::write_tag<tags::scalar<P>>(os, plural, pad))
+        if (!detail::write_tag<tags::scalar<P>>(os, plural, pad))
         {
             os << "*(" << P << ")";
         }
@@ -330,7 +348,15 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
     tagged<V1, S1> scale1{*from};
     tagged<V2, S2> scale2;
     convert(scale1, scale2);
-    *to = *scale2 * (detail::strip_scalars<T1>::multiplier / detail::strip_scalars<T2>::multiplier);
+    constexpr double dr = (detail::strip_scalars<T1>::dmultiplier / detail::strip_scalars<T2>::dmultiplier);
+    if constexpr(dr != 1.0)
+    {
+        *to = *scale2 * (detail::strip_scalars<T1>::multiplier / detail::strip_scalars<T2>::multiplier) * dr;
+    }
+    else
+    {
+        *to = *scale2 * (detail::strip_scalars<T1>::multiplier / detail::strip_scalars<T2>::multiplier);
+    }
 }
 
 template <typename V1, typename T1, typename V2, typename T2>
@@ -349,7 +375,7 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
 template <typename V, typename T> std::ostream &operator<<(std::ostream &os, const tagged<V, T> &t)
 {
     os << *t;
-    tag_traits<T>::write(os, Plural(*t!=1), PadWithSpace(true));
+    tag_traits<T>::write(os, Plural(*t != 1), PadWithSpace(true));
     return os;
 }
 

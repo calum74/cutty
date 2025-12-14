@@ -4,13 +4,12 @@
 - Satellite
 - Links to samples
 
-# Next steps
-- Implement sequences using linq
-- `push_back` for an output sequence
-
 # Units
 - Make naming consistent
 - Bug converting $/mile int o £/km
+- Support lightyear and radian
+- Support femto etc using doubles.
+- Unit literals
 
 # Satellite
 - Think about the API a bit. We have mixed up the getter and setter API.
