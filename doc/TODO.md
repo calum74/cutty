@@ -10,6 +10,9 @@
 - Support lightyear and radian
 - Support femto etc using doubles.
 - Unit literals
+- Percent?
+- Chrono conversions
+- System time
 
 # Satellite
 - Think about the API a bit. We have mixed up the getter and setter API.

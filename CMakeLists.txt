@@ -62,6 +62,7 @@ add_library(cutty
     src/persist.cpp
     src/shared_memory.cpp
     src/test.cpp
+    src/units.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
     src/dynamic/functions.cpp
