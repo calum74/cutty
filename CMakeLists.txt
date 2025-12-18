@@ -73,7 +73,7 @@ link_libraries(cutty)
 
 add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
-add_executable(satellite samples/satellite.cpp)
+add_executable(satwithellite samples/with.cpp)
 add_executable(dynamic_functions test/dynamic/functions.cpp)
 add_executable(dynamic_test1 test/dynamic/test1.cpp)
 add_executable(dynamic_bools samples/dynamic/bools.cpp)
