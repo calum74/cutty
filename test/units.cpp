@@ -23,6 +23,7 @@ void angles()
 
 }
 
+
 void length()
 {
     cy::print(cy::tag<cy::lightyear>(1.0));
@@ -31,7 +32,12 @@ void length()
     cy::print("1pc =", cy::tag<cy::mile>(cy::tag<cy::parsec>(1.0)));
 }
 
+void information()
+{
+    8_bit;
+}
+
 int main()
 {
-    return cy::test({angles, length});
+    return cy::test({angles, length, information});
 }

@@ -128,7 +128,7 @@ void arithmetic()
 
     // Multiplication of general tags multiplies the tags together
     cy::check_equal(cy::tag<cy::meter>(1) * cy::tag<cy::foot>(1), cy::tag<cy::centimeter>(100) * cy::tag<cy::inch>(12));  
-    cy::check_equal(cy::tag<cy::Joule>(10), cy::tag<cy::meter>(2) * cy::tag<cy::Newton>(5));
+    cy::check_equal(cy::tag<cy::joule>(10), cy::tag<cy::meter>(2) * cy::tag<cy::newton>(5));
 
     auto rate = cy::tag<USD>(20) / cy::tag<cy::mile>(4);
     cy::check_equal("Cost is 5 dollars/mile", cy::print_str("Cost is", rate));
@@ -168,12 +168,12 @@ template <typename V> struct cy::mixin<cy::tagged<V, Version>, cy::tagged_method
 
 // In this case, this mixin applies to *any* temperature type T
 
-template <typename V, cy::common_type<cy::Celcius> T> struct cy::mixin<cy::tagged<V, T>, cy::tagged_methods<T>>
+template <typename V, cy::common_type<cy::celsius> T> struct cy::mixin<cy::tagged<V, T>, cy::tagged_methods<T>>
 {
     // bool freezing(this const cy::tagged<V, T> &v)
     bool freezing() const
     {
-        return *static_cast<const cy::tagged<V, T>*>(this) <= cy::tag<Celcius>(0);
+        return *static_cast<const cy::tagged<V, T>*>(this) <= cy::tag<celsius>(0);
     }
 };
 
@@ -199,11 +199,11 @@ void mixins()
     cy::check(cy::tag<Version>(5).supports_feature_A());
     cy::check(cy::tag<Version>(5).compatible_with(cy::tag<Version>(4)));
 
-    cy::check(cy::tag<cutty::Celcius>(-1).freezing());
-    cy::check(!cy::tag<cutty::Celcius>(1).freezing());
-    cy::check(cy::tag<cutty::Kelvin>(100).freezing());
-    cy::check(!cy::tag<cutty::Farenheit>(80).freezing());
-    cy::check(cy::tag<cutty::Farenheit>(10).freezing());
+    cy::check(cy::tag<cutty::celsius>(-1).freezing());
+    cy::check(!cy::tag<cutty::celsius>(1).freezing());
+    cy::check(cy::tag<cutty::kelvin>(100).freezing());
+    cy::check(!cy::tag<cutty::farenheit>(80).freezing());
+    cy::check(cy::tag<cutty::farenheit>(10).freezing());
 
     cy::check(Verbosity(0).quiet());
 }
@@ -212,9 +212,9 @@ int main()
 {
     // Conversions
     {
-        auto x = cy::tag<cy::Farenheit>(80.0);
-        cy::tagged<double, cy::Celcius> y = x;
-        cy::print(cy::tag<cy::Celcius>(x));
+        auto x = cy::tag<cy::farenheit>(80.0);
+        cy::tagged<double, cy::celsius> y = x;
+        cy::print(cy::tag<cy::celsius>(x));
         cy::check_equal(*y, cy::approx(26.67, 0.1));
         std::cout << x << std::endl;
         std::cout << y << std::endl;
@@ -224,28 +224,28 @@ int main()
     {
         // Technically, multiplying a temperature by a scalar is nonsense,
         // but it has an interpretation so no need to be pedantic about it
-        cy::check(cy::tag<cy::Farenheit>(3.0) == cy::tag<cy::Farenheit>(1.0) * 3.0);
+        cy::check(cy::tag<cy::farenheit>(3.0) == cy::tag<cy::farenheit>(1.0) * 3.0);
 
         // TODO: Division
     }
 
     // Addition of the same tag type
     {
-        cy::check_equal(cy::tag<cy::Farenheit>(3), cy::tag<cy::Farenheit>(1) + cy::tag<cy::Farenheit>(2));
+        cy::check_equal(cy::tag<cy::farenheit>(3), cy::tag<cy::farenheit>(1) + cy::tag<cy::farenheit>(2));
     }
 
     // Addition of compatible types
     {
-        auto c = cy::tag<cy::Celcius>(2.0);
-        auto d = cy::delta<cy::Farenheit>(c);
+        auto c = cy::tag<cy::celsius>(2.0);
+        auto d = cy::delta<cy::farenheit>(c);
         cy::check_equal(*d, cy::approx(4.6));
-        auto e = cy::tag<cy::Farenheit>(1.0) + cy::tag<cy::Celcius>(2.0);
+        auto e = cy::tag<cy::farenheit>(1.0) + cy::tag<cy::celsius>(2.0);
         cy::check_equal(*e, cy::approx(36.6));
     }
 
     // Comparisons
     {
-        cy::check(cy::tag<cy::Celcius>(0) > cy::tag<cy::Farenheit>(0));
+        cy::check(cy::tag<cy::celsius>(0) > cy::tag<cy::farenheit>(0));
     }
 
     // Scaling conversions

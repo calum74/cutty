@@ -44,10 +44,14 @@ template <> struct tag_traits<rotation> : default_tag_traits<rotation>
 
 namespace literals
 {
-    tagged<double, radian> operator""_radian(long double d);
-    tagged<double, degree> operator""_degree(long double d);
-    tagged<double, gradian> operator""_gradian(long double d);
-    tagged<double, rotation> operator""_rotation(long double d);
+    #define CY_UNIT(X) \
+        inline tagged<long double, X> operator"" _##X(long double d) { return tag<X>(d); };\
+        inline tagged<unsigned long long, X> operator"" _##X(unsigned long long i) { return tag<X>(i); };
+
+    CY_UNIT(radian);
+    CY_UNIT(degree);
+    CY_UNIT(gradian);
+    CY_UNIT(rotation);
 }
 
 ////////////////////////////////////////////////////////////////////////    
@@ -156,91 +160,89 @@ struct simplify<
 using meter = SI<1>;
 using kilogram = SI<0, 1>;
 using second = SI<0, 0, 1>;
-using Ampere = SI<0, 0, 0, 1>;
-using Kelvin = SI<0, 0, 0, 0, 1>;
+using ampere = SI<0, 0, 0, 1>;
+using kelvin = SI<0, 0, 0, 0, 1>;
 using mole = SI<0, 0, 0, 0, 0, 1>;
 using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
-using Joule = SI<2, 1, -2>;
-template <> inline const char *tag_symbol<Joule> = "J";
-using Volt = SI<2, 1, -3, -1>;
-template <> inline const char *tag_symbol<Volt> = "V";
-using Newton = SI<1, 1, -2>;
-template <> inline const char *tag_symbol<Newton> = "N";
+using joule = SI<2, 1, -2>;
+template <> inline const char *tag_symbol<joule> = "J";
+using volt = SI<2, 1, -3, -1>;
+template <> inline const char *tag_symbol<volt> = "V";
+using newton = SI<1, 1, -2>;
+template <> inline const char *tag_symbol<newton> = "N";
 
-using Ohm = SI<2, 1, -3, -2>;
-template <> inline const char *tag_symbol<Ohm> = "Ω";
+using ohm = SI<2, 1, -3, -2>;
+template <> inline const char *tag_symbol<ohm> = "Ω";
 
 using speed = tags::divide<meter, second>;
-using Watt = simplify_t<tags::divide<Joule, second>>;
-template<> inline const char * tag_symbol<Watt> = "W";
+using watt = simplify_t<tags::divide<joule, second>>;
+template<> inline const char * tag_symbol<watt> = "W";
 
 // using Coloumb = ...
 // using Farad = ...
-// Induction???
+// henry, tesla
 // Magnetic flux?
 
 // ?? Should we put everything into units 
 namespace literals
 {
-    tagged<double, meter> operator""_meter(long double);
-    tagged<double, kilogram> operator""_kilogram(long double);
-    tagged<double, second> operator""_second(long double);
-    tagged<double, Ampere> operator""_Ampere(long double);
+    CY_UNIT(meter);
+    CY_UNIT(kilogram);
+    CY_UNIT(second);
+    CY_UNIT(ampere);
 
-    tagged<double, Kelvin> operator""_Kelvin(long double);
-    tagged<double, mole> operator""_mole(long double);
-    tagged<double, candela> operator""_candela(long double);
-    tagged<double, Joule> operator""_Joule(long double);
-    tagged<double, Volt> operator""_Volt(long double);
-    tagged<double, Newton> operator""_Newton(long double);
-    tagged<double, Ohm> operator""_Ohm(long double);
-    tagged<double, Watt> operator""_Watt(long double);
+    CY_UNIT(kelvin);
+    CY_UNIT(mole);
+    CY_UNIT(candela);
+    CY_UNIT(joule);
+    CY_UNIT(volt);
+    CY_UNIT(newton);
+    CY_UNIT(ohm);
+    CY_UNIT(watt);
 }
 
 ////////////////////////////////////////////////////////////////////////    
 /// Temperature
 
-struct Celcius;
-template <> inline const char *tag_symbol<Celcius> = "°C";
-template <> struct tag_traits<Celcius> : default_tag_traits<Celcius>
+struct celsius;
+template <> inline const char *tag_symbol<celsius> = "°C";
+template <> struct tag_traits<celsius> : default_tag_traits<celsius>
 {
-    using common_type = Kelvin;
+    using common_type = kelvin;
 };
 
-using Centigrade = Celcius;
-
-struct Farenheit;
-template <> inline const char *tag_symbol<Farenheit> = "°F";
-template <> struct tag_traits<Farenheit> : default_tag_traits<Farenheit>
+struct farenheit;
+template <> inline const char *tag_symbol<farenheit> = "°F";
+template <> struct tag_traits<farenheit> : default_tag_traits<farenheit>
 {
-    using common_type = Kelvin;
+    using common_type = kelvin;
 };
 
-template <typename T> void convert(const tagged<T, Celcius> &c, tagged<T, Kelvin> &k)
+template <typename T> void convert(const tagged<T, celsius> &c, tagged<T, kelvin> &k)
 {
     *k = *c + 273.15;
 }
 
-template <typename T> void convert(const tagged<T, Kelvin> &k, tagged<T, Celcius> &c)
+template <typename T> void convert(const tagged<T, kelvin> &k, tagged<T, celsius> &c)
 {
     *c = *k - 273.15;
 }
 
-template <typename T> void convert(const tagged<T, Kelvin> &k, tagged<T, Farenheit> &f)
+template <typename T> void convert(const tagged<T, kelvin> &k, tagged<T, farenheit> &f)
 {
     *f = 9 * (*k - 273.15) / 5 + 32;
 }
 
-template <typename T> void convert(const tagged<T, Farenheit> &f, tagged<T, Kelvin> &k)
+template <typename T> void convert(const tagged<T, farenheit> &f, tagged<T, kelvin> &k)
 {
     *k = 273.15 + 5 * (*f - 32) / 9;
 }
 
 namespace literals
 {
-    tagged<double, Celcius> operator""_Celcius(long double);
-    tagged<double, Farenheit> operator""_Farenheit(long double);
+    CY_UNIT(celsius);
+    CY_UNIT(farenheit);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -368,12 +370,17 @@ template<> inline const char * tag_text<nat> = "nat";
 
 namespace literals
 {
-    tagged<double, bit> operator""_bit(long double d);
+
+    CY_UNIT(bit);
+
     tagged<double, byte> operator""_byte(long double d);
+    tagged<unsigned long long, byte> operator""_byte(unsigned long long d);
     tagged<double, kilobyte> operator""_kilobyte(long double d);
     tagged<double, megabyte> operator""_megabyte(long double d);
     tagged<double, gigabyte> operator""_gigabyte(long double d);
     tagged<double, nat> operator""_nat(long double d);
 }
+
+#undef CY_UNIT
 
 } // namespace cutty
