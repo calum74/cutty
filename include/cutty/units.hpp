@@ -184,14 +184,12 @@ template<> inline const char * tag_symbol<watt> = "W";
 // henry, tesla
 // Magnetic flux?
 
-// ?? Should we put everything into units 
 namespace literals
 {
     CY_UNIT(meter);
     CY_UNIT(kilogram);
     CY_UNIT(second);
     CY_UNIT(ampere);
-
     CY_UNIT(kelvin);
     CY_UNIT(mole);
     CY_UNIT(candela);
@@ -277,15 +275,15 @@ template <> inline const char *tag_text<millenium> = "millenium";  // Plural is 
 
 namespace literals
 {
-    tagged<double, millisecond> operator""_millisecond(long double);
-    tagged<double, minute> operator""_minute(long double);
-    tagged<double, hour> operator""_hour(long double);
-    tagged<double, day> operator""_day(long double);
-    tagged<double, week> operator""_week(long double);
-    tagged<double, month> operator""_month(long double);
-    tagged<double, year> operator""_year(long double);
-    tagged<double, century> operator""_century(long double);
-    tagged<double, millenium> operator""_millenium(long double);
+    CY_UNIT(millisecond);
+    CY_UNIT(minute);
+    CY_UNIT(hour);
+    CY_UNIT(day);
+    CY_UNIT(week);
+    CY_UNIT(month);
+    CY_UNIT(year);
+    CY_UNIT(century);
+    CY_UNIT(millenium);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,6 +310,18 @@ template<> inline const char * tag_text<lightyear> = "light-year";
 using parsec = tags::product<tags::dscalar<3.085677581491367e16>, meter>;
 template<> inline const char * tag_symbol<parsec> = "pc";
 
+namespace literals
+{
+    CY_UNIT(yard);
+    CY_UNIT(foot);
+    CY_UNIT(inch);
+    CY_UNIT(mile);
+    CY_UNIT(centimeter);
+    CY_UNIT(kilometer)
+    CY_UNIT(lightyear);
+    CY_UNIT(parsec);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // Mass
 
@@ -326,6 +336,22 @@ template <> inline const char *tag_symbol<pound> = "lb";
 using stone = tags::product<pound, tags::scalar<14>>;
 template <> inline const char *tag_symbol<stone> = "st";
 
+// !! ton, tonne
+
+namespace literals
+{
+    CY_UNIT(gram);
+    CY_UNIT(ounce);
+    CY_UNIT(pound);
+    CY_UNIT(stone);
+    // !! ton, tonne
+}
+
+////////////////////////////////////////////////////////////////////////
+// Energy
+
+// !! erg, calorie
+
 ////////////////////////////////////////////////////////////////////////
 // Volume
 
@@ -337,6 +363,8 @@ using milliliter = milli_t<liter>;
 // US pint = 473.176473ml
 // UK pint = 568.261m = 20 fluid ounces
 
+// teaspoon
+// cup
 
 // uk fluid ounce = 28.4130625 
 // pint
@@ -365,20 +393,19 @@ using kilobyte = tags::product<kilo_base2, byte>;
 using megabyte = tags::product<mega_base2, byte>;
 using gigabyte = tags::product<giga_base2, byte>;
 
+// FIXME: terabyte currently overflows the ratios. Unless I use long long ratios?
+
 using nat = tags::product<bit, tags::dscalar<0.69314718>>;
 template<> inline const char * tag_text<nat> = "nat";
 
 namespace literals
 {
-
     CY_UNIT(bit);
-
-    tagged<double, byte> operator""_byte(long double d);
-    tagged<unsigned long long, byte> operator""_byte(unsigned long long d);
-    tagged<double, kilobyte> operator""_kilobyte(long double d);
-    tagged<double, megabyte> operator""_megabyte(long double d);
-    tagged<double, gigabyte> operator""_gigabyte(long double d);
-    tagged<double, nat> operator""_nat(long double d);
+    CY_UNIT(byte);
+    CY_UNIT(kilobyte);
+    CY_UNIT(megabyte);
+    CY_UNIT(gigabyte);
+    CY_UNIT(nat);
 }
 
 #undef CY_UNIT
