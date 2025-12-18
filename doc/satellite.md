@@ -1,28 +1,28 @@
-# Satellite
+# With
 
-*Satellite* allows you to pass arguments to nested functions without adding them to function signatures.
+*With* allows you to pass arguments to nested functions without adding them to function signatures.
 It gives the convenience of global variables without the drawbacks.
 
 ```c++
-#include <cutty/satellite.hpp>
+#include <cutty/with.hpp>
 using cy = cutty;
 
 int main()
 {
   Logger logger;
-  cy::scoped_set<Logger> _ (logger);
+  cy::with<Logger> set_logger{logger};
   f();
 }
 
 void f()
 {
-    cy::get<Logger>().log("f called");
+    cy::get<Logger>().info("f called");
 }
 ```
 
 ## Why not just use global variables?
 
-Satellite is much more constrained than global variables, because you can locally define them, and they are
+With is much more constrained than global variables, because you can locally define them, and they are
 thread-local. This means that they can be used safely in unit tests, used in multiple threads,
 and they can be stubbed, which is something that regular singletons, globals or singleton functions cannot do.
 
@@ -30,15 +30,17 @@ and they can be stubbed, which is something that regular singletons, globals or 
 
 ## T &get<T,Tag=T>()
 
-Gets the current value, or throws `XXX` if the satellite has not been set. Threadsafe.
+Gets the current value, or throws `XXX` if the variable has not been set. Threadsafe.
 
 ## T *try_get<T,Tag=T>()
 
-Gets the current value, or returns `nullptr` if the satellite has not been set. Threadsafe, does not throw.
+Gets the current value, or returns `nullptr` if the variable has not been set. Threadsafe, does not throw.
 
-## class scoped_set<T,Tag=T>
+## class with<T,Tag=T>
 
-Assigns the value of the satellite for the lifetime of the object. Threadsafe, does not throw.
+Assigns the value of the variable for the lifetime of the object. Threadsafe, does not throw.
 
 Constructors:
-- `scoped_set(T &src)`
+- `with(T &src)`
+- `with(T&&) = delete`
+
