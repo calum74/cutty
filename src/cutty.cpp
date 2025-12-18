@@ -1,5 +1,6 @@
 #include <cutty/approx.hpp>
 #include <cutty/fraction.hpp>
+#include <cutty/with.hpp>
 
 #include <iostream>
 
@@ -51,4 +52,8 @@ bool cy::operator==(const cy::approx::value_type &lhs, const cy::approx &rhs)
 std::ostream &cy::operator<<(std::ostream &os, const cy::approx &x)
 {
     return os << x.value << "±" << x.tolerance;
+}
+
+cy::without::without() : std::runtime_error("get<>() called without with<>()")
+{
 }
