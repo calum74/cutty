@@ -43,7 +43,7 @@ namespace cutty
     };
 
     template<typename T, typename Tag=T>
-    class with
+    class with final
     {
     public:
         with(T &value) : m_previous_value(try_get<T,Tag>())
@@ -53,6 +53,7 @@ namespace cutty
         with(T&&) = delete;
         with(with&&) = delete;
         with(const with&) = delete;
+        with & operator=(const with&) = delete;
 
         ~with()
         {
@@ -61,62 +62,4 @@ namespace cutty
     private:
         T * const m_previous_value;
     };
-
-template <typename T, typename Tag=T> class satellite
-{
-  public:
-    using value_type = T;
-
-    satellite() : m_previous(get())
-    {
-    }
-
-    satellite(value_type &&new_value) = delete;
-
-    satellite(value_type &new_value) : m_previous(get())
-    {
-        get() = &new_value;
-    }
-
-    satellite(const satellite &) = delete;
-
-    satellite &operator=(const satellite &) = delete;
-
-    ~satellite()
-    {
-        get() = m_previous;
-    }
-
-    satellite &operator=(value_type &v)
-    {
-        get() = &v;
-        return *this;
-    }
-
-    satellite &operator=(value_type &&v) = delete;
-
-    value_type &operator*() const
-    {
-        return *get();
-    }
-
-    value_type *operator->() const
-    {
-        return get();
-    }
-
-    explicit operator bool() const
-    {
-        return get();
-    }
-
-  private:
-    value_type *m_previous;
-
-    static value_type *&get()
-    {
-        thread_local value_type *ptr;
-        return ptr;
-    }
-};
 } // namespace cutty

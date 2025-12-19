@@ -32,9 +32,19 @@ void length()
     cy::print("1pc =", cy::tag<cy::mile>(cy::tag<cy::parsec>(1.0)));
 }
 
+namespace cutty
+{
+template<typename T, typename Tag1, typename Tag2>
+bool approx_equal(tagged<T, Tag1> x, tagged<T, Tag2> y)
+{
+    return approx(*x) == *tag<Tag1>(y); 
+}
+}
+
 void information()
 {
-    8_bit;
+    cy::check(cy::approx_equal(0.693147_nat, 1.0_bit));
+    cy::check_equal(1024_byte, 1_kilobyte);
 }
 
 int main()

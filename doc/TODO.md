@@ -13,12 +13,10 @@
 - Percent?
 - Chrono conversions
 - System time
+- Larger fraction range
 
 # Satellite
-- Think about the API a bit. We have mixed up the getter and setter API.
-`auto _ satellite<T>::set(abc)`.
-- The getter API could be easier, e.g. satellite<T>()
-- Throw on null?
+- write up
 
 # Print
 - Print containers etc.

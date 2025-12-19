@@ -370,6 +370,7 @@ using milliliter = milli_t<liter>;
 // pint
 // quart
 // gallon
+// us fluid ounce
 
 ////////////////////////////////////////////////////////////////////////
 // Information
@@ -393,9 +394,10 @@ using kilobyte = tags::product<kilo_base2, byte>;
 using megabyte = tags::product<mega_base2, byte>;
 using gigabyte = tags::product<giga_base2, byte>;
 
-// FIXME: terabyte currently overflows the ratios. Unless I use long long ratios?
+using terabyte = tags::product<kilo_base2, gigabyte>;
+template<> inline const char * tag_symbol<terabyte> = "TB";
 
-using nat = tags::product<bit, tags::dscalar<0.69314718>>;
+using nat = tags::product<bit, tags::dscalar<1.44269504>>;
 template<> inline const char * tag_text<nat> = "nat";
 
 namespace literals

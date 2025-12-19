@@ -12,20 +12,21 @@ int main()
         // Getting and setting the same satellite
         cy::check(!cy::try_get<int>());
         int x = 42;
-        cy::with<int> _ = x;
+        cy::with<int> s = x;
         cy::check(cy::try_get<int>());
         cy::check(cy::get<int>() == 42);
-   }
+    }
 
     {
         // Nested getters and setters, multiple tags
-        cy::check(!cy::get<int,tag1>());
-        cy::check(!cy::get<int,tag2>());
-        int v = 10;
-        cy::with<int, tag1> s3(v);
-        cy::check(cy::try_get<int,tag1>());
-        cy::check(cy::get<int,tag1>() == 10);
-        cy::check(!cy::try_get<int,tag2>());
+        cy::check(!cy::get<int, tag1>());
+        cy::check(!cy::get<int, tag2>());
+        int v1 = 10, v2 = 12;
+        cy::with<int, tag1> s1(v1);
+        cy::with<int, tag2> s2(v2);
+        cy::check(cy::try_get<int, tag1>());
+        cy::check(cy::get<int, tag1>() == 10);
+        cy::check(cy::get<int, tag2>() == 12);
     }
 
     // Scoped assignment
