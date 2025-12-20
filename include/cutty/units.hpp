@@ -429,6 +429,11 @@ using milliliter = milli_t<liter>;
 // gallon
 // us fluid ounce
 
+namespace literals
+{
+    CY_UNIT(liter);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Information
 

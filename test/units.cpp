@@ -126,7 +126,9 @@ void si()
 
 void volume()
 {
-    cy::print(
+    cy::check_equal(cy::print_str(5_liter), "5 liters");
+    cy::check_equal(1000_liter, 1_meter * 1_meter * 1_meter);
+    check_approx_equal(12459.4125_liter, 1.0_foot * 1.0_inch * 1.0_mile);
 }
 
 int main()

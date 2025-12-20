@@ -143,7 +143,6 @@ struct simplify<tags::product<tags::product<Ts1...>, T2, Ts2...>> : simplify<tag
 // {
 // };
 
-
 template <typename... Ts> struct simplify<tags::product<tags::unit, Ts...>> : simplify<tags::product<Ts...>>
 {
 };
@@ -152,10 +151,10 @@ template <typename T> struct simplify<tags::product<T, tags::unit>> : simplify<T
 {
 };
 
-template <typename... Ts> struct simplify<tags::product<tags::product<Ts...>, tags::unit>> : simplify<tags::product<Ts...>>
+template <typename... Ts>
+struct simplify<tags::product<tags::product<Ts...>, tags::unit>> : simplify<tags::product<Ts...>>
 {
 };
-
 
 template <> struct simplify<tags::scalar<1>> : simplify<tags::unit>
 {
@@ -190,7 +189,6 @@ struct strip_scalars<tags::product<tags::dscalar<D>, Ts...>> : strip_scalars<tag
     static constexpr double dmultiplier = D * strip_scalars<tags::product<Ts...>>::dmultiplier;
 };
 
-
 template <typename T, typename... Ts> struct strip_scalars<tags::product<T, Ts...>>
 {
     using t1 = strip_scalars<T>;
@@ -202,10 +200,13 @@ template <typename T, typename... Ts> struct strip_scalars<tags::product<T, Ts..
 
 constexpr double dpow(double d, fraction p)
 {
-    if (p.numerator==0) return 1.0;
-    if (p.numerator==1) return d;
-    if (p.numerator<0) return dpow(1/d, {-p.numerator});
-    return d * dpow(d, {p.numerator-1});
+    if (p.numerator == 0)
+        return 1.0;
+    if (p.numerator == 1)
+        return d;
+    if (p.numerator < 0)
+        return dpow(1 / d, {-p.numerator});
+    return d * dpow(d, {p.numerator - 1});
 }
 
 template <fraction P, typename T> struct strip_scalars<tags::power<T, P>>
@@ -291,15 +292,18 @@ template <fraction P, typename T> struct tag_traits<tags::power<T, P>> : public 
 {
     static void write(std::ostream &os, Plural plural, PadWithSpace pad)
     {
-        if constexpr (P == -1)
+        if (!detail::write_tag<tags::power<T, P>>(os, plural, pad))
         {
-            os << "/";
-            tag_traits<T>::write(os, Plural{false}, PadWithSpace{false});
-        }
-        else
-        {
-            tag_traits<T>::write(os, plural, pad);
-            os << "^" << P;
+            if constexpr (P == -1)
+            {
+                os << "/";
+                tag_traits<T>::write(os, Plural{false}, PadWithSpace{false});
+            }
+            else
+            {
+                tag_traits<T>::write(os, plural, pad);
+                os << "^" << P;
+            }
         }
     }
 };
@@ -341,8 +345,7 @@ concept has_scalar_common_conversion =
 
 namespace detail
 {
-template<typename T>
-using common_type_t = typename tag_traits<simplify_t<T>>::common_type;
+template <typename T> using common_type_t = typename tag_traits<simplify_t<T>>::common_type;
 
 template <typename T>
 concept needs_scalar_conversion = !std::same_as<simplify_t<T>, detail::strip_scalars_t<simplify_t<T>>>;
@@ -366,7 +369,7 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
     tagged<V2, S2> scale2;
     convert(scale1, scale2);
     constexpr double dr = (detail::strip_scalars<T1>::dmultiplier / detail::strip_scalars<T2>::dmultiplier);
-    if constexpr(dr != 1.0)
+    if constexpr (dr != 1.0)
     {
         *to = *scale2 * (detail::strip_scalars<T1>::multiplier / detail::strip_scalars<T2>::multiplier) * dr;
     }
@@ -468,9 +471,9 @@ template <typename V, typename T> tagged<V, T> operator/(const tagged<V, T> &x, 
     return tagged<V, T>{*x / y};
 }
 
-template <typename V, typename T> tagged<V, tags::power<T, -1>> operator/(const V&x, const tagged<V, T> &y)
+template <typename V, typename T> tagged<V, tags::power<T, -1>> operator/(const V &x, const tagged<V, T> &y)
 {
-    return tagged<V, tags::power<T,-1>>{x / *y};
+    return tagged<V, tags::power<T, -1>>{x / *y};
 }
 
 namespace detail

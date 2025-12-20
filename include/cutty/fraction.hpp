@@ -1,26 +1,27 @@
 #pragma once
 
-#include <iosfwd>
+#include <iostream>
 
 namespace cutty
 {
-struct fraction
+template<typename T>
+struct fraction_t
 {
-    int numerator;
-    int denominator;
+    T numerator;
+    T denominator;
 
-    constexpr int hcf(int a, int b)
+    constexpr T hcf(int a, int b)
     {
         while (b)
         {
-            int r = a % b;
+            T r = a % b;
             a = b;
             b = r;
         }
         return a < 0 ? -a : a;
     }
 
-    constexpr fraction(int n, int d = 1)
+    constexpr fraction_t(T n, T d = 1)
     {
         auto h = hcf(n, d);
         if (d < 0)
@@ -29,32 +30,36 @@ struct fraction
         denominator = d / h;
     }
 
-    constexpr bool operator==(const fraction &) const = default;
+    constexpr bool operator==(const fraction_t &) const = default;
 };
 
-constexpr fraction operator*(const fraction &lhs, const fraction &rhs)
+template<typename T>
+constexpr fraction_t<T> operator*(const fraction_t<T> &lhs, const fraction_t<T> &rhs)
 {
-    return fraction{lhs.numerator * rhs.numerator, lhs.denominator * rhs.denominator};
+    return fraction_t<T>{lhs.numerator * rhs.numerator, lhs.denominator * rhs.denominator};
 }
 
-constexpr fraction operator+(const fraction &lhs, const fraction &rhs)
+template<typename T>
+constexpr fraction_t<T> operator+(const fraction_t<T> &lhs, const fraction_t<T> &rhs)
 {
     return {lhs.numerator*rhs.denominator +  rhs.numerator*lhs.denominator, rhs.denominator * rhs.denominator};
 }
 
 
 // !! Concept here
-template <typename T> constexpr T operator*(const T &lhs, const fraction &rhs)
+template <typename U, typename T> constexpr U operator*(const U &lhs, const fraction_t<T> &rhs)
 {
     return (lhs * rhs.numerator) / rhs.denominator;
 }
 
-constexpr fraction operator/(const fraction &lhs, const fraction &rhs)
+template<typename T>
+constexpr fraction_t<T> operator/(const fraction_t<T> &lhs, const fraction_t<T> &rhs)
 {
     return {lhs.numerator * rhs.denominator, lhs.denominator * rhs.numerator};
 }
 
-constexpr fraction pow(const fraction &lhs, const fraction &rhs)
+template<typename T>
+constexpr fraction_t<T> pow(const fraction_t<T> &lhs, const fraction_t<T> &rhs)
 {
     // static_assert(rhs.denominator == 1, "sorry, roots are not supported");
     if (rhs.numerator == 0)
@@ -63,7 +68,7 @@ constexpr fraction pow(const fraction &lhs, const fraction &rhs)
     }
     else if (rhs.numerator < 0)
     {
-        return pow({lhs.denominator, lhs.numerator}, {-rhs.numerator, rhs.denominator});
+        return pow(fraction_t<T>{lhs.denominator, lhs.numerator}, fraction_t<T>{-rhs.numerator, rhs.denominator});
     }
     else if (rhs.numerator == 1)
     {
@@ -78,5 +83,14 @@ constexpr fraction pow(const fraction &lhs, const fraction &rhs)
 }
 
 
-std::ostream &operator<<(std::ostream &os, fraction p);
+template<typename T>
+std::ostream &operator<<(std::ostream &os, fraction_t<T> p)
+{
+    os << p.numerator;
+    if (p.denominator != 1)
+        os << "/" << p.denominator;
+    return os;
+}
+
+using fraction = fraction_t<long long>;
 } // namespace cutty

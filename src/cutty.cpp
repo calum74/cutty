@@ -6,14 +6,6 @@
 
 namespace cy = cutty;
 
-std::ostream &cy::operator<<(std::ostream &os, fraction p)
-{
-    os << p.numerator;
-    if (p.denominator != 1)
-        os << "/" << p.denominator;
-    return os;
-}
-
 cy::approx::approx(const value_type &value, const value_type &tolerance) : value(value), tolerance(tolerance)
 {
 }
