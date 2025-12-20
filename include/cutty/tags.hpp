@@ -138,6 +138,12 @@ struct simplify<tags::product<tags::product<Ts1...>, T2, Ts2...>> : simplify<tag
 {
 };
 
+// template <typename... Ts1, typename... Ts2>
+// struct simplify<tags::product<tags::product<Ts1...>, Ts2...>> : simplify<tags::product<Ts1..., Ts2...>>
+// {
+// };
+
+
 template <typename... Ts> struct simplify<tags::product<tags::unit, Ts...>> : simplify<tags::product<Ts...>>
 {
 };

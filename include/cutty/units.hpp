@@ -4,6 +4,10 @@
 
 #include <iostream>
 
+#define CY_UNIT(X) \
+    inline tagged<long double, X> operator"" _##X(long double d) { return tag<X>(d); };\
+    inline tagged<unsigned long long, X> operator"" _##X(unsigned long long i) { return tag<X>(i); };
+
 namespace cutty
 {
 ////////////////////////////////////////////////////////////////////////    
@@ -44,10 +48,6 @@ template <> struct tag_traits<rotation> : default_tag_traits<rotation>
 
 namespace literals
 {
-    #define CY_UNIT(X) \
-        inline tagged<long double, X> operator"" _##X(long double d) { return tag<X>(d); };\
-        inline tagged<unsigned long long, X> operator"" _##X(unsigned long long i) { return tag<X>(i); };
-
     CY_UNIT(radian);
     CY_UNIT(degree);
     CY_UNIT(gradian);
@@ -167,22 +167,10 @@ using candela = SI<0, 0, 0, 0, 0, 0, 1>;
 
 using joule = SI<2, 1, -2>;
 template <> inline const char *tag_symbol<joule> = "J";
-using volt = SI<2, 1, -3, -1>;
-template <> inline const char *tag_symbol<volt> = "V";
 using newton = SI<1, 1, -2>;
 template <> inline const char *tag_symbol<newton> = "N";
 
-using ohm = SI<2, 1, -3, -2>;
-template <> inline const char *tag_symbol<ohm> = "Ω";
-
 using speed = tags::divide<meter, second>;
-using watt = simplify_t<tags::divide<joule, second>>;
-template<> inline const char * tag_symbol<watt> = "W";
-
-// using Coloumb = ...
-// using Farad = ...
-// henry, tesla
-// Magnetic flux?
 
 namespace literals
 {
@@ -194,13 +182,49 @@ namespace literals
     CY_UNIT(mole);
     CY_UNIT(candela);
     CY_UNIT(joule);
-    CY_UNIT(volt);
     CY_UNIT(newton);
-    CY_UNIT(ohm);
-    CY_UNIT(watt);
 }
 
-////////////////////////////////////////////////////////////////////////    
+////////////////////////////////////////////////////////////////////////
+/// Electrical
+
+using volt = SI<2, 1, -3, -1>;
+template <> inline const char *tag_symbol<volt> = "V";
+
+using ohm = SI<2, 1, -3, -2>;
+template <> inline const char *tag_symbol<ohm> = "Ω";
+
+using watt = simplify_t<tags::divide<joule, second>>;
+template<> inline const char * tag_symbol<watt> = "W";
+
+using farad = SI<-2,-1,4,2>;
+template<> inline const char * tag_symbol<farad> = "F";
+
+using coulomb = SI<0,0,1,1>;
+template<> inline const char * tag_symbol<coulomb> = "C";
+
+using henry = SI<2,1,-2,-2>;
+template<> inline const char * tag_symbol<henry> = "L";
+
+using tesla=SI<0,1,-2,-1>;
+template<> inline const char * tag_text<tesla> = "swasticar";
+
+using weber=SI<2,1,-2,-1>;
+template<> inline const char * tag_symbol<weber> = "Wb";
+
+namespace literals
+{
+    CY_UNIT(volt);
+    CY_UNIT(ohm);
+    CY_UNIT(watt);
+    CY_UNIT(farad);
+    CY_UNIT(coulomb);
+    CY_UNIT(henry);
+    CY_UNIT(tesla);
+    CY_UNIT(weber);
+}
+
+////////////////////////////////////////////////////////////////////////
 /// Temperature
 
 struct celsius;
@@ -350,7 +374,25 @@ namespace literals
 ////////////////////////////////////////////////////////////////////////
 // Energy
 
-// !! erg, calorie
+using kilojoule = kilo_t<joule>;
+using calorie = tags::product<tags::scalar<{4184,1000}>, joule>;
+template <> inline const char * tag_symbol<calorie> = "cal";
+
+using kcal = kilo_t<calorie>;
+using erg = tags::product<tags::scalar<{1,10000000}>, joule>;
+template <> inline const char * tag_symbol<erg> = "erg";
+
+using electronvolt = tags::product<tags::dscalar<1.602176634e-19>, joule>;
+template <> inline const char * tag_symbol<electronvolt> = "eV";
+
+namespace literals
+{
+    CY_UNIT(kilojoule);
+    CY_UNIT(calorie);
+    CY_UNIT(kcal);
+    CY_UNIT(erg);
+    CY_UNIT(electronvolt);
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Volume

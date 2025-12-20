@@ -14,6 +14,7 @@
 - Chrono conversions
 - System time
 - Larger fraction range
+- Literals prevent mixins
 
 # Satellite
 - write up
