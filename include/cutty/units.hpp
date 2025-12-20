@@ -171,6 +171,10 @@ using newton = SI<1, 1, -2>;
 template <> inline const char *tag_symbol<newton> = "N";
 
 using speed = tags::divide<meter, second>;
+template <> inline const char *tag_symbol<speed> = "m/s";
+
+using hertz = SI<0,0,-1>;
+template <> inline const char *tag_symbol<hertz> = "Hz";
 
 namespace literals
 {
@@ -183,6 +187,7 @@ namespace literals
     CY_UNIT(candela);
     CY_UNIT(joule);
     CY_UNIT(newton);
+    CY_UNIT(hertz)
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -352,7 +357,7 @@ namespace literals
 using gram = tags::product<tags::scalar<{1, 1000}>, kilogram>;
 template <> inline const char *tag_symbol<gram> = "g";
 
-using ounce = tags::product<gram, tags::scalar<{283495, 10000}>>;
+using ounce = tags::product<gram, tags::dscalar<28.349523125>>;
 template <> inline const char *tag_symbol<ounce> = "oz";
 
 using pound = tags::product<ounce, tags::scalar<16>>;
@@ -360,7 +365,13 @@ template <> inline const char *tag_symbol<pound> = "lb";
 using stone = tags::product<pound, tags::scalar<14>>;
 template <> inline const char *tag_symbol<stone> = "st";
 
-// !! ton, tonne
+using tonne = kilo_t<kilogram>;
+template <> inline const char *tag_text<tonne> = "metric tonne";
+
+using long_ton = tags::product<pound, tags::scalar<2240>>;
+using short_ton = tags::product<pound, tags::scalar<2000>>;
+template <> inline const char *tag_text<long_ton> = "imperial long tonne";
+template <> inline const char *tag_text<short_ton> = "imperial short tonne";
 
 namespace literals
 {
@@ -368,7 +379,9 @@ namespace literals
     CY_UNIT(ounce);
     CY_UNIT(pound);
     CY_UNIT(stone);
-    // !! ton, tonne
+    CY_UNIT(short_ton);
+    CY_UNIT(long_ton);
+    CY_UNIT(tonne);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -399,6 +412,8 @@ namespace literals
 
 using decimeter = deci_t<meter>;
 using liter = tags::power<decimeter, 3>;
+template <> inline const char * tag_text<liter> = "liter";
+
 using milliliter = milli_t<liter>;
 
 // !! TODO

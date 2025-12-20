@@ -152,6 +152,11 @@ template <typename T> struct simplify<tags::product<T, tags::unit>> : simplify<T
 {
 };
 
+template <typename... Ts> struct simplify<tags::product<tags::product<Ts...>, tags::unit>> : simplify<tags::product<Ts...>>
+{
+};
+
+
 template <> struct simplify<tags::scalar<1>> : simplify<tags::unit>
 {
 };
@@ -336,11 +341,14 @@ concept has_scalar_common_conversion =
 
 namespace detail
 {
-template <typename T>
-concept needs_scalar_conversion = !std::same_as<T, detail::strip_scalars_t<T>>;
+template<typename T>
+using common_type_t = typename tag_traits<simplify_t<T>>::common_type;
 
 template <typename T>
-concept needs_common_conversion = !std::same_as<T, typename tag_traits<T>::common_type>;
+concept needs_scalar_conversion = !std::same_as<simplify_t<T>, detail::strip_scalars_t<simplify_t<T>>>;
+
+template <typename T>
+concept needs_common_conversion = !std::same_as<simplify_t<T>, common_type_t<T>>;
 } // namespace detail
 
 template <typename V1, typename T1, typename V2, typename T2>
@@ -351,6 +359,9 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
     using S2 = detail::strip_scalars_t<T2>;
     static_assert(!detail::needs_scalar_conversion<S1>, "strip_scalars should not need further scalar conversion");
     static_assert(!detail::needs_scalar_conversion<S2>, "strip_scalars should not need further scalar conversion");
+    static_assert(std::same_as<S1, simplify_t<S1>>, "strip_scalars should be simplified");
+    static_assert(std::same_as<S2, simplify_t<S2>>, "strip_scalars should be simplified");
+
     tagged<V1, S1> scale1{*from};
     tagged<V2, S2> scale2;
     convert(scale1, scale2);
@@ -373,6 +384,14 @@ void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
     tagged<V1, typename tag_traits<T1>::common_type> i;
     convert(from, i);
     convert(i, to);
+}
+
+template <typename V1, typename T1, typename V2, typename T2>
+void convert(const tagged<V1, T1> &from, tagged<V2, T2> &to)
+    requires(!detail::needs_common_conversion<T1> && !detail::needs_common_conversion<T2> &&
+             !detail::needs_scalar_conversion<T1> && !detail::needs_scalar_conversion<T2>)
+{
+    *to = *from;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -447,6 +466,11 @@ template <typename V, typename T> tagged<V, T> operator*(const tagged<V, T> &x, 
 template <typename V, typename T> tagged<V, T> operator/(const tagged<V, T> &x, const V &y)
 {
     return tagged<V, T>{*x / y};
+}
+
+template <typename V, typename T> tagged<V, tags::power<T, -1>> operator/(const V&x, const tagged<V, T> &y)
+{
+    return tagged<V, tags::power<T,-1>>{x / *y};
 }
 
 namespace detail

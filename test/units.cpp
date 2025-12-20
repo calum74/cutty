@@ -32,10 +32,15 @@ void length()
     cy::check_equal(cy::print_str(cy::tag<cy::lightyear>(1.0)), "1 light-year");
     check_approx_equal(1.0_lightyear, 5.87863e+12_mile);
     check_approx_equal(1.0_parsec, 1.91735e+13_mile);
+
+    cy::check_equal(1.0_inch, 2.54_centimeter);
+    cy::check_equal(1.0_yard, 0.9144_meter);
+    cy::check_equal(12_inch, 1_foot);
+    cy::check(1_kilometer < 1.0_mile);
 }
 
 void time()
-{    
+{
     cy::check_equal(10_second, 10000_millisecond);
     cy::check_equal(60_second, 1_minute);
     cy::check_equal(3600_second, 1_hour);
@@ -59,6 +64,11 @@ void information()
 
 void energy()
 {
+    using T1 = cy::SI<2, 1, -2>;
+    using T2 = cy::tags::product<cy::SI<1>, cy::SI<1, 1, -2>>;
+    static_assert(cy::convertible_to<T1, T2>);
+    static_assert(cy::convertible_to<T2, T1>);
+
     cy::tagged<double, cy::joule> j = 1_joule;
 
     cy::check_equal(1_joule, 1_meter * 1_newton);
@@ -81,7 +91,7 @@ void electrical()
 {
     // V=IR
     cy::check_equal(6_volt, 3_ampere * 2_ohm);
-    
+
     // q = CV
     cy::check_equal(15_coulomb, 3_farad * 5_volt);
 
@@ -90,14 +100,45 @@ void electrical()
     cy::check_equal(1_joule, 1_henry * 1_ampere * 1_ampere);
 
     cy::check_equal(1_tesla, 1_newton * 1_second / (1_coulomb * 1_meter));
-
-    //cy::check_equal(1_tesla, 1_newton * 1_second / 1_coulomb / 1_meter);
+    cy::check_equal(1_tesla, 1_newton * 1_second / 1_coulomb / 1_meter);
+    cy::check_equal(1_tesla, (1_newton * 1_second / 1_coulomb) / 1_meter);
 
     cy::check_equal(1_weber, 1_volt * 1_second);
     cy::check_equal(1_weber, 1_tesla * 1_meter * 1_meter);
 }
 
+void mass()
+{
+    check_approx_equal(1.0_kilogram, 2.20462442_pound);
+    cy::check_equal(1_pound, 16_ounce);
+    cy::check_equal(1_stone, 14_pound);
+    cy::check_equal(1000_kilogram, 1_tonne);
+    cy::check_equal(2240_pound, 1_long_ton);
+    check_approx_equal(1.000003042_long_ton, 1016.05_kilogram);
+}
+
+void si()
+{
+    cy::check_equal(1_hertz, 1ull / 1_second);
+    cy::check_equal(cy::print_str(2_hertz), "2Hz");
+    cy::check_equal(10_meter / 2_second, 5_meter / 1_second);
+}
+
+void volume()
+{
+    cy::print(
+}
+
 int main()
 {
-    return cy::test({angles, length, temperature, time, information, energy, {"electrical", electrical}});
+    return cy::test({{"angles", angles},
+                     {"length", length},
+                     {"temperature", temperature},
+                     {"time", time},
+                     {"information", information},
+                     {"energy", energy},
+                     {"electrical", electrical},
+                     {"mass", mass},
+                     {"SI", si},
+                     {"volume", volume}});
 }
