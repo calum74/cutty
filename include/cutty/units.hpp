@@ -394,9 +394,6 @@ using kilobyte = tags::product<kilo_base2, byte>;
 using megabyte = tags::product<mega_base2, byte>;
 using gigabyte = tags::product<giga_base2, byte>;
 
-using terabyte = tags::product<kilo_base2, gigabyte>;
-template<> inline const char * tag_symbol<terabyte> = "TB";
-
 using nat = tags::product<bit, tags::dscalar<1.44269504>>;
 template<> inline const char * tag_text<nat> = "nat";
 
