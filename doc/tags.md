@@ -1,5 +1,7 @@
 # Tags
 
+Sample: [tags.cpp](../tests/tags.cpp)
+
 A *tag* is a lightweight wrapper around a datatype (for example a `string`, `double`, or `int`) which labels it in some way, to enable
 
 - better documentation of raw numbers or strings

@@ -268,7 +268,7 @@ using week = tags::product<day, tags::scalar<7>>;
 struct month;
 using year = tags::product<month, tags::scalar<12>>;
 using century = tags::product<year, tags::scalar<100>>;
-using millenium = tags::product<year, tags::scalar<1000>>;
+using millennium = tags::product<year, tags::scalar<1000>>;
 
 CY_UNIT(millisecond);
 CY_UNIT_TEXT(minute, "minute");
@@ -277,8 +277,8 @@ CY_UNIT_TEXT(day, "day");
 CY_UNIT_TEXT(week, "week");
 CY_UNIT_TEXT(month, "month");
 CY_UNIT_TEXT(year, "year");
-CY_UNIT_TEXT(century, "century");     // Plural incorrect FIXME
-CY_UNIT_TEXT(millenium, "millenium"); // Plural incorrect FIXME
+CY_UNIT_TEXT(century, "century");      // Plural incorrect FIXME
+CY_UNIT_TEXT(millennium, "millenium"); // Plural incorrect FIXME
 
 ///////////////////////////////////////////////////////////////////////////////
 // Length
@@ -287,8 +287,9 @@ using yard = tags::product<meter, tags::scalar<{9144, 10000}>>;
 using foot = tags::product<yard, tags::scalar<{1, 3}>>;
 using inch = tags::product<foot, tags::scalar<{1, 12}>>;
 using mile = tags::product<yard, tags::scalar<1760>>;
-using centimeter = tags::product<centi, meter>;
-using kilometer = tags::product<kilo, meter>;
+using millimeter = milli_t<meter>;
+using centimeter = centi_t<meter>;
+using kilometer = kilo_t<meter>;
 using lightyear = tags::product<tags::dscalar<9460730472580800.0>, meter>;
 using parsec = tags::product<tags::dscalar<3.085677581491367e16>, meter>;
 
@@ -341,6 +342,7 @@ CY_UNIT_SYMBOL(electronvolt, "eV");
 using decimeter = deci_t<meter>;
 using liter = tags::power<decimeter, 3>;
 using milliliter = milli_t<liter>;
+using centiliter = centi_t<liter>;
 using deciliter = deci_t<liter>;
 using us_teaspoon = tags::product<tags::dscalar<4.92892>, milliliter>;
 using us_tablespoon = tags::product<tags::scalar<3>, us_teaspoon>;
@@ -387,7 +389,7 @@ using kilobyte = tags::product<kilo_base2, byte>;
 using megabyte = tags::product<mega_base2, byte>;
 using gigabyte = tags::product<giga_base2, byte>;
 using terabyte = tags::product<tera_base2, byte>;
-using nat = tags::product<bit, tags::dscalar<1.0/std::numbers::ln2>>;
+using nat = tags::product<bit, tags::dscalar<1.0 / std::numbers::ln2>>;
 
 template <> inline const char *tag_symbol<kilo_base2> = "k";
 template <> inline const char *tag_symbol<mega_base2> = "M";
