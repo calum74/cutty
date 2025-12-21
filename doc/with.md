@@ -30,7 +30,7 @@ and they can be stubbed, which is something that regular singletons, globals or 
 
 ## T &get<T,Tag=T>()
 
-Gets the current value, or throws `XXX` if the variable has not been set. Threadsafe.
+Gets the current value, or throws `without` if the variable has not been set. Threadsafe.
 
 ## T *try_get<T,Tag=T>()
 

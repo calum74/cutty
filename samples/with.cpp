@@ -19,8 +19,8 @@ int main()
 
     {
         // Nested getters and setters, multiple tags
-        cy::check(!cy::get<int, tag1>());
-        cy::check(!cy::get<int, tag2>());
+        cy::check(!cy::try_get<int, tag1>());
+        cy::check(!cy::try_get<int, tag2>());
         int v1 = 10, v2 = 12;
         cy::with<int, tag1> s1(v1);
         cy::with<int, tag2> s2(v2);
