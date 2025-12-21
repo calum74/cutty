@@ -130,6 +130,7 @@ void volume()
     cy::check_equal(cy::print_str(5_milliliter), "5ml");
     cy::check_equal(1000_liter, 1_meter * 1_meter * 1_meter);
     check_approx_equal(12459.4125_liter, 1.0_foot * 1.0_inch * 1.0_mile);
+    check_approx_equal(1.20095_us_gallon, 1.0_imperial_gallon);
 }
 
 int main()

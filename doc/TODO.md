@@ -5,15 +5,8 @@
 - Links to samples
 
 # Units
-- Make naming consistent
+- Unify scalar and dscalar
 - Bug converting $/mile int o £/km
-- Support lightyear and radian
-- Support femto etc using doubles.
-- Unit literals
-- Percent?
-- Chrono conversions
-- System time
-- Larger fraction range
 - Literals prevent mixins
 
 # Satellite
