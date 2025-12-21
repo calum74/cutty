@@ -6,9 +6,10 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets, wi
 
 Types:
 * [Mixins](samples/mixins.cpp) - general framework to add extension methods to existing types
-* [Tags](doc/tags.md) - a lightweight data wrapper
-* [Satellite](include/cutty/satellite.hpp) - taming global variables
+* [Tags](doc/tags.md) - create lightweight wrapped types
+* [With](doc/with.md) - taming global variables
 * [Sequence](doc/sequence.md) - universal sequences
+* [Units](doc/units.md) - SI units library built on tags
 
 Testing:
 * [Approx](include/cutty/approx.hpp) - perform approximate comparisons
@@ -24,8 +25,6 @@ Utilities:
 ## List of libraries coming soon
 
 * Dynamic - full `dynamic` type available in C++
-* Linq - Emulate C# LINQ notation
-* Units - SI units library built on tags
 * Property - Emulating C# property wrappers in C++
 * Shared memory - cross platform memory mapped files
 * Persist - a storage manager for memory-mapped files
