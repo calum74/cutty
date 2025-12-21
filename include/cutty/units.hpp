@@ -387,7 +387,7 @@ using kilobyte = tags::product<kilo_base2, byte>;
 using megabyte = tags::product<mega_base2, byte>;
 using gigabyte = tags::product<giga_base2, byte>;
 using terabyte = tags::product<tera_base2, byte>;
-using nat = tags::product<bit, tags::dscalar<1.44269504>>;
+using nat = tags::product<bit, tags::dscalar<1.0/std::numbers::ln2>>;
 
 template <> inline const char *tag_symbol<kilo_base2> = "k";
 template <> inline const char *tag_symbol<mega_base2> = "M";
