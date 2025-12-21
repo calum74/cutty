@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include <list>
+#include <ranges>
 
 namespace cy = cutty;
 
@@ -33,7 +34,8 @@ void getItems(const cy::output_sequence<std::string> & output)
     moreItems(output);
 
     // Use std::back_inserter
-    std::ranges::copy(cy::list("Item 1", "Item2", "Item3"), std::back_inserter(output));
+    auto list = cy::list("Item 1", "Item2", "Item3");
+    std::copy(list.begin(), list.end(), std::back_inserter(output));
 }
 
 int main()

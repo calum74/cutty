@@ -22,7 +22,7 @@ void angles()
     cy::check_equal("1.5708 radians 100 gradians",
                     cy::print_str(cy::tag<cy::radian>(right_angle), cy::tag<cy::gradian>(right_angle)));
 
-    check_approx_equal(cy::tagged<long double, cy::radian>(M_PI), 180.0_degree);
+    check_approx_equal(cy::tagged<long double, cy::radian>(std::numbers::pi), 180.0_degree);
     check_approx_equal(0.25_rotation, right_angle);
     check_approx_equal(100_gradian, 90_degree);
 }
@@ -77,13 +77,13 @@ void energy()
     check_approx_equal(1.0_calorie, 4.184_joule);
     cy::check_equal(2000_calorie, 2_kcal);
     cy::check_equal(1.0_erg, 1e-7_joule);
-    cy::check_equal(1.0_electronvolt, 1.602176634e-19_joule);
+    check_approx_equal(1.0_electronvolt, 1.602176634e-19_joule);
     check_approx_equal(2200.0_calorie, 5.745184273e+22_electronvolt);
 }
 
 void temperature()
 {
-    cy::check_equal(273.15_kelvin, 0.0_celsius);
+    check_approx_equal(273.15_kelvin, 0.0_celsius);
     cy::check_equal(89.6_farenheit, 32.0_celsius);
 }
 

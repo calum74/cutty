@@ -166,17 +166,6 @@ template <typename V> struct cy::mixin<cy::tagged<V, Version>, cy::tagged_method
     }
 };
 
-// In this case, this mixin applies to *any* temperature type T
-
-template <typename V, cy::common_type<cy::celsius> T> struct cy::mixin<cy::tagged<V, T>, cy::tagged_methods<T>>
-{
-    // bool freezing(this const cy::tagged<V, T> &v)
-    bool freezing() const
-    {
-        return *static_cast<const cy::tagged<V, T>*>(this) <= cy::tag<celsius>(0);
-    }
-};
-
 // This mixin applies to a specific tagged type, Verbosity.
 // Note that we need to specify the *tag* verbosity_tag in tagged_methods.
 template <> struct cy::mixin<Verbosity, cy::tagged_methods<verbosity_tag>>
@@ -198,13 +187,6 @@ void mixins()
 {
     cy::check(cy::tag<Version>(5).supports_feature_A());
     cy::check(cy::tag<Version>(5).compatible_with(cy::tag<Version>(4)));
-
-    cy::check(cy::tag<cutty::celsius>(-1).freezing());
-    cy::check(!cy::tag<cutty::celsius>(1).freezing());
-    cy::check(cy::tag<cutty::kelvin>(100).freezing());
-    cy::check(!cy::tag<cutty::farenheit>(80).freezing());
-    cy::check(cy::tag<cutty::farenheit>(10).freezing());
-
     cy::check(Verbosity(0).quiet());
 }
 

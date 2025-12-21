@@ -3,6 +3,7 @@
 #include "tags.hpp"
 
 #include <iostream>
+#include <numbers>
 
 #define CY_UNIT(X)                                                                                                     \
     namespace literals                                                                                                 \
@@ -38,7 +39,7 @@ template <> struct tag_traits<radian> : default_tag_traits<radian>
     using common_type = tags::unit;
 };
 
-using degree = tags::product<tags::dscalar<M_PI / 180>, radian>;
+using degree = tags::product<tags::dscalar<std::numbers::pi / 180>, radian>;
 
 template <> struct tag_traits<degree> : default_tag_traits<degree>
 {
@@ -52,7 +53,7 @@ template <> struct tag_traits<gradian> : default_tag_traits<gradian>
     using common_type = tags::unit;
 };
 
-using rotation = tags::product<tags::dscalar<2 * M_PI>, radian>;
+using rotation = tags::product<tags::dscalar<2 * std::numbers::pi>, radian>;
 
 template <> struct tag_traits<rotation> : default_tag_traits<rotation>
 {
