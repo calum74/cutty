@@ -10,7 +10,7 @@ struct fraction_t
     T numerator;
     T denominator;
 
-    constexpr T hcf(int a, int b)
+    constexpr T hcf(T a, T b)
     {
         while (b)
         {

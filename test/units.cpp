@@ -57,9 +57,9 @@ void information()
     cy::check_equal(16_bit, 2_byte);
     cy::check_equal(1024_kilobyte, 1_megabyte);
     cy::check_equal(1_megabyte, 1024ull * 1024ull * 8_bit);
-
-    // This does not work due to integer overflows
-    // cy::check_equal(1_terabyte, 1024_gigabyte);
+    cy::check_equal(1024_megabyte, 1_gigabyte);
+    cy::check_equal(1_terabyte, 1024_gigabyte);
+    check_equal(29072699_nat, 5_megabyte);
 }
 
 void energy()
@@ -126,7 +126,8 @@ void si()
 
 void volume()
 {
-    cy::check_equal(cy::print_str(5_liter), "5 liters");
+    cy::check_equal(cy::print_str(5_liter), "5l");
+    cy::check_equal(cy::print_str(5_milliliter), "5ml");
     cy::check_equal(1000_liter, 1_meter * 1_meter * 1_meter);
     check_approx_equal(12459.4125_liter, 1.0_foot * 1.0_inch * 1.0_mile);
 }
