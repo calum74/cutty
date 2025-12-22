@@ -17,7 +17,7 @@ struct lockable_tag;
 struct lockable_container_tag;
 struct printable_tag;
 
-// To define a mixin, specialize the type cutty::mixin as follows:
+// To define a mixin, specialize the type cy::mixin as follows:
 template <typename T> struct cy::mixin<T, container_tag>
 {
     using size_type = std::size_t;
@@ -47,7 +47,7 @@ template <typename T> struct cy::mixin<T, container_tag, 1>
 };
 
 // Leaving a gap in the sequence means that the mixin will not be picked up
-template <typename T> struct cutty::mixin<T, container_tag, 4>
+template <typename T> struct cy::mixin<T, container_tag, 4>
 {
     static_assert(false, "this mixin is not found");
 };
@@ -55,7 +55,7 @@ template <typename T> struct cutty::mixin<T, container_tag, 4>
 // You can't reuse the same index or your program will not compile.
 // That's the one definition rule.
 //
-// template <typename T> struct cutty::mixin<T, container_tag, 1>
+// template <typename T> struct cy::mixin<T, container_tag, 1>
 // {
 // };
 
@@ -99,7 +99,7 @@ CY_REGISTER_MIXIN(tracker_impl);
 
 // To add a mixin to a type, you must inherit from mixin::implements,
 // specifying the mixins you want implemented.
-class mylist : public cutty::implements<mylist, lockable_tag, container_tag>
+class mylist : public cy::implements<mylist, lockable_tag, container_tag>
 {
   public:
     auto begin() const
@@ -116,15 +116,15 @@ class mylist : public cutty::implements<mylist, lockable_tag, container_tag>
 };
 
 // This example shows a class implementing multiple mixins
-class myobject : public cutty::implements<myobject, tracker_tag, lockable_tag>
+class myobject : public cy::implements<myobject, tracker_tag, lockable_tag>
 {
 };
 
 // Concepts can be used to check the status of a mixin
-static_assert(cutty::has_mixin<myobject, tracker_tag>);
-static_assert(!cutty::has_mixin<myobject, container_tag>);
+static_assert(cy::has_mixin<myobject, tracker_tag>);
+static_assert(!cy::has_mixin<myobject, container_tag>);
 
-template<cutty::has_mixin<lockable_tag> Lockable>
+template<cy::has_mixin<lockable_tag> Lockable>
 struct mywrap
 {
 };
@@ -134,7 +134,7 @@ using wrap_object = mywrap<myobject>;
 // Don't include the same mixin more than once - even indirectly. The following
 // code will give a warning and not work as expected.
 //
-// class myobject2 : public cutty::implements<myobject, lockable_tag, lockable_container_tag>
+// class myobject2 : public cy::implements<myobject, lockable_tag, lockable_container_tag>
 // {
 // };
 

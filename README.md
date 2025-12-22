@@ -5,7 +5,7 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets, wi
 ## List of libraries
 
 Types:
-* [Mixins](samples/mixins.cpp) - general framework to add extension methods to existing types
+* [Mixins](doc/mixins.md) - general framework to add extension methods to existing types
 * [Sequence](doc/sequence.md) - universal sequences
 * [Tags](doc/tags.md) - create lightweight wrapped types
 * [Units](doc/units.md) - SI units library built on tags
