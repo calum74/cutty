@@ -7,15 +7,15 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets, wi
 Types:
 * [Mixins](doc/mixins.md) - general framework to add extension methods to existing types
 * [Sequence](doc/sequence.md) - universal sequences
-* [Tags](doc/tags.md) - create lightweight wrapped types
-* [Units](doc/units.md) - SI units library built on tags
-* [With](doc/with.md) - taming global variables
+* [Tags](doc/tags.md) - lightweight wrapped types
+* [Units](doc/units.md) - units library built on tags
+* [With](doc/with.md) - a more principled approach to singletons and global variables
 
 Testing:
-* [Approx](include/cutty/approx.hpp) - perform approximate comparisons
-* [Check](include/cutty/check.hpp) - macro-free runtime assertions
-* [Scope hooks](include/cutty/scope_hooks.hpp) - log scope entry and exits
-* [Test](include/cutty/test.hpp) - simple macro-free unit test framework
+* [Approx](doc/approx.md) - perform approximate comparisons
+* [Check](doc/check.md) - macro-free runtime assertions
+* [Scope hooks](doc/scope_hooks.md) - log scope entry and exits
+* [Test](doc/test.md) - simple macro-free unit test framework
 
 Utilities:
 * [Pretty type](doc/pretty_type.md) - get a pretty string for any type

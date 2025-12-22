@@ -59,7 +59,6 @@ class check_failed : public std::runtime_error
     check_failed(const char *msg, const std::source_location &src);
 };
 
-// TODO
 void check_equal(auto &&lhs, auto &&rhs, const std::source_location &src = std::source_location::current())
 {
     if (lhs != rhs)

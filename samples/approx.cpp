@@ -10,9 +10,11 @@ int main()
 {
     // Approx gives a neater syntax for comparing values within a tolerance
     cy::check(1 == cy::approx(1));
+    cy::check_equal(1, cy::approx(1));
 
     // You can also specify a tolerance explicitly
     cy::check(3.1415 == cy::approx(std::numbers::pi, 1e-3));
+    cy::check_equal(3.1415, cy::approx(std::numbers::pi, 1e-3));
 
     // The default tolerance is usually within 1e-6
     std::cout << "1 is approximately " << cy::approx(1) << std::endl;

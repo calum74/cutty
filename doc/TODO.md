@@ -1,5 +1,9 @@
 # Documentation priorities
-- 
+- Approx
+- Check
+- Scope hooks
+- Test
+- With: Documentation of Base class is std::runtime_error?
 
 # Units
 - Unify scalar and dscalar
@@ -13,7 +17,6 @@ Get rid of fraction, and use the builtin `kilo`, etc.
 - write up
 
 # Print
-- Print containers etc.
 - Make it configurable?
 - Compare with string.
 - Test suite, docs, samples
@@ -38,13 +41,6 @@ Finish stuff
 Strings that are char*
 Objects and dicts with string keys
 Find a use case
-
-# Pretty-type
-Robustify it
-
-# Mixins
-Static mixins
-Dynamic has mixins
 
 # Projects to add
 Entropy
