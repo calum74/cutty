@@ -3,25 +3,25 @@
 
 namespace cy = cutty;
 
-cy::test_suite::test_suite(test_function fn) : function(fn), name("test")
+cy::test_fixture::test_fixture(test_function fn) : function(fn), name("test")
 {
 }
 
-cy::test_suite::test_suite(const char * name, test_function fn) : function(fn), name(name)
+cy::test_fixture::test_fixture(const char * name, test_function fn) : function(fn), name(name)
 {
 }
 
-int cy::test(int argc, const char**argv, std::initializer_list<test_suite> tests)
-{
-    return test(tests);
-}
-
-int cy::test(int argc, char**argv, std::initializer_list<test_suite>tests)
+int cy::test(int argc, const char**argv, std::initializer_list<test_fixture> tests)
 {
     return test(tests);
 }
 
-int cy::test(std::initializer_list<test_suite> list)
+int cy::test(int argc, char**argv, std::initializer_list<test_fixture>tests)
+{
+    return test(tests);
+}
+
+int cy::test(std::initializer_list<test_fixture> list)
 {
     int passed = 0, failed = 0;
     std::cout << "Running " << list.size() << " tests\n";
