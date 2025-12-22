@@ -1,8 +1,8 @@
 # Units
 
-Units provides a set of metric and imperial units for the [tags](tags.md) library.
-
 Sample: [units.cpp](../samples/units.cpp)
+
+Units provides a set of metric and imperial units for the [tags](tags.md) library.
 
 ## Tutorial
 

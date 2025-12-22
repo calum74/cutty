@@ -30,6 +30,13 @@ and they can be stubbed, which is something that regular singletons, globals or 
 
 # Reference
 
+## Header and namespace
+
+```c++
+#include <cutty/with.hpp>
+namespace cy=cutty;
+```
+
 ## Function `get()`
 
 ```c++

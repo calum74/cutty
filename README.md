@@ -18,9 +18,8 @@ Testing:
 * [Test](include/cutty/test.hpp) - simple macro-free unit test framework
 
 Utilities:
-* [Fraction](include/cutty/fraction.hpp) - similar to `std::ratio`
-* [Pretty type](include/cutty/pretty_type.hpp) - get a pretty string for any type
-* [Print](include/cutty/print.hpp) - print any value
+* [Pretty type](doc/pretty_type.md) - get a pretty string for any type
+* [Print](doc/print.md) - print any value
 
 ## List of libraries coming soon
 

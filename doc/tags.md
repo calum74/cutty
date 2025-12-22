@@ -80,9 +80,8 @@ See [tags.cpp](../test/tags.cpp) for more examples and advanced usage.
 
 ```c++
 #include <cutty/tags.hpp>
+namespace cy = cutty;
 ```
-
-All names are in the `cutty` namespace.
 
 ## Types
 

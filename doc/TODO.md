@@ -1,13 +1,13 @@
 # Documentation priorities
-- Units
-- Mixins
-- Satellite
-- Links to samples
+- 
 
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
+
+# Tags
+Get rid of fraction, and use the builtin `kilo`, etc.
 
 # Satellite
 - write up
