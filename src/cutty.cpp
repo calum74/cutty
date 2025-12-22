@@ -1,6 +1,7 @@
 #include <cutty/approx.hpp>
 #include <cutty/fraction.hpp>
 #include <cutty/with.hpp>
+#include <cutty/separator.hpp>
 
 #include <iostream>
 
@@ -48,4 +49,18 @@ std::ostream &cy::operator<<(std::ostream &os, const cy::approx &x)
 
 cy::without::without() : std::runtime_error("get<>() called without with<>()")
 {
+}
+
+std::ostream & cy::operator<<(std::ostream &os, separator &sep)
+{
+    if(sep.printed)
+    {
+        os << sep.str;
+    }
+    else
+    {
+        sep.printed = true;
+    }
+
+    return os;
 }

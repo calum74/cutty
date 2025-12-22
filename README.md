@@ -20,6 +20,7 @@ Testing:
 Utilities:
 * [Pretty type](doc/pretty_type.md) - get a pretty string for any type
 * [Print](doc/print.md) - print any value
+* [Separator](doc/separator.md) - makes printing lists easier
 
 ## List of libraries coming soon
 
