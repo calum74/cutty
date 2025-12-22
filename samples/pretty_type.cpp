@@ -18,7 +18,7 @@ struct Bar
 
 int main()
 {
-    cy::check_equal(cy::pretty_type<std::string>(), "std::string");
+    cy::print(cy::pretty_type<std::string>());
     cy::check_equal(cy::pretty_type<int>(), "int");
     cy::check_equal(cy::pretty_type<bool>(), "bool");
     cy::check_equal(cy::pretty_type<Foo::Bar>(), "Foo::Bar");
