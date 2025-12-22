@@ -32,3 +32,5 @@ Utilities:
 ## Building
 
 Prerequisites: C++23, builds on Linux, MacOS and Windows using CMake.
+
+[![CMake on multiple platforms](https://github.com/calum74/cutty/actions/workflows/cmake-multi-platform.yml/badge.svg)](https://github.com/calum74/cutty/actions/workflows/cmake-multi-platform.yml)
