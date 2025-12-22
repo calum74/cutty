@@ -16,13 +16,13 @@ It is a generalisation of the idea of *units* (for example distance, mass, time)
 A tag is just any data type, for example `struct bytes_t` or `struct hostname_t`. You can then  define bespoke datatypes representing particular types of data, for example:
 
 ```c++
-using ChunkSize        = cy::tagged<size_t, struct bytes_t>;
+using ChunkSize = cy::tagged<size_t, cy::byte>;
 using CompressionLevel = cy::tagged<int, struct comp_level_t>;
-using Blocking         = cy::tagged<bool, struct blocking_t>;
-using Hostname         = cy::tagged<std::string, struct hostname_t>;
-using Uri              = cy::tagged<std::string, struct uri_t>;
-using Port             = cy::tagged<int, struct port_t>;
-using Ssl              = cy::tagged<bool, force_ssl_t>;
+using Blocking = cy::tagged<bool, struct blocking_t>;
+using Hostname = cy::tagged<std::string, struct hostname_t>;
+using Uri = cy::tagged<std::string, struct uri_t>;
+using Port = cy::tagged<int, struct port_t>;
+using Ssl = cy::tagged<bool, struct force_ssl_t>;
 ```
 
 Function signatures can be changed to take more specific tagged types, for example
@@ -31,24 +31,16 @@ Function signatures can be changed to take more specific tagged types, for examp
 #include <cutty/tags.hpp>
 namespace cy = cutty;
 
-void wait(
-    cy::tagged<std::size_t, cy::milliseconds> time, 
-    Blocking block);
+void wait(cy::tagged<std::size_t, cy::millisecond> timeout, Blocking block);
 
-void send(
-    Hostname hostname, 
-    Port port,
-    Uri uri,
-    ChunkSize chunksize,
-    Ssl force_ssl,
-    CompressionLevel compression);
+void send(Hostname hostname, Port port, Uri uri, ChunkSize chunksize, Ssl force_ssl, CompressionLevel compression);
 ```
 
 To create a tag, pass the value to the `tagged` constructor, or use the `cy::tag<T>()` function. For example
 
 ```c++
-Ssl using_ssl{true};
-wait(cy::tag<cy::seconds>(5), Blocking(false));
+    Ssl using_ssl{true};
+    wait(5_second, Blocking{true});
 ```
 
 Note that the tag takes care of units, for example converting seconds to milliseconds.
