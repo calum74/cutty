@@ -9,7 +9,7 @@ struct tag2;
 int main()
 {
     {
-        // Getting and setting the same satellite
+        // Getting and setting the same value
         cy::check(!cy::try_get<int>());
         int x = 42;
         cy::with<int> s = x;

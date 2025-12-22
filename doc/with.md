@@ -1,11 +1,13 @@
 # With
 
+Sample: [with.cpp](../samples/with.cpp)
+
 *With* allows you to pass arguments to nested functions without adding them to function signatures.
 It gives the convenience of global variables without the drawbacks.
 
 ```c++
 #include <cutty/with.hpp>
-using cy = cutty;
+namespace cy = cutty;
 
 int main()
 {
@@ -28,19 +30,49 @@ and they can be stubbed, which is something that regular singletons, globals or 
 
 # Reference
 
-## T &get<T,Tag=T>()
+## Function `get()`
+
+```c++
+template<typename T, typename Tag=T>
+T &get();
+```
 
 Gets the current value, or throws `without` if the variable has not been set. Threadsafe.
 
-## T *try_get<T,Tag=T>()
+## Function `try_get()`
+
+```c++
+template<typename T, typename Tag=T>
+T *try_get();
+```
 
 Gets the current value, or returns `nullptr` if the variable has not been set. Threadsafe, does not throw.
 
-## class with<T,Tag=T>
+## Class `with`
+
+```c++
+template<typename T, typename Tag=T>
+class with;
+```
 
 Assigns the value of the variable for the lifetime of the object. Threadsafe, does not throw.
 
 Constructors:
-- `with(T &src)`
-- `with(T&&) = delete`
 
+- `with(T &object)`: Sets the current value for the scope of `with`. This is thread-local and will have no impact on other threads. `object` can be a derived class of `T`, and should have a lifetime of at least the scope of `with`.
+- `with(T&&) = delete`
+- `with(const with&) = delete`
+
+This class has no other methods. To access the stored value, use `get()` or `try_get()`.
+
+`with` objects can be nested, where the innermost `with` is the current value used. When `with` goes out of scope, then the previous value is restored.
+
+## Class `without`
+
+```c++
+class without : public std::runtime_error
+{
+};
+```
+
+Exception that is thrown when `get()` is called outside of a a `with`.
