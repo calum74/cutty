@@ -59,7 +59,7 @@ void wait(cy::tagged<std::size_t, cy::milliseconds> timeout, Blocking block)
 Writing a tag to a stream will output the appropriate unit if available.
 
 ```c++
-std::cout << cy::tag<cy::seconds>(10);  // Outputs "10s"
+std::cout << cy::tag<cy::second>(10);  // Outputs "10s"
 ```
 
 The [units](units.md) library provide a large number of built-in tags covering common metric and imperial units, distance, mass, time, temperature etc.
