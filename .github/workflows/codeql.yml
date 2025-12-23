@@ -87,7 +87,7 @@ jobs:
       shell: bash
       run: |
         cmake -S . -B build
-        cmake --build build
+        /usr/bin/time -v cmake --build build -j 1
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4
