@@ -39,6 +39,10 @@ int main()
     map[2] = {};
     cy::print(map);
 
+    // Print with a different separator
+    cy::print({.start = "(", .sep = ",", .end = ")"}, 1, 2, 3);
+    cy::print();
+
     /*
     Output:
         The value is 5
@@ -46,5 +50,6 @@ int main()
         The values are {1, 2, 3}
         (123, 456)
         {(1, {a, b, c}), (2, {})}
+        (1,2,3)
     */
 }

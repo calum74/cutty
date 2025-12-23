@@ -1,27 +1,29 @@
-# Documentation priorities
-- Approx
-- Check
-- Scope hooks
-- Test
-- With: Documentation of Base class is std::runtime_error?
-
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
 
 # Tags
-Get rid of fraction, and use the builtin `kilo`, etc.
+- [ ] Get rid of fraction, and use the builtin `kilo`, etc.
 
-# Satellite
-- write up
+# Docs
+- [ ] Separator output
 
 # Print
-- Make it configurable?
-- Compare with string.
+- [ ] Make it configurable
+print_opts
+- beg = ""
+- sep = " "
+- end = "\n"
+
+- Compare with std::string.
 - Test suite, docs, samples
 
 # Tests
+- [ ] Test should allow command line options
+- Run specific tests, selected by number
+- Specify a format string?
+
 - Should we have a "test case" local variable, and use satellite to specify it?
 
 # Command line argument parser
