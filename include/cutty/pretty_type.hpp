@@ -12,7 +12,6 @@ template <typename T> constexpr auto pretty_type()
     s.remove_suffix(1);
 #elif defined(__GNUC__)
     std::string_view s(__PRETTY_FUNCTION__);
-    // +15
     s.remove_prefix(46);
     s.remove_suffix(1);
 #elif _MSC_VER >= 1920

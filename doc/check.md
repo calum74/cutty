@@ -7,7 +7,7 @@ Macro-free runtime checks.
 ```c++
 cy::check(a < b);
 cy::check_equal(a, b);
-cy::check_throw(f, " Null pointer");
+cy::check_throw(f, "Null pointer");
 ```
 
 # Reference
