@@ -62,8 +62,8 @@ Configures the extra text that is printed.
 
 Members:
 - `const char *start="";` - string to print at the start
-- `const char *end="\n";` - string to print at the end
 - `const char *sep=" ";` - string to print in between items
+- `const char *end="\n";` - string to print at the end
 
 ## Class `print_string_opts`
 
@@ -71,5 +71,5 @@ Configures the extra text that is printed with `print_str()`. This class has dif
 
 Members:
 - `const char *start="";` - string to print at the start
-- `const char *end="";` - string to print at the end
 - `const char *sep=" ";` - string to print in between items
+- `const char *end="";` - string to print at the end

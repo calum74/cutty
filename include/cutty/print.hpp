@@ -14,15 +14,15 @@ namespace cutty
 
 struct print_opts
 {
-    const char *sep = " ";
     const char *start = "";
+    const char *sep = " ";
     const char *end = "\n";
 };
 
 struct print_str_opts
 {
-    const char *sep = " ";
     const char *start = "";
+    const char *sep = " ";
     const char *end = "";
 };
 
@@ -119,7 +119,7 @@ template <typename... Ts> void print(const Ts &...ts)
 template <typename... Ts> std::string print_str(const print_str_opts &opts, const Ts &...ts)
 {
     std::stringstream ss;
-    print_stream(ss, print_opts{.sep = opts.sep, .start=opts.start, .end=opts.end}, ts...);
+    print_stream(ss, print_opts{.start=opts.start, .sep = opts.sep, .end=opts.end}, ts...);
     return ss.str();
 }
 
