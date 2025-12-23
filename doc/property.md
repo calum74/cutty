@@ -1,5 +1,6 @@
 # Properties
-Really simple properties in C++.
+
+Solves the problem of writing getters and setters.
 
 # Summary
 This library replaces slightly cumbersome methods calls like

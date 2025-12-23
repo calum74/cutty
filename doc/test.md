@@ -2,7 +2,7 @@
 
 Sample: [test.cpp](../samples/test.cpp)
 
-A very simple, macro-free unit test framework.
+Solves the problem of writing unit tests without the drawbacks of macros. *Test* is a very simple, macro-free unit test framework.
 
 ```c++
 #include <cutty/test.hpp>
@@ -25,6 +25,7 @@ int main()
 
 ```c++
 #include <cutty/test.hpp>
+
 namespace cy = cutty;
 ```
 
@@ -50,7 +51,7 @@ Constructors:
 ```c++
 int test(std::initialiser_list<test_fixture>);
 
-int test(int argv, const char *argv, std::initialiser_list<test_fixture>);
+int test(int argv, const char **argv, std::initialiser_list<test_fixture>);
 ```
 
 Runs the given test fixtures and returns `0` on success, or non-0 otherwise.

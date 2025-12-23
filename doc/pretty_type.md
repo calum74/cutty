@@ -2,11 +2,11 @@
 
 Sample: [pretty_type.cpp](../samples/pretty_type.cpp)
 
-A portable way to obtain a nice string representing a C++ type.
+Solves the problem of getting a nice string representing a type in a portable way.
 
 # Reference
 
-## Header and namespace
+## Header file and namespace
 
 ```c++
 #include <cutty/pretty_type.hpp>

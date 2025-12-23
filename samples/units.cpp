@@ -1,5 +1,5 @@
-#include <cutty/units.hpp>
 #include <cutty/print.hpp>
+#include <cutty/units.hpp>
 
 namespace cy = cutty;
 
@@ -16,9 +16,9 @@ int main()
 
     /*
         Output:
-        1 hour is 60 minutes 
-        The required resistance is 16.9231Ω 
-        One mile and 100 yards in km is 1.70078km 
-        100 Celsius is greater        
+        1 hour is 60 minutes
+        The required resistance is 16.9231Ω
+        One mile and 100 yards in km is 1.70078km
+        100 Celsius is greater
     */
 }

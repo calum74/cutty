@@ -1,4 +1,6 @@
-# Sequence tutorial
+# Sequence
+
+Solves the problem of representing arbitrary sequences and ranges without templates.
 
 ## Introduction
 

@@ -2,7 +2,7 @@
 
 Sample: [check.cpp](../samples/check.cpp)
 
-Macro-free runtime checks.
+Solves the problem of assertion macros which don't work well with C++ templates, by using the new `std::source_location`. The correct source location is still reported.
 
 ```c++
 cy::check(a < b);
@@ -16,6 +16,7 @@ cy::check_throws(f, "Null pointer");
 
 ```c++
 #include <cutty/check.hpp>
+
 namespace cy = cutty;
 ```
 

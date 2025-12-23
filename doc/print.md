@@ -2,6 +2,8 @@
 
 Sample: [print.cpp](../samples/print.cpp)
 
+Solves the problem of just displaying values, without a cumbersome `<<` syntax, adds spaces and newlines, displays container contents and tuples, and always produces something sensible.
+
 Print any value, including ranges and values that lack stream and formatting support. Automatically prints the contents of ranges and tuples, or displays the type name and address for objects without ostream support. Start, end and separator text can be configured.
 
 ```c++
@@ -11,6 +13,14 @@ cy::print({.start = "(", .sep = ",", .end = ")"}, 1, 2, 3);
 ```
 
 # Reference
+
+## Header file and namespace
+
+```c++
+#include <cutty/print.hpp>
+
+namespace cy = cutty;
+```
 
 ## Function `print()`
 
@@ -56,20 +66,20 @@ std::string print_str(const print_str_opts &, const Ts&...);
 
 Prints the values to a string. A newline is not appended by default.
 
-## Class `print_opts`
+## Struct `print_opts`
 
 Configures the extra text that is printed.
 
 Members:
-- `const char *start="";` - string to print at the start
-- `const char *sep=" ";` - string to print in between items
-- `const char *end="\n";` - string to print at the end
+- `const char *start=""` - string to print at the start
+- `const char *sep=" "` - string to print in between items
+- `const char *end="\n"` - string to print at the end
 
-## Class `print_string_opts`
+## Struct `print_string_opts`
 
 Configures the extra text that is printed with `print_str()`. This class has different defaults to `print_opts`.
 
 Members:
-- `const char *start="";` - string to print at the start
-- `const char *sep=" ";` - string to print in between items
-- `const char *end="";` - string to print at the end
+- `const char *start=""` - string to print at the start
+- `const char *sep=" "` - string to print in between items
+- `const char *end=""` - string to print at the end

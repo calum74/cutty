@@ -2,6 +2,8 @@
 
 Sample: [units.cpp](../samples/units.cpp)
 
+Solves the problem of representing physical units and avoids errors converting between units and scales.
+
 Units provides a set of metric and imperial units for the [tags](tags.md) library.
 
 ## Tutorial
