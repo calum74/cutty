@@ -21,7 +21,7 @@ int main()
 
 # Reference
 
-## Header file and include
+## Header file and namespace
 
 ```c++
 #include <cutty/test.hpp>
@@ -49,6 +49,10 @@ Constructors:
 
 ```c++
 int test(std::initialiser_list<test_fixture>);
+
+int test(int argv, const char *argv, std::initialiser_list<test_fixture>);
 ```
 
 Runs the given test fixtures and returns `0` on success, or non-0 otherwise.
+
+If arguments are given, then runs only those tests specified. Tests without a name can be specified by their number instead.

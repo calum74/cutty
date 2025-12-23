@@ -7,7 +7,6 @@
 
 namespace cutty
 {
-
     struct test_fixture
     {
         using test_function = void(*)();
@@ -20,6 +19,5 @@ namespace cutty
     };
 
     int test(int argc, const char**argv, std::initializer_list<test_fixture>);
-    int test(int argc, char**argv, std::initializer_list<test_fixture>);
     int test(std::initializer_list<test_fixture>);
 }
