@@ -20,11 +20,11 @@ void test_pi()
     cy::check_equal(std::numbers::pi, cy::approx(3.14159265));
 }
 
-int main()
+int main(int argc, const char**argv)
 {
     // Run a series of tests, returning 0 on success:
     return cy::test({test_1_equals_1, test_2_greater_1, test_pi});
 
     // Run tests, naming each test
-    return cy::test({{"t1", test_1_equals_1}, {"t2", test_2_greater_1}, {"pi", test_pi}});
+    return cy::test(argc, argv, {{"t1", test_1_equals_1}, {"t2", test_2_greater_1}, {"pi", test_pi}});
 }
