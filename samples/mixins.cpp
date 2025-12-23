@@ -52,13 +52,6 @@ template <typename T> struct cy::mixin<T, container_tag, 4>
     static_assert(false, "this mixin is not found");
 };
 
-// You can't reuse the same index or your program will not compile.
-// That's the one definition rule.
-//
-// template <typename T> struct cy::mixin<T, container_tag, 1>
-// {
-// };
-
 // Managing sequence numbers could become difficult, so cy::defines_mixin and 
 // CY_REGISTER_MIXIN can be used to chain mixins together.
 
@@ -130,14 +123,6 @@ struct mywrap
 };
 
 using wrap_object = mywrap<myobject>;
-
-// Don't include the same mixin more than once - even indirectly. The following
-// code will give a warning and not work as expected.
-//
-// class myobject2 : public cy::implements<myobject, lockable_tag, lockable_container_tag>
-// {
-// };
-
 
 int main()
 {

@@ -18,6 +18,7 @@ for(auto i : items)
 
 ```c++
 #include <cutty/separator.hpp>
+
 namespace cy = cutty;
 ```
 

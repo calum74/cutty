@@ -2,18 +2,20 @@
 
 Sample: [tags.cpp](../tests/tags.cpp)
 
+Solves the problem of creating custom wrappers for simple datatypes without the boilerplate.
+
 A *tag* is a lightweight wrapper around a datatype (for example a `string`, `double`, or `int`) which labels it in some way, to enable
 
 - better documentation of raw numbers or strings
 - prevent accidental or invalid operations
-- implement allowable conversions 
-- makes it simpler to implement wrapper types
+- implement automatic conversions 
+- makes it simpler to implement wrapper types.
 
 It is a generalisation of the idea of *units* (for example distance, mass, time), but its main purpose is for user types.
 
 ## Tutorial
 
-A tag is just any data type, for example `struct bytes_t` or `struct hostname_t`. You can then  define bespoke datatypes representing particular types of data, for example:
+A tag is a type, for example `struct bytes_t` or `struct hostname_t`. You can then wrap values using `cy::tagged` to create a bespoke datatype for particular types of data, for example:
 
 ```c++
 using ChunkSize = cy::tagged<size_t, cy::byte>;
@@ -25,7 +27,7 @@ using Port = cy::tagged<int, struct port_t>;
 using Ssl = cy::tagged<bool, struct force_ssl_t>;
 ```
 
-Function signatures can be changed to take more specific tagged types, for example
+Function signatures can be changed to take tagged types, for example
 
 ```c++
 #include <cutty/tags.hpp>
@@ -33,18 +35,23 @@ namespace cy = cutty;
 
 void wait(cy::tagged<std::size_t, cy::millisecond> timeout, Blocking block);
 
-void send(Hostname hostname, Port port, Uri uri, ChunkSize chunksize, Ssl force_ssl, CompressionLevel compression);
+void send(Hostname hostname,
+          Port port,
+          Uri uri,
+          ChunkSize chunksize,
+          Ssl force_ssl,
+          CompressionLevel compression);
 ```
 
-To create a tag, pass the value to the `tagged` constructor, or use the `cy::tag<T>()` function. For example
+To create a tag, pass the value to the `tagged` constructor, or use the `cy::tag<T>()` function. The units library also provides literals. For example
 
 ```c++
     Ssl using_ssl{true};
     wait(5_second, Blocking{true});
 ```
 
-Note that the tag takes care of units, for example converting seconds to milliseconds.
-To access the value of a tag, use the `*` operator
+Tags take care of units, for example converting seconds to milliseconds.
+To access the value of a tag, use the `*` operator:
 
 ```c++
 void wait(cy::tagged<std::size_t, cy::milliseconds> timeout, Blocking block)
@@ -68,16 +75,17 @@ See [tags.cpp](../test/tags.cpp) for more examples and advanced usage.
 
 # Reference
 
-## Header and namespace
+## Header file and namespace
 
 ```c++
 #include <cutty/tags.hpp>
+
 namespace cy = cutty;
 ```
 
 ## Types
 
-### `class tagged<V, T>`
+### Class `tagged<V, T>`
 
 ```c++
 template<typename V, typename T> class tagged;
@@ -114,23 +122,23 @@ Tag-modifying arithmetic:
 
 - `operator*` and `operator/`: always compile, generate a new tag with the unit being the product or quotient of the original units.
 
-### `struct tag_traits<T>` 
+### Struct `tag_traits<T>` 
 
 Provides a customisation point for tags. This type can be specialised. (See source code for details.)
 
 ## Concepts
 
-### `concept convertible_to<T1, T2>`
+### Concept `convertible_to<T1, T2>`
 
 Holds if the tag `T1` is convertible to `T2`. It means that the `convert()` function will succeed.
 
-### `concept common_type<T1, T2>`
+### Concept `common_type<T1, T2>`
 
 Holds if `T1` and `T2` share a common type. A slightly weaker form of `convertible_to` which is sometimes needed for template deduction.
 
 ## Functions
 
-### `tag<T>()`
+### `tag()`
 
 ```c++
 template<typename T, typename Tag>
@@ -146,7 +154,7 @@ cy::tagged<V, T1> cy::tag(const tagged<V, T2> &)
 
 Converts one tag into another, performing conversion operations as needed.
 
-### `delta<T>()`
+### `delta()`
 
 ```c++
 template<typename T1, typename V, convertible_to<T1> T2>
@@ -161,7 +169,7 @@ t1 + cy::delta<cy::Celcius>(t2)
 
 where a naive conversion of `t2` from `Farenheit` to `Celcius` would do the wrong thing.
 
-### `convert<T1, T2>()`
+### `convert()`
 
 Converts one tagged value to another. This can be specialised to implement custom conversions.
 
@@ -207,4 +215,4 @@ Specialise this to provide a custom symbol for your tag when printing it.
 
 ## Configuration points
 
-The available specialisations are: `struct tag_traits<T>`, `const char *tag_text<T>`, `const char *tag_symbol<T>`, `initialize<T>()` and `convert()`.
+The available specialisations are: `struct tag_traits<T>`, `const char *tag_text<T>`, `const char *tag_symbol<T>`, `initialize()` and `convert()`.

@@ -2,6 +2,8 @@
 
 Sample: [with.cpp](../samples/with.cpp)
 
+Solves the problem of sharing state across function boundaries, without the drawbacks of global variables and singletons.
+
 *With* allows you to pass arguments to nested functions without adding them to function signatures.
 It gives the convenience of global variables without the drawbacks.
 
@@ -24,17 +26,18 @@ void f()
 
 ## Why not just use global variables?
 
-With is much more constrained than global variables, because you can locally define them, and they are
+*With* is much more constrained than global variables, because you can locally define them, and they are
 thread-local. This means that they can be used safely in unit tests, used in multiple threads,
 and they can be stubbed, which is something that regular singletons, globals or singleton functions cannot do.
 
 # Reference
 
-## Header and namespace
+## Header file and namespace
 
 ```c++
 #include <cutty/with.hpp>
-namespace cy=cutty;
+
+namespace cy = cutty;
 ```
 
 ## Function `get()`
@@ -44,7 +47,7 @@ template<typename T, typename Tag=T>
 T &get();
 ```
 
-Gets the current value, or throws `without` if the variable has not been set. Threadsafe.
+Gets the value assigned to `with<T,Tag>` in an outer scope on the same thread. Throws `without` if the variable has not been set. Threadsafe.
 
 ## Function `try_get()`
 
@@ -53,7 +56,7 @@ template<typename T, typename Tag=T>
 T *try_get();
 ```
 
-Gets the current value, or returns `nullptr` if the variable has not been set. Threadsafe, does not throw.
+Gets the value assigned to `with<T,Tag>`, or returns `nullptr` if the variable has not been set. Threadsafe, does not throw.
 
 ## Class `with`
 

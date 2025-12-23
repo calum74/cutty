@@ -2,6 +2,8 @@
 
 Sample: [mixins.cpp](../samples/mixins.cpp)
 
+Solves the problem of allowing third-parties to add methods and inject behaviour into your code.
+
 Mixins offer a way to add methods to existing classes, and allow clients to inject their own extensions, behaviour or specialisation.
 
 ```c++
@@ -38,7 +40,7 @@ using namespace cy = cutty;
 
 ## Types
 
-### `struct mixin`
+### Struct `mixin`
 
 ```c++
 template<typename Derived, typename Tag, int Sequence = 0>
@@ -47,7 +49,7 @@ struct mixin;
 
 This struct is designed to be specialised to provide customisation. Multiple mixins can be implemented provided using different `Sequence` numbers. Mixins can use `static_cast<Derived*>(this)` or use [explicit object member functions](https://en.cppreference.com/w/cpp/language/member_functions.html#Explicit_object_member_functions) to access the object.
 
-### `struct implements`
+### Struct `implements`
 
 ```c++
 template<typename Derived, typename... Tag>

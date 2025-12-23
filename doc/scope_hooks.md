@@ -2,7 +2,7 @@
 
 Sample: [scope_hooks.cpp](../samples/scope_hooks.cpp)
 
-Logs scope entry, exit and exceptions.
+Solves the problem of logging function or scope entries and exits. Logs scope entry, exit and exceptions.
 
 ```c++
 // Create hooks requiring arguments
@@ -32,7 +32,7 @@ constexpr auto event_logger =
 namespace cy = cutty;
 ```
 
-## Function `scope_hooks`
+## Function `scope_hooks()`
 
 ```c++
 template <typename EntryFn, typename ExitFn, typename ExceptFn>

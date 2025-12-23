@@ -2,7 +2,7 @@
 
 Sample: [approx.cpp](../samples/approx.cpp)
 
-Represents approximate values, particularly for `double` comparisons.
+Solves the problem of comparing `double` values. An `approx` represents approximate values, particularly for `double` comparisons.
 
 ```c++
 cy::check_equal(std::numbers::pi, cy::approx(3.14159265));
