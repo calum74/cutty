@@ -76,4 +76,4 @@ This class has no other methods. To access the stored value, use `get()` or `try
 
 ## Class `without`
 
-Exception that is thrown when `get()` is called outside of a a `with`.
+Exception that is thrown when `get()` is called outside of a `with`.
