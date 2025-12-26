@@ -57,6 +57,7 @@ void output_pairs(std::ostream &os, const auto &list)
 }
 } // namespace
 
+#if 0
 std::ostream &operator<<(std::ostream &os, const std::vector<cy::dynamic> &list)
 {
     output_list(os, list);
@@ -86,6 +87,7 @@ std::ostream &operator<<(std::ostream &os, const map_type &list)
     output_pairs(os, list);
     return os;
 }
+#endif
 
 CY_INSTANTIATE(std::vector<cy::dynamic>)
 

@@ -61,11 +61,10 @@ class dynamic
         incompatible(const char *msg);
     };
 
-    template <typename T> static const types &instantiate();
-
     // Instantiate this to add a new dynamic type
     // #include <dynamic/instantiate.hpp>
-    // template <typename T> static void enable();
+    template <typename T> static const types &instantiate();
+
 
     // Constructors
     dynamic();
@@ -318,10 +317,8 @@ template <> cutty::dynamic get<0>(const cutty::dynamic &e);
 template <> cutty::dynamic get<1>(const cutty::dynamic &e);
 template <> cutty::dynamic get<0>(cutty::dynamic &e);
 template <> cutty::dynamic get<1>(cutty::dynamic &e);
+std::ostream &operator<<(std::ostream &os, const dynamic &x);
 } // namespace cutty
-
-// ?? Namespace
-std::ostream &operator<<(std::ostream &os, const cutty::dynamic &x);
 
 cutty::dynamic operator+(const cutty::dynamic &x, const cutty::dynamic &y);
 cutty::dynamic operator-(const cutty::dynamic &x, const cutty::dynamic &y);

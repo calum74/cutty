@@ -230,7 +230,7 @@ cy::dynamic operator-(const cy::dynamic &x)
     return x.m_type->op_minus(x);
 }
 
-std::ostream &operator<<(std::ostream &os, const cy::dynamic &x)
+std::ostream &cy::operator<<(std::ostream &os, const dynamic &x)
 {
     x.m_type->stream_to(x, os);
     return os;

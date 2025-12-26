@@ -2,6 +2,13 @@
 #include "function.hpp"
 #include "operators.hpp"
 
+#include <cutty/print.hpp>
+
+namespace cutty
+{
+std::ostream &operator<<(std::ostream &os, dynamic &x);
+}
+
 namespace cutty::dynamic_detail
 {
 template <typename T> const T &try_convert(const dynamic &x, const char *op);
@@ -33,14 +40,15 @@ template <typename T> class cutty::dynamic::default_traits
 
     static void stream_to(const_reference self, std::ostream &os)
     {
-        if constexpr (requires { os << self; })
-        {
-            os << self;
-        }
-        else
-        {
-            os << "<object of type " << type_str() << " at " << &self << ">";
-        }
+        print_stream(os, self);
+        // if constexpr (requires { os << self; })
+        // {
+        //     os << self;
+        // }
+        // else
+        // {
+        //     os << "<object of type " << type_str() << " at " << &self << ">";
+        // }
     }
 
     static const std::string &type_str()
