@@ -1,4 +1,5 @@
 #include <cutty/dynamic/instantiate.hpp>
+#include <cutty/dynamic/empty.hpp>
 
 #include <iostream>
 
@@ -14,7 +15,7 @@ bool operator<(cy::dynamic::empty, cy::dynamic::empty)
     return false;
 }
 
-std::ostream &operator<<(std::ostream &os, cy::dynamic::empty)
+std::ostream &cy::operator<<(std::ostream &os, cy::dynamic::empty)
 {
     return os << "(empty)";
 }

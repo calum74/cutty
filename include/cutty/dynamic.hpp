@@ -338,6 +338,14 @@ cutty::dynamic operator-(const cutty::dynamic &x);
 // cutty::dynamic operator*(const cutty::dynamic &x);
 cutty::dynamic operator~(const cutty::dynamic &x);
 
+bool operator==(cutty::dynamic::empty, cutty::dynamic::empty);
+bool operator<(cutty::dynamic::empty, cutty::dynamic::empty);
+
+namespace cutty
+{
+std::ostream &operator<<(std::ostream &os, dynamic::empty);
+}
+
 // ?? Namespace
 cutty::dynamic operator""_d(const char *, std::size_t);
 cutty::dynamic operator""_d(unsigned long long);

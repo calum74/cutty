@@ -57,38 +57,6 @@ void output_pairs(std::ostream &os, const auto &list)
 }
 } // namespace
 
-#if 0
-std::ostream &operator<<(std::ostream &os, const std::vector<cy::dynamic> &list)
-{
-    output_list(os, list);
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const set_type &list)
-{
-    output_list(os, list);
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const queue_type &queue)
-{
-    output_list(os, queue);
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const unordered_map_type &list)
-{
-    output_pairs(os, list);
-    return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const map_type &list)
-{
-    output_pairs(os, list);
-    return os;
-}
-#endif
-
 CY_INSTANTIATE(std::vector<cy::dynamic>)
 
 cy::dynamic cy::dynamic::list()
