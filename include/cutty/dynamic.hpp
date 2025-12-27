@@ -148,6 +148,9 @@ class dynamic
     dynamic ref() const;
     dynamic const_ref() const;
 
+    // Const
+    dynamic as_const() const;
+
     template <typename T> static dynamic reference(T &t)
     {
         return dynamic(t, by_reference_tag{});

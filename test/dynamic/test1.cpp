@@ -155,13 +155,8 @@ void references()
     cy::check_equal(r1, 12);
 
     auto r2 = d1.const_ref();
-    try
-    {
-        r2 = 1; // Cannot write to a const reference
-    }
-    catch (cy::dynamic::unsupported &)
-    {
-    }
+    // Cannot write to a const reference
+    cy::check_throws<cy::dynamic::unsupported>([&] { r2 = 1; });
 
     // Reference to a reference?
     auto r3 = d1.ref();
@@ -187,17 +182,27 @@ void consts()
 {
     // Consts
     {
-        cy::dynamic i = cy::dynamic::list();
-        cy::dynamic j = i.as_const();
+        cy::dynamic i = cy::dynamic::list({1,2,3});
 
-        // j.push_back(1); // Throws (TODO: Test)
-        std::cout << cy::dynamic::list({1, 2, 3}) << j << std::endl;
-        j = 3; //??
+        cy::dynamic ro = i.as_const();
+
+        cy::check_throws<cy::dynamic::unsupported>([&] { ro.push_back(1); });
+
+        cy::check_equal(ro, i);
+
+        cy::check_throws<cy::dynamic::unsupported>([&] { ro[1] = 1; });
+
+        cy::check_equal(ro[1], 2);
+
+        // Just regular reassignment
+        ro = 3;
     }
 
     {
         auto s = "abc"_d;
-        // auto const_str = s.as_const(); (TODO)
+        auto const_str = s.as_const();
+        cy::check_throws<cy::dynamic::unsupported>( [&] { const_str[0] = 'A'; });
+        s[0] = 'a';          // Ok
     }
 }
 
@@ -227,7 +232,7 @@ void shared_pointers()
         auto wp = ss.weak_ref();
         auto ss2 = ss;
         ss = {}; // Bye bye
-        std::cout << wp.shared_ref() << std::endl;
+        cy::check_equal(wp.shared_ref(), "hello");
     }
 }
 
@@ -314,8 +319,8 @@ int main(int argc, const char *argv[])
                      strings,
                      lists,
                      {"references", references},
-                     consts,
-                     shared_pointers,
+                     {"consts", consts},
+                     {"shared_pointers", shared_pointers},
                      comparisons,
                      literals,
                      conversions,

@@ -53,6 +53,19 @@ void check_throws(auto &&fn, const char *expected_text,
     }
 }
 
+template<typename T>
+void check_throws(auto &&fn, const std::source_location &src = std::source_location::current())
+{
+    try
+    {
+        fn();
+        check(false, "exception not thrown", src);
+    }
+    catch(const T&)
+    {
+    }
+}
+
 class check_failed : public std::runtime_error
 {
   public:

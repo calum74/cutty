@@ -38,6 +38,11 @@ cy::dynamic::dynamic(const dynamic &src, weak_reference_tag)
     src.m_type->construct_weak_ref(src, *this);
 }
 
+cy::dynamic cy::dynamic::as_const() const
+{
+    return cy::dynamic(*this, const_value_tag());
+}
+
 cy::dynamic::dynamic(dynamic &&src, shared_tag)
 {
     src.m_type->construct_shared(src, *this);
