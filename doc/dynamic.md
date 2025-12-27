@@ -20,8 +20,6 @@ namespace cy = cutty;
 
 This header file includes the main "client-side" library for working with dynamic types. If you need to define new dynamic types, you also need to include `<cutty/dynamic/instantiate.hpp>`. If you need to create generic function wrappers, include `<cutty/dynamic/function.hpp>`.
 
-** This is an awkward name **
-
 To create a dynamic value, pass a C++ value to `dynamic` constructor, or assign it.
 
 ```c++
@@ -46,9 +44,18 @@ Output is supported using `operator<<` or `cy::print()`. The `str()` method retu
 
 ## Accessing the internal value
 
-The stored type can be accessed using the `type()` method, and `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the internal data, or throws `dynamic::incompatible` if the stored data does not match the requested type.
+The stored type can be accessed using the `type()` method, and `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the internal data, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
+
+```c++
+dynamic x = 12;
+int &i = x.as<int>();
+cy::print(x.type_str());  // "int"
+```
 
 ## Lists and containers
+
+
+
 
 ## References and pointers
 

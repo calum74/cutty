@@ -30,21 +30,6 @@ class dynamic
 
     template <typename T> class default_traits;
     template <typename T> class traits;
-    struct by_value_tag
-    {
-    };
-    struct by_reference_tag
-    {
-    };
-    struct shared_tag
-    {
-    };
-    struct weak_reference_tag
-    {
-    };
-    struct const_value_tag
-    {
-    };
     struct empty;
 
     // Exception thrown when something isn't implemented on the underlying type
@@ -59,6 +44,22 @@ class dynamic
     {
       public:
         incompatible(const char *msg);
+    };
+
+    struct by_value_tag
+    {
+    };
+    struct by_reference_tag
+    {
+    };
+    struct shared_tag
+    {
+    };
+    struct weak_reference_tag
+    {
+    };
+    struct const_value_tag
+    {
     };
 
     // Instantiate this to add a new dynamic type
@@ -83,24 +84,9 @@ class dynamic
         construct_by_value(instantiate<std::decay_t<T>>(), &v);
     }
 
-    template <typename T> dynamic(const T &v, shared_tag)
-    {
-        construct_shared(instantiate<std::decay_t<T>>(), &v);
-    }
-
-    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v, shared_tag)
-    {
-        construct_shared(instantiate<std::decay_t<T>>(), &v);
-    }
-
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
     {
         construct_by_value(instantiate<const T *>(), &v);
-    }
-
-    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &v, by_reference_tag) : m_type()
-    {
-        construct_by_ref(instantiate<T>(), &v);
     }
 
     ~dynamic();
@@ -178,6 +164,18 @@ class dynamic
 
     dynamic weak_ref() const;
     void make_shared();
+
+    template<typename T>
+    static dynamic shared(const T&t)
+    {
+        return dynamic(t, shared_tag());
+    }
+
+    template<typename T>
+    static dynamic shared(T&&t)
+    {
+        return dynamic(std::move(t), shared_tag());
+    }
 
     // Containers
     size_type size() const;
@@ -263,7 +261,7 @@ class dynamic
     const type *m_type;
     void *m_ptr;
 
-  private:
+private:
     dynamic(dynamic &src, by_reference_tag);
     dynamic(const dynamic &src, by_reference_tag);
     dynamic(const dynamic &src, const_value_tag);
@@ -272,6 +270,21 @@ class dynamic
     dynamic(dynamic &&src, shared_tag);
     dynamic(const dynamic &src, shared_tag);
     dynamic(const dynamic &src, weak_reference_tag);
+
+    template <typename T> dynamic(const T &v, shared_tag)
+    {
+        construct_shared(instantiate<std::decay_t<T>>(), &v);
+    }
+
+    template <typename T> dynamic(T &&v, shared_tag)
+    {
+        construct_shared(instantiate<std::decay_t<T>>(), &v);
+    }
+
+    template <typename T> dynamic(T &v, by_reference_tag) : m_type()
+    {
+        construct_by_ref(instantiate<T>(), &v);
+    }
 
     void construct(const type *t, void *p);
     void construct(const type *t, const void *p);

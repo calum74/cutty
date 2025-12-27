@@ -413,7 +413,7 @@ cy::dynamic operator""_d(long double x)
     return cy::dynamic(x);
 }
 
-// TODO: A constant string (implemented as char*
+// TODO: A constant string (implemented as char*)
 cy::dynamic operator""_d(const char *str, std::size_t s)
 {
     return cy::dynamic(std::string(str, s));
@@ -423,3 +423,5 @@ cy::dynamic operator""_d(char ch)
 {
     return cy::dynamic(ch);
 }
+
+std::size_t std::hash<cy::dynamic::empty>::operator()(const cy::dynamic::empty&) const { return 0; }
