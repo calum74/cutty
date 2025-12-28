@@ -225,13 +225,13 @@ class dynamic
 
     // Conversions
     explicit operator bool() const;
-    // explicit operator int() const;
+    explicit operator int() const;
     explicit operator size_type() const;
     explicit operator double() const;
     explicit operator std::string_view() const;
     explicit operator std::string() const;
 
-    // int as_int() const;
+    int as_int() const;
     double as_double() const;
     // dynamic as_const();
 

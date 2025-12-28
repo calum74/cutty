@@ -71,6 +71,16 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN((bool)self, "bool");
     }
 
+    static int as_int(const_reference self)
+    {
+        TRY_TO_RETURN((int)self, "bool");
+    }
+
+    static double as_double(const_reference self)
+    {
+        TRY_TO_RETURN((double)self, "double");
+    }
+
     static bool op_eq(const_reference x, const dynamic &y)
     {
         return x == y;

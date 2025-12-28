@@ -23,6 +23,10 @@ void empty()
     cy::check_equal(empty, empty_ref);
 
     cy::check_equal(empty.hash(), empty.hash());
+
+    cy::check_equal(cy::dynamic{}, cy::dynamic());
+    cy::dynamic empty2 = {};
+    cy::check_equal(empty2, cy::dynamic());
 }
 
 void bools()
@@ -96,54 +100,6 @@ void strings()
     cy::check_equal(string, "xxxxx");
 }
 
-void lists()
-{
-    auto l = cy::dynamic::list({1, 2.1, "3"});
-    cy::check_equal(l.str(), "{1, 2.1, 3}");
-    cy::check_equal(l.size(), 3);
-    auto l2 = cy::dynamic::list();
-
-    for (auto x : l)
-    {
-        l2.push_back(x);
-    }
-
-    cy::check_equal(l, l2);
-    cy::check_equal(l[0], 1);
-
-    // Let's write to a list
-    for (auto x : l)
-    {
-        x = 0;
-    }
-    cy::check_equal(l, cy::dynamic::list({0, 0, 0}));
-
-    l2.push_back(10);
-    cy::check(l != l2);
-
-    // Lists and references
-    {
-        cy::dynamic l3 = {1, 2, 3};
-        auto old_value = l3[1];
-        auto copy = old_value;
-        copy = "new_value";
-        cy::check(old_value == 2);
-        cy::check(l3[1] == 2);
-        cy::check_equal(l3.str(), "{1, 2, 3}");
-        old_value = "new_value";
-        cy::check(old_value == "new_value");
-        cy::check(l3[1] == "new_value");
-        cy::check_equal(l3.str(), "{1, new_value, 3}");
-
-        //
-        cy::check(l3.front() == 1);
-        l3.front() = 11;
-        cy::check(l3.front() == 11);
-
-        auto l3_ref = l3.ref();
-        cy::check(l3_ref == l3);
-    }
-}
 
 void references()
 {
@@ -206,6 +162,65 @@ void consts()
     }
 }
 
+void lists()
+{
+    auto l = cy::dynamic::list({1, 2.1, "3"});
+    cy::check_equal(l.str(), "{1, 2.1, 3}");
+    cy::check_equal(l.size(), 3);
+    auto l2 = cy::dynamic::list();
+
+    for (auto x : l)
+    {
+        l2.push_back(x);
+    }
+
+    cy::check_equal(l, l2);
+    cy::check_equal(l[0], 1);
+
+    // Let's write to a list
+    for (auto x : l)
+    {
+        x = 0;
+    }
+    cy::check_equal(l, cy::dynamic::list({0, 0, 0}));
+
+    l2.push_back(10);
+    cy::check(l != l2);
+
+    // Lists and references
+    {
+        cy::dynamic l3 = {1, 2, 3};
+        auto old_value = l3[1];
+        auto copy = old_value;
+        copy = "new_value";
+        cy::check(old_value == 2);
+        cy::check(l3[1] == 2);
+        cy::check_equal(l3.str(), "{1, 2, 3}");
+        old_value = "new_value";
+        cy::check(old_value == "new_value");
+        cy::check(l3[1] == "new_value");
+        cy::check_equal(l3.str(), "{1, new_value, 3}");
+
+        //
+        cy::check(l3.front() == 1);
+        l3.front() = 11;
+        cy::check(l3.front() == 11);
+
+        auto l3_ref = l3.ref();
+        cy::check(l3_ref == l3);
+    }
+}
+
+void maps()
+{
+    // !!!!!!!
+}
+
+void objects()
+{
+    // !!!!!!
+}
+
 void shared_pointers()
 {
     // Shared pointers
@@ -232,6 +247,7 @@ void shared_pointers()
         auto wp = ss.weak_ref();
         auto ss2 = ss;
         ss = {}; // Bye bye
+        cy::check_equal(ss, cy::dynamic());
         cy::check_equal(wp.shared_ref(), "hello");
     }
 }
@@ -286,21 +302,30 @@ void comparisons()
 
 void literals()
 {
-    cy::check(12_d == 12);
+    cy::check_equal(12_d, 12);
     cy::check(3.14_d < 4);
     cy::check("abc"_d < "bcd"_d);
-    cy::check("abc"_d[1] == 'b'_d);
+    cy::check_equal("abc"_d[1], 'b'_d);
 }
 
 void conversions()
 {
+    // int conversions
     auto i = 123_d;
-    // cy::check((int)i == 123); (TODO)
-    // cy::check(i.as_int() == 123); (TODO)
+    cy::check_equal((int)i, 123);
+    cy::check_equal(i.as_int(), 123);
+
+    // double conversions
+    auto d = 3.5_d;
+    cy::check_equal((double)i, 123);
+    cy::check_equal((double)d, 3.5);
+    cy::check_equal(i.as_double(), 123);
+    cy::check_equal(d.as_double(), 3.5);
 }
 
 void ranges()
 {
+    // cy::testcase();
     const auto x = "abc"_d;
     static_assert(std::input_or_output_iterator<cy::dynamic>);
     // std::ranges::begin(x);
@@ -314,15 +339,17 @@ int main(int argc, const char *argv[])
     return cy::test(argc, argv,
                     {{"empty", empty},
                      {"bools", bools},
-                     integers,
-                     floats,
-                     strings,
-                     lists,
+                     {"integers", integers},
+                     {"floats", floats},
+                     {"strings", strings},
                      {"references", references},
                      {"consts", consts},
+                     {"lists", lists},
+                     {"maps", maps},
+                     {"objects", objects},
                      {"shared_pointers", shared_pointers},
-                     comparisons,
-                     literals,
-                     conversions,
-                     ranges});
+                     {"comparisons", comparisons},
+                     {"literals", literals},
+                     {"conversions", conversions},
+                     {"ranges", ranges}});
 }

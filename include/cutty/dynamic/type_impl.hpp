@@ -547,6 +547,16 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::as_bool(get(x));
     }
 
+    int as_int(const dynamic &x) const override
+    {
+        return traits_type::as_int(get(x));
+    }
+
+    double as_double(const dynamic &x) const override
+    {
+        return traits_type::as_double(get(x));
+    }
+
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override
     {
         return traits_type::call(get(self), n_args, args);

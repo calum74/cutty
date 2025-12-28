@@ -284,6 +284,26 @@ cy::dynamic::operator bool() const
     return m_type->as_bool(*this);
 }
 
+cy::dynamic::operator int() const
+{
+    return m_type->as_int(*this);
+}
+
+cy::dynamic::operator double() const
+{
+    return m_type->as_double(*this);
+}
+
+int cy::dynamic::as_int() const
+{
+    return m_type->as_int(*this);
+}
+
+double cy::dynamic::as_double() const
+{
+    return m_type->as_double(*this);
+}
+
 cy::dynamic::dynamic(std::initializer_list<dynamic> l) : dynamic(list(l))
 {
 }
