@@ -6,6 +6,9 @@
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
 
+# Tests
+- Store the last checkpoint?
+
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.
 

@@ -1,9 +1,10 @@
 #include <cutty/test.hpp>
-#include <iostream>
+#include <cutty/with.hpp>
 
+#include <iostream>
 #include <map>
-#include <unordered_set> // ??
-#include <vector>        //??
+#include <vector>
+#include <unordered_set>
 
 namespace cy = cutty;
 
@@ -89,6 +90,9 @@ int cy::test(int argc, const char **argv, std::initializer_list<test_fixture> li
     for (auto &name : requested_tests)
     {
         std::cout << "  " << name << ": " << std::flush;
+        std::source_location src;
+        with<std::source_location, detail::checkpoint_tag> _ (src);
+
         try
         {
             available_test_map[name]();
@@ -98,6 +102,7 @@ int cy::test(int argc, const char **argv, std::initializer_list<test_fixture> li
         catch (std::exception &ex)
         {
             std::cout << "FAILED: " << ex.what() << std::endl;
+            std::cout << "  Last checkpoint: " << src.file_name() << ":" << src.line() << std::endl;
             ++failed;
         }
         catch (...)

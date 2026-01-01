@@ -40,6 +40,19 @@ concept keyed_container = requires(const Container &c)
     c.find(std::declval<typename Container::key_type>);
 };
 
+template<typename Container, typename Key>
+const Key & container_key_type(const Key &key)
+{
+    return key;
+}
+
+template<indexed_container Container, typename Key>
+const Key & container_key_type(const Key &key)
+{
+    return key;
+}
+
+
 
 // Customize this class to implement bespoke behaviour for a type T.
 template <typename T> class cutty::dynamic::default_traits
@@ -301,8 +314,16 @@ template <typename T> class cutty::dynamic::default_traits
         }
     }
 
-    static dynamic op_index(reference self, std::size_t i)
+    static dynamic op_index(reference self, dynamic::int_type i)
     {
+        if constexpr (indexed_container<reference>)
+        {
+            if constexpr (requires { dynamic(self.at(i)); })
+            {
+                TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
+            }
+        }
+
         // Safe version first
         if constexpr (requires { dynamic(self.at(i)); })
         {
@@ -313,13 +334,18 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
 
-    static dynamic op_index(const_reference self, std::size_t i)
+    static dynamic op_index(const_reference self, dynamic::int_type i)
     {
         // Use the safe version if possible
         if constexpr (requires { dynamic(self.at(i)); })
         {
             TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
         }
+        if constexpr (requires { dynamic(self.at(dynamic(i))); })
+        {
+            TRY_TO_RETURN(dynamic(self.at(dynamic(i)), dynamic::by_reference_tag{}), "[]");
+        }
+
         TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
     }
 

@@ -13,6 +13,9 @@ namespace cutty
 {
 namespace detail
 {
+    struct checkpoint_tag;
+    void checkpoint(const std::source_location&);
+
 // Helper to cast objects to boolean if they have an explicit bool operator
 struct convertible_boolean
 {
@@ -36,12 +39,11 @@ void check(detail::convertible_boolean cond, const char *msg = "Failed check",
     Checks that specific exception text is thrown.
     @p fn               The function/lambda to execute
     @p expected_text    The expected error messages
-
-
  */
 void check_throws(auto &&fn, const char *expected_text,
                   const std::source_location &src = std::source_location::current())
 {
+    detail::checkpoint(src);
     try
     {
         fn();
@@ -56,6 +58,7 @@ void check_throws(auto &&fn, const char *expected_text,
 template<typename T>
 void check_throws(auto &&fn, const std::source_location &src = std::source_location::current())
 {
+    detail::checkpoint(src);
     try
     {
         fn();
@@ -74,6 +77,7 @@ class check_failed : public std::runtime_error
 
 void check_equal(auto &&lhs, auto &&rhs, const std::source_location &src = std::source_location::current())
 {
+    detail::checkpoint(src);
     if (lhs != rhs)
     {
         std::stringstream ss;

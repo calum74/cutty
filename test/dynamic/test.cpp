@@ -235,9 +235,7 @@ void maps()
 
     {
         const auto &m1b = m1;
-
-        // ?? How to use `at`??
-        cy::check_throws<cy::dynamic::unsupported>([&] { m1b[1]; });
+        cy::check_throws<std::out_of_range>([&] { m1b[1]; });
     }
 
     // What about consts and 'at' ??
@@ -255,10 +253,6 @@ void maps()
         v = "z";
     }
 
-    // Front and back of a map
-
-    // Count...
-
     // Iterating a map backwards?
     // for(auto i = m2.rbegin(); i!=m2.rend(); ++i)
     // {
@@ -273,6 +267,25 @@ void maps()
 
 void dicts()
 {
+    {
+        auto d = cy::dynamic::dict({{1, 1}, {cy::dynamic(), {}}});
+        cy::check_equal(d.size(), 2);
+        cy::check_equal(d[1], 1);
+        cy::check_equal(d[1_d], 1);
+        cy::check_equal(d[cy::dynamic()], cy::dynamic());
+    }
+
+    {
+        auto d = cy::dynamic::dict({{1, 1}, {cy::dynamic(), {}}});
+        auto c1 = d.as_const();
+        const auto c2 = d;
+        const auto &c3 = d;
+
+        cy::check_equal(c1[1], 1);
+        // cy::check_equal(c1[1_d], 1);
+        // cy::check_equal(c1[cy::dynamic()], cy::dynamic());
+
+    }
 }
 
 void objects()
@@ -282,7 +295,7 @@ void objects()
 
     // !! This fails
     // o1[123] = 123;
-    // !!!!!!
+    // !!!!!! 
 }
 
 void shared_pointers()
