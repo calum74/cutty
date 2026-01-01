@@ -120,6 +120,8 @@ class dynamic
     static dynamic list();
     static dynamic dict();
     static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>);
+    static dynamic object();
+    static dynamic object(std::initializer_list<std::pair<std::string, dynamic>>);
     static dynamic map();
     static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>);
     static dynamic set();
@@ -228,20 +230,24 @@ class dynamic
     explicit operator int() const;
     explicit operator size_type() const;
     explicit operator double() const;
-    explicit operator std::string_view() const;
-    explicit operator std::string() const;
+    //explicit operator std::string_view() const;
+    //explicit operator std::string() const;
 
     int as_int() const;
     double as_double() const;
     // dynamic as_const();
 
     // Members
+    dynamic operator[](int index);
+    dynamic operator[](int index) const;
     dynamic operator[](size_type index);
     dynamic operator[](size_type index) const;
     dynamic at(size_type index);
     dynamic at(size_type index) const;
     dynamic operator[](const dynamic &key);
     dynamic operator[](const dynamic &key) const;
+    dynamic operator[](const char *key);
+    dynamic operator[](const char *key) const;
 
     // Assignment operators
     dynamic &operator=(dynamic &&src);

@@ -100,7 +100,6 @@ void strings()
     cy::check_equal(string, "xxxxx");
 }
 
-
 void references()
 {
     cy::dynamic d1 = 13;
@@ -138,7 +137,7 @@ void consts()
 {
     // Consts
     {
-        cy::dynamic i = cy::dynamic::list({1,2,3});
+        cy::dynamic i = cy::dynamic::list({1, 2, 3});
 
         cy::dynamic ro = i.as_const();
 
@@ -157,8 +156,8 @@ void consts()
     {
         auto s = "abc"_d;
         auto const_str = s.as_const();
-        cy::check_throws<cy::dynamic::unsupported>( [&] { const_str[0] = 'A'; });
-        s[0] = 'a';          // Ok
+        cy::check_throws<cy::dynamic::unsupported>([&] { const_str[0] = 'A'; });
+        s[0] = 'a'; // Ok
     }
 }
 
@@ -209,15 +208,79 @@ void lists()
         auto l3_ref = l3.ref();
         cy::check(l3_ref == l3);
     }
+
+    // Lists by dynamic index
+    {
+        cy::dynamic l = {1, 2, 3};
+
+        // !! This fails
+        // cy::check_equal(l[0_d], 1);
+    }
 }
 
 void maps()
 {
-    // !!!!!!!
+    // Empty map
+    auto m1 = cy::dynamic::map();
+    cy::check_equal(m1.size(), 0);
+    cy::check_equal(m1.str(), "{}");
+
+    cy::check_equal(m1, m1);
+    auto m1a = m1; // Copy
+    m1a[1_d] = 1_d;
+
+    cy::check_equal(m1a[1], 1);
+    cy::check(m1 != m1a);
+
+    {
+        const auto &m1b = m1;
+
+        // ?? How to use `at`??
+        cy::check_throws<cy::dynamic::unsupported>([&] { m1b[1]; });
+    }
+
+    // What about consts and 'at' ??
+
+    // Initialized map
+    auto m2 = cy::dynamic::map({{1, "x"}, {2, "y"}});
+    cy::check_equal(m2.size(), 2);
+    cy::check_equal(m2.str(), "{(1, x), (2, y)}");
+
+    // Iterating a map
+    for (auto item : m2)
+    {
+        auto &[k, v] = item;
+        cy::check_throws<cy::dynamic::unsupported>([&] { k = 0; });
+        v = "z";
+    }
+
+    // Front and back of a map
+
+    // Count...
+
+    // Iterating a map backwards?
+    // for(auto i = m2.rbegin(); i!=m2.rend(); ++i)
+    // {
+    // }
+
+    // Heterogenous key types (for example, a map)
+
+    cy::check_throws<cy::dynamic::unsupported>([] { cy::dynamic::map({{1, 1}, {cy::dynamic(), {}}}); });
+
+    cy::dynamic::dict({{1, 1}, {cy::dynamic(), {}}});
+}
+
+void dicts()
+{
 }
 
 void objects()
 {
+    auto o1 = cy::dynamic::object();
+    // o1["hello"] = 123;
+
+    // !! This fails
+    // o1[123] = 123;
     // !!!!!!
 }
 
@@ -346,6 +409,7 @@ int main(int argc, const char *argv[])
                      {"consts", consts},
                      {"lists", lists},
                      {"maps", maps},
+                     {"dicts", dicts},
                      {"objects", objects},
                      {"shared_pointers", shared_pointers},
                      {"comparisons", comparisons},

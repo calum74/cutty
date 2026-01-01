@@ -61,8 +61,7 @@ template <typename T> class cutty::dynamic::default_traits
     static void throw_unsupported(const char *op, const_reference self)
     {
         std::stringstream ss;
-        ss << "Unsupported operation '" << op << "' on ";
-        stream_to(self, ss);
+        ss << "Unsupported operation '" << op << "' on value of type " << pretty_type<T>();
         throw dynamic::unsupported(ss.str().c_str());
     }
 
@@ -294,10 +293,34 @@ template <typename T> class cutty::dynamic::default_traits
         {
             TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
         }
-        TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+        // Problem is that the dynamic constructor is explicit in this context, so we'll need
+        // to convert it to dynamic first
+        TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
 
     static dynamic op_index(const_reference self, std::size_t i)
+    {
+        // Use the safe version if possible
+        if constexpr (requires { dynamic(self.at(i)); })
+        {
+            TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
+        }
+        TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+    }
+
+    static dynamic op_index(reference self, const char *i)
+    {
+        // Safe version first
+        if constexpr (requires { dynamic(self.at(i)); })
+        {
+            TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
+        }
+        // Problem is that the dynamic constructor is explicit in this context, so we'll need
+        // to convert it to dynamic first
+        TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
+    }
+
+    static dynamic op_index(const_reference self, const char *i)
     {
         // Use the safe version if possible
         if constexpr (requires { dynamic(self.at(i)); })

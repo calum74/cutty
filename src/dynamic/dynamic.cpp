@@ -315,12 +315,22 @@ cy::dynamic cy::dynamic::call(std::size_t n_args, const dynamic *args) const
 
 cy::dynamic cy::dynamic::operator[](size_type index)
 {
-    return m_type->op_index(*this, index);
+    return m_type->op_index(*this, std::int64_t(index));
 }
 
 cy::dynamic cy::dynamic::operator[](size_type index) const
 {
-    return m_type->op_index(*this, index);
+    return m_type->op_index(*this, std::int64_t(index));
+}
+
+cy::dynamic cy::dynamic::operator[](int index)
+{
+    return m_type->op_index(*this, std::int64_t(index));
+}
+
+cy::dynamic cy::dynamic::operator[](int index) const
+{
+    return m_type->op_index(*this, std::int64_t(index));
 }
 
 cy::dynamic cy::dynamic::operator[](const dynamic &index)
@@ -329,6 +339,16 @@ cy::dynamic cy::dynamic::operator[](const dynamic &index)
 }
 
 cy::dynamic cy::dynamic::operator[](const dynamic &index) const
+{
+    return m_type->op_index(*this, index);
+}
+
+cy::dynamic cy::dynamic::operator[](const char *index)
+{
+    return m_type->op_index(*this, index);
+}
+
+cy::dynamic cy::dynamic::operator[](const char *index) const
 {
     return m_type->op_index(*this, index);
 }
@@ -388,7 +408,17 @@ template <> cy::dynamic cy::get<0ul>(const cy::dynamic &x)
     return x.first();
 }
 
+template <> cy::dynamic cy::get<0ul>(cy::dynamic &x)
+{
+    return x.first();
+}
+
 template <> cy::dynamic cy::get<1ul>(const cy::dynamic &x)
+{
+    return x.second();
+}
+
+template <> cy::dynamic cy::get<1ul>(cy::dynamic &x)
 {
     return x.second();
 }

@@ -6,6 +6,20 @@
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.
 
+# What about a "indexer" that can be assignable
+
+```c++
+template<typename Container, typename Key>
+struct index
+{
+
+};
+
+index_type operator[](const key_type&);
+```
+
+
+
 # Docs
 - [ ] Separator output
 

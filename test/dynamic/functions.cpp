@@ -48,7 +48,7 @@ int main()
     // Not callable
     {
         cy::dynamic i = 10;
-        cy::check_throws([&]{i(1,2,3);}, "Unsupported operation '()' on 10");
+        cy::check_throws([&]{i(1,2,3);}, "Unsupported operation '()' on value of type int");
     }
 
     {

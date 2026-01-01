@@ -90,8 +90,12 @@ struct cutty::dynamic::type
     // virtual dynamic call2(const dynamic &self, const dynamic &arg0, const dynamic &arg1) const;
     virtual dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const = 0;
 
-    virtual dynamic op_index(const dynamic &x, size_type i) const = 0;
-    virtual dynamic op_index(dynamic &x, size_type i) const = 0;
+    virtual dynamic op_index(const dynamic &x, std::int64_t i) const = 0;
+    virtual dynamic op_index(dynamic &x, std::int64_t i) const = 0;
     virtual dynamic op_index(const dynamic &x, const dynamic &i) const = 0;
     virtual dynamic op_index(dynamic &x, const dynamic &i) const = 0;
+
+    virtual dynamic op_index(const dynamic &x, const char* i) const = 0;
+    virtual dynamic op_index(dynamic &x, const char *i) const = 0;
+
 };

@@ -16,6 +16,7 @@ using set_type = std::set<cy::dynamic>;
 using unordered_map_type = std::unordered_map<cy::dynamic, cy::dynamic>;
 using unordered_set_type = std::unordered_set<cy::dynamic>;
 using queue_type = std::deque<cy::dynamic>;
+using object_type = std::unordered_map<std::string, cy::dynamic>;
 
 std::ostream &operator<<(std::ostream &os, const list_type &);
 std::ostream &operator<<(std::ostream &os, const map_type &);
@@ -62,6 +63,13 @@ CY_INSTANTIATE(std::vector<cy::dynamic>)
 cy::dynamic cy::dynamic::list()
 {
     return dynamic(std::vector<dynamic>{});
+}
+
+CY_INSTANTIATE(object_type);
+
+cy::dynamic cy::dynamic::object()
+{
+    return dynamic(object_type{});
 }
 
 cy::dynamic cy::dynamic::list(std::initializer_list<dynamic> items)
