@@ -102,7 +102,10 @@ int cy::test(int argc, const char **argv, std::initializer_list<test_fixture> li
         catch (std::exception &ex)
         {
             std::cout << "FAILED: " << ex.what() << std::endl;
-            std::cout << "  Last checkpoint: " << src.file_name() << ":" << src.line() << std::endl;
+            if (src.line())
+            {
+                std::cout << "  Last checkpoint: " << src.file_name() << ":" << src.line() << std::endl;
+            }
             ++failed;
         }
         catch (...)

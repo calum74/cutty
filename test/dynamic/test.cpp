@@ -238,8 +238,6 @@ void maps()
         cy::check_throws<std::out_of_range>([&] { m1b[1]; });
     }
 
-    // What about consts and 'at' ??
-
     // Initialized map
     auto m2 = cy::dynamic::map({{1, "x"}, {2, "y"}});
     cy::check_equal(m2.size(), 2);
@@ -259,9 +257,9 @@ void maps()
     // }
 
     // Heterogenous key types (for example, a map)
-
     cy::check_throws<cy::dynamic::unsupported>([] { cy::dynamic::map({{1, 1}, {cy::dynamic(), {}}}); });
 
+    // But it works with a dict:
     cy::dynamic::dict({{1, 1}, {cy::dynamic(), {}}});
 }
 
@@ -282,20 +280,34 @@ void dicts()
         const auto &c3 = d;
 
         cy::check_equal(c1[1], 1);
-        // cy::check_equal(c1[1_d], 1);
-        // cy::check_equal(c1[cy::dynamic()], cy::dynamic());
+        cy::check_equal(c1[1_d], 1);
+        cy::check_equal(c1[cy::dynamic()], cy::dynamic());
 
+        cy::check_equal(c2[1], 1);
+        cy::check_equal(c2[1_d], 1);
+        cy::check_equal(c2[cy::dynamic()], cy::dynamic());
+
+        cy::check_equal(c3[1], 1);
+        cy::check_equal(c3[1_d], 1);
+        cy::check_equal(c3[cy::dynamic()], cy::dynamic());
     }
 }
 
 void objects()
 {
-    auto o1 = cy::dynamic::object();
-    // o1["hello"] = 123;
+    {
+        auto o = cy::dynamic::object();
+        o["hello"] = 123;
+        cy::check_equal(o["hello"], 123);
+        cy::check_equal(o["hello"_d], 123);
+        auto c = o.as_const();
+        cy::check_equal(c["hello"], 123);
+        cy::check_equal(c["hello"_d], 123);
+        cy::check_throws<std::out_of_range>([&] { c["x"]; });
 
-    // !! This fails
-    // o1[123] = 123;
-    // !!!!!! 
+        // Numerical indexes aren't supported
+        cy::check_throws<cy::dynamic::unsupported>([&] { o[123]; });
+    }
 }
 
 void shared_pointers()
@@ -366,7 +378,6 @@ void comparisons()
     cy::check(3.14_d < cy::dynamic());
 
     // String vs string
-
     cy::check("abc"_d == "abc");
     cy::check("ab"_d < "abc");
 
@@ -402,13 +413,11 @@ void conversions()
 
 void ranges()
 {
-    // cy::testcase();
-    const auto x = "abc"_d;
-    static_assert(std::input_or_output_iterator<cy::dynamic>);
-    // std::ranges::begin(x);
-    // x.begin();
     static_assert(std::ranges::range<cy::dynamic>);
-    //  x.begin();
+    static_assert(std::input_or_output_iterator<cy::dynamic>);
+
+    const auto x = "abc"_d;
+    cy::check_equal(std::ranges::begin(x), x.begin());
 }
 
 int main(int argc, const char *argv[])

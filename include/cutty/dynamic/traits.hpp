@@ -37,7 +37,7 @@ template<typename Container>
 concept keyed_container = requires(const Container &c)
 {
     typename Container::key_type;
-    c.find(std::declval<typename Container::key_type>);
+    c.at(std::declval<typename Container::key_type>());
 };
 
 template<typename Container, typename Key>
@@ -351,24 +351,20 @@ template <typename T> class cutty::dynamic::default_traits
 
     static dynamic op_index(reference self, const char *i)
     {
-        // Safe version first
-        if constexpr (requires { dynamic(self.at(i)); })
+        if constexpr (requires { dynamic(self[i]); })
         {
-            TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
+            TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
         }
-        // Problem is that the dynamic constructor is explicit in this context, so we'll need
-        // to convert it to dynamic first
         TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
 
     static dynamic op_index(const_reference self, const char *i)
     {
-        // Use the safe version if possible
         if constexpr (requires { dynamic(self.at(i)); })
         {
             TRY_TO_RETURN(dynamic(self.at(i), dynamic::by_reference_tag{}), "[]");
         }
-        TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+        TRY_TO_RETURN(dynamic(self.at[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
 
     static dynamic op_index(const_reference self, const dynamic &i)
@@ -380,6 +376,11 @@ template <typename T> class cutty::dynamic::default_traits
         if constexpr (requires { self[i]; })
         {
             TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+        }
+        if constexpr (keyed_container<std::remove_reference_t<reference>>)
+        {
+            auto key = dynamic_detail::try_convert<typename std::remove_reference_t<reference>::key_type>(i, "[]");
+            return dynamic(self.at(key), dynamic::by_reference_tag{});
         }
         TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
@@ -393,6 +394,12 @@ template <typename T> class cutty::dynamic::default_traits
         if constexpr (requires { self[i]; })
         {
             TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+        }
+        if constexpr (keyed_container<std::remove_reference_t<reference>>)
+        {
+            // !! Currently not working
+            auto key = dynamic_detail::try_convert<typename std::remove_reference_t<reference>::key_type>(i, "[]");
+            return dynamic(self[key], dynamic::by_reference_tag{});
         }
         TRY_TO_RETURN(dynamic(self[dynamic(i)], dynamic::by_reference_tag{}), "[]");
     }
