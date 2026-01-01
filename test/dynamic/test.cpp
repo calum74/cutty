@@ -213,8 +213,9 @@ void lists()
     {
         cy::dynamic l = {1, 2, 3};
 
-        // !! This fails
-        // cy::check_equal(l[0_d], 1);
+        cy::check_equal(l[0_d], 1);
+        cy::check_throws<std::out_of_range>([&] { l[3]; });
+        cy::check_throws<std::out_of_range>([&] { l[3_d]; });
     }
 }
 

@@ -25,6 +25,7 @@ class dynamic
     using value_type = dynamic;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
+    using int_type = std::ptrdiff_t;
     using iterator = dynamic;
     using const_iterator = dynamic;
 

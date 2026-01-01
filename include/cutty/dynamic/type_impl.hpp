@@ -562,12 +562,12 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::call(get(self), n_args, args);
     }
 
-    dynamic op_index(const dynamic &x, std::int64_t i) const override
+    dynamic op_index(const dynamic &x, dynamic::int_type i) const override
     {
         return traits_type::op_index(get(x), i);
     }
 
-    dynamic op_index(dynamic &x, std::int64_t i) const override
+    dynamic op_index(dynamic &x, dynamic::int_type i) const override
     {
         return traits_type::op_index(get(x), i);
     }

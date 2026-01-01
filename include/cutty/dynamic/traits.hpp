@@ -26,6 +26,21 @@ template <std::size_t... Args, typename Fn> dynamic invoke(Fn &&fn, const dynami
     else                                                                                                               \
         throw_unsupported(OP, self);
 
+template<typename Container>
+concept indexed_container = requires(Container &c)
+{
+    c[0];
+    c.at(0);
+};
+
+template<typename Container>
+concept keyed_container = requires(const Container &c)
+{
+    typename Container::key_type;
+    c.find(std::declval<typename Container::key_type>);
+};
+
+
 // Customize this class to implement bespoke behaviour for a type T.
 template <typename T> class cutty::dynamic::default_traits
 {
@@ -345,6 +360,10 @@ template <typename T> class cutty::dynamic::default_traits
 
     static dynamic op_index(reference self, const dynamic &i)
     {
+        if constexpr (indexed_container<reference>)
+        {
+            TRY_TO_RETURN(dynamic(self.at(i.as_int()), dynamic::by_reference_tag{}), "[]");
+        }
         if constexpr (requires { self[i]; })
         {
             TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");

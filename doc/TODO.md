@@ -1,3 +1,6 @@
+# Dynamic
+- Indexes working a lot better
+
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km

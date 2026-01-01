@@ -206,12 +206,12 @@ template <typename Dynamic> class reference_type : public dynamic::type
         return get(self).m_type->call(get(self), n_args, args);
     }
 
-    dynamic op_index(const dynamic &self, std::int64_t i) const override
+    dynamic op_index(const dynamic &self, dynamic::int_type i) const override
     {
         return get(self).m_type->op_index(get(self), i);
     }
 
-    dynamic op_index(dynamic &self, std::int64_t i) const override
+    dynamic op_index(dynamic &self, dynamic::int_type i) const override
     {
         return get(self).m_type->op_index(get(self), i);
     }
