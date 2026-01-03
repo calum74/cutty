@@ -140,6 +140,9 @@ template <typename Dynamic> class reference_type : public dynamic::type
     FORWARD1(begin, dynamic)
     FORWARD1(end, dynamic)
 
+    FORWARD1(rbegin, dynamic)
+    FORWARD1(rend, dynamic)
+
     dynamic begin(dynamic &x) const override
     {
         return get(x).m_type->begin(get(x));
@@ -149,6 +152,17 @@ template <typename Dynamic> class reference_type : public dynamic::type
     {
         return get(x).m_type->end(get(x));
     }
+
+    dynamic rbegin(dynamic &x) const override
+    {
+        return get(x).m_type->rbegin(get(x));
+    }
+
+    dynamic rend(dynamic &x) const override
+    {
+        return get(x).m_type->rend(get(x));
+    }
+
 
     dynamic front(dynamic &x) const override
     {

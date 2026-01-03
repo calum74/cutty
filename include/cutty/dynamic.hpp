@@ -193,6 +193,14 @@ class dynamic
     dynamic end() const;
     dynamic cend() const;
 
+    dynamic rbegin();
+    dynamic rbegin() const;
+    dynamic crbegin() const;
+
+    dynamic rend();
+    dynamic rend() const;
+    dynamic crend() const;
+
     dynamic front();
     dynamic front() const;
     dynamic back();

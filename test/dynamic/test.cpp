@@ -1,6 +1,8 @@
 #include <cutty/dynamic.hpp>
 #include <cutty/test.hpp>
 
+#include <map>
+
 namespace cy = cutty;
 
 void empty()
@@ -251,10 +253,25 @@ void maps()
         v = "z";
     }
 
-    // Iterating a map backwards?
-    // for(auto i = m2.rbegin(); i!=m2.rend(); ++i)
-    // {
-    // }
+    // Iterating a map backwards - fails due to a compilation error in the STL
+    {
+        std::map<cy::dynamic, cy::dynamic> m;
+
+        // Compiles OK
+        // m.begin() + 10;
+        
+        // Does not compile OK
+        if constexpr ( requires { m.rbegin() + 10; } )
+        {
+            // m.rbegin() + 10;
+        }
+
+        cy::check_throws<cy::dynamic::unsupported>([&] {
+            for (auto i = m2.rbegin(); i != m2.rend(); ++i)
+            {
+            }
+        });
+    }
 
     // Heterogenous key types (for example, a map)
     cy::check_throws<cy::dynamic::unsupported>([] { cy::dynamic::map({{1, 1}, {cy::dynamic(), {}}}); });
@@ -409,15 +426,27 @@ void conversions()
     cy::check_equal((double)d, 3.5);
     cy::check_equal(i.as_double(), 123);
     cy::check_equal(d.as_double(), 3.5);
+    cy::check_equal((int)d, 3);
+    cy::check_equal(d.as_int(), 3);
+
+    // bool conversions
+    cy::check(i);
+    cy::check(!0_d);
 }
 
 void ranges()
 {
     static_assert(std::ranges::range<cy::dynamic>);
+    static_assert(std::ranges::bidirectional_range<cy::dynamic>);
     static_assert(std::input_or_output_iterator<cy::dynamic>);
 
     const auto x = "abc"_d;
     cy::check_equal(std::ranges::begin(x), x.begin());
+
+    // Construct a list from a range
+    // !!
+
+    // Reverse - bidirectional range??
 }
 
 int main(int argc, const char *argv[])

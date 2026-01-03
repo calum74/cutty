@@ -65,6 +65,10 @@ struct cutty::dynamic::type
     virtual dynamic begin(const dynamic &) const = 0;
     virtual dynamic end(dynamic &) const = 0;
     virtual dynamic end(const dynamic &) const = 0;
+    virtual dynamic rbegin(dynamic &) const = 0;
+    virtual dynamic rbegin(const dynamic &) const = 0;
+    virtual dynamic rend(dynamic &) const = 0;
+    virtual dynamic rend(const dynamic &) const = 0;
 
     virtual dynamic front(dynamic &) const = 0;
     virtual dynamic front(const dynamic &) const = 0;

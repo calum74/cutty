@@ -25,38 +25,24 @@ std::ostream &operator<<(std::ostream &os, const set_type &);
 std::ostream &operator<<(std::ostream &os, const unordered_set_type &);
 std::ostream &operator<<(std::ostream &os, const queue_type &);
 
-namespace
+template<typename T> requires (
+    std::same_as<std::map<cy::dynamic, cy::dynamic>, std::remove_cvref_t<T>>
+    ||     std::same_as<std::set<cy::dynamic>, std::remove_cvref_t<T>>
+    )
+struct cy::dynamic::traits<T> : public default_traits<T>
 {
-void output_list(std::ostream &os, const auto &list)
-{
-    os << "[";
-    bool first = true;
-    for (auto &item : list)
-    {
-        if (first)
-            first = false;
-        else
-            os << ",";
-        os << item;
-    }
-    os << "]";
-}
+   // rbegin and rend are broken 
+   static dynamic rbegin(auto&&)
+   {
+        throw unsupported("rbegin()");
+   }  
 
-void output_pairs(std::ostream &os, const auto &list)
-{
-    os << "[";
-    bool first = true;
-    for (auto &item : list)
-    {
-        if (first)
-            first = false;
-        else
-            os << ",";
-        os << item.first << ":" << item.second;
-    }
-    os << "]";
-}
-} // namespace
+   static dynamic rend(auto&&)
+   {
+        throw unsupported("rend()");
+   }  
+};
+
 
 CY_INSTANTIATE(std::vector<cy::dynamic>)
 

@@ -219,6 +219,36 @@ cy::dynamic cy::dynamic::end() const
     return m_type->end(*this);
 }
 
+cy::dynamic cy::dynamic::rbegin()
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::rbegin() const
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::crbegin() const
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::rend()
+{
+    return m_type->rend(*this);
+}
+
+cy::dynamic cy::dynamic::rend() const
+{
+    return m_type->rend(*this);
+}
+
+cy::dynamic cy::dynamic::crend() const
+{
+    return m_type->rend(*this);
+}
+
 cy::dynamic &cy::dynamic::operator++()
 {
     m_type->op_inc(*this);

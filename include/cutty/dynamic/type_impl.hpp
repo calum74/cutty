@@ -535,6 +535,10 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
     WRAP_METHOD0(begin, dynamic, const)
     WRAP_METHOD0(end, dynamic, )
     WRAP_METHOD0(end, dynamic, const)
+    WRAP_METHOD0(rbegin, dynamic, )
+    WRAP_METHOD0(rbegin, dynamic, const)
+    WRAP_METHOD0(rend, dynamic, )
+    WRAP_METHOD0(rend, dynamic, const)
     WRAP_METHOD0(size, std::size_t, const)
 
     const std::string &type_str(const dynamic &) const override

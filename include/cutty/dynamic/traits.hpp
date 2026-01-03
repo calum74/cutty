@@ -207,6 +207,16 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(dynamic(self.begin()), "begin()");
     }
 
+    static dynamic rbegin(const_reference self)
+    {
+        TRY_TO_RETURN(dynamic(self.rbegin()), "rbegin()");
+    }
+
+    static dynamic rbegin(reference self)
+    {
+        TRY_TO_RETURN(dynamic(self.rbegin()), "rbegin()");
+    }
+
     static dynamic end(const_reference self)
     {
         TRY_TO_RETURN(dynamic(self.end()), "end()");
@@ -215,6 +225,16 @@ template <typename T> class cutty::dynamic::default_traits
     static dynamic end(reference self)
     {
         TRY_TO_RETURN(dynamic(self.end()), "end()");
+    }
+
+    static dynamic rend(const_reference self)
+    {
+        TRY_TO_RETURN(dynamic(self.rend()), "rend()");
+    }
+
+    static dynamic rend(reference self)
+    {
+        TRY_TO_RETURN(dynamic(self.rend()), "rend()");
     }
 
     static dynamic front(const_reference self)
@@ -345,8 +365,7 @@ template <typename T> class cutty::dynamic::default_traits
         {
             TRY_TO_RETURN(dynamic(self.at(dynamic(i)), dynamic::by_reference_tag{}), "[]");
         }
-
-        TRY_TO_RETURN(dynamic(self[i], dynamic::by_reference_tag{}), "[]");
+        TRY_TO_RETURN(dynamic(self[(long)i], dynamic::by_reference_tag{}), "[]");
     }
 
     static dynamic op_index(reference self, const char *i)
