@@ -64,9 +64,12 @@ add_library(cutty
     src/test.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
+    src/dynamic/containers2.cpp
+    src/dynamic/containers3.cpp
     src/dynamic/functions.cpp
     src/dynamic/reference.cpp
-    src/dynamic/types.cpp)
+    src/dynamic/types.cpp
+    src/dynamic/types2.cpp)
 
 link_libraries(cutty)
 
