@@ -274,7 +274,7 @@ void maps()
     }
 
     // Heterogenous key types (for example, a map)
-    cy::check_throws<cy::dynamic::unsupported>([] { cy::dynamic::map({{1, 1}, {cy::dynamic(), {}}}); });
+    cy::check_throws<cy::dynamic::unsupported>([] { cy::check(cy::dynamic() < 1); });
 
     // But it works with a dict:
     cy::dynamic::dict({{1, 1}, {cy::dynamic(), {}}});
