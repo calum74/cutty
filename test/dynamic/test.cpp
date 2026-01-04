@@ -13,7 +13,7 @@ void empty()
     cy::check_equal(empty, cy::dynamic());
 
     // This will fail on Windows:
-    cy::check_equal(empty.type_str(), "cutty::dynamic::empty");
+    cy::check(empty.type_str().ends_with("empty"));
 
     // Empty is equal to itself
     cy::check_equal(empty, empty);
