@@ -190,6 +190,11 @@ const void *cy::dynamic::as(const std::type_info &t) const
         throw incompatible("Failed conversion to C++ type");
 }
 
+const std::type_info &cy::dynamic::type_info() const
+{
+    return m_type->type_info(*this);
+}
+
 void cy::dynamic::push_back(const dynamic &item)
 {
     m_type->push_back(*this, item);

@@ -409,6 +409,11 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return typeid(T) == t ? &get(x) : nullptr;
     }
 
+    const std::type_info& type_info(const dynamic&) const override
+    {
+        return typeid(T);
+    }
+
     bool op_lt(const dynamic &x, const dynamic &y) const override
     {
         return traits_type::op_lt(get(x), y);

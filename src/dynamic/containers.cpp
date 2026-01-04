@@ -32,6 +32,7 @@ template<typename T> requires (
 struct cy::dynamic::traits<T> : public default_traits<T>
 {
    // rbegin and rend are broken 
+   // because rbegin(c) + n does not compile.
    static dynamic rbegin(auto&&)
    {
         throw unsupported("rbegin()");

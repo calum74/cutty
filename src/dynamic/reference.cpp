@@ -92,6 +92,12 @@ template <typename Dynamic> class reference_type : public dynamic::type
         return get(x).m_type->try_get(get(x), t);
     }
 
+    const std::type_info& type_info(const dynamic&x) const override
+    {
+        // Should be the same as T??
+        return get(x).type_info();
+    }
+
     // Three flavours
     // const - target is const, e.g. size()
     // mut - target must be mutable (e.g. push_back()

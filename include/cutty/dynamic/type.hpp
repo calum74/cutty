@@ -48,7 +48,7 @@ struct cutty::dynamic::type
     // virtual std::string str(const dynamic&) const = 0;
     // virtual bool small() const = 0;
 
-    // virtual const std::type_info & get_type() = 0;
+    virtual const std::type_info & type_info(const dynamic &x) const = 0;
     // virtual bool total_ordering(const dynamic&x, const dynamic &y) const = 0;
 
     // virtual std::string str(const dynamic &x) const = 0;

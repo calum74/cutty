@@ -3,11 +3,42 @@
 // 1. Header file
 #include <cutty/dynamic.hpp>
 #include <cutty/dynamic/function.hpp>
+#include <cutty/print.hpp>
 
 #include <iostream>
 #include <ranges>
 
 namespace cy = cutty;
+
+void short_tutorial()
+{
+    // Creation
+    cy::dynamic a;          // An empty dynamic
+    cy::dynamic b = 12;     // An integer dynamic
+    cy::dynamic c = "abc";  // A string dynamic
+
+    // Output
+    cy::print(a);
+    std::cout << b << std::endl;
+    std::cout << c.str() << std::endl;
+
+    // Operations
+    cy::dynamic(1) + cy::dynamic(2);  // 3
+    cy::dynamic(1) + 2;  // 3
+    1 + cy::dynamic(2);  // 3
+
+    {
+        cy::dynamic x = 12;
+        int &i = x.as<int>();
+        // double &d = x.as<double>();  // throws dynamic::incompatible
+        x.type_info();
+
+        if(int *p = x.try_get<int>())
+        {
+            cy::print("try_get =", *p);
+        }
+    }
+}
 
 int main()
 {
@@ -273,5 +304,7 @@ int main()
     std::cout << "Call a function: " << d91a(9) << std::endl;
 
     // Calling a function with the wrong number of arguments
+
+    short_tutorial();
     
 }

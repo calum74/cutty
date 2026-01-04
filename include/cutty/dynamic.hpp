@@ -67,7 +67,6 @@ class dynamic
     // #include <dynamic/instantiate.hpp>
     template <typename T> static const types &instantiate();
 
-
     // Constructors
     dynamic();
     dynamic(const dynamic &src);
@@ -115,6 +114,9 @@ class dynamic
     {
         return *(const T *)as(typeid(T));
     }
+
+    // Gets type info of the internal value
+    const std::type_info &type_info() const;
 
     // Constructors
     static dynamic list(std::initializer_list<dynamic>);
