@@ -2,6 +2,7 @@
 #include <cutty/dynamic/instantiate.hpp>
 
 namespace cy = cutty;
+using namespace cy::literals;
 
 template<> struct cy::dynamic::traits<MyStruct> : public dynamic::default_traits<MyStruct>
 {

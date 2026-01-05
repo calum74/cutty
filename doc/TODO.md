@@ -1,5 +1,8 @@
 # Dynamic
 - Indexes working a lot better
+- Mixins?
+- i++ not implemented
+- multi-index []
 
 # Units
 - Unify scalar and dscalar

@@ -4,6 +4,7 @@
 #include <map>
 
 namespace cy = cutty;
+using namespace cy::literals;
 
 void empty()
 {

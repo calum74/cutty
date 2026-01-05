@@ -211,8 +211,6 @@ class dynamic
     // Iterators
     dynamic operator*() const;
 
-    size_type count(const dynamic &) const;
-
     void push_back(const dynamic &item);
     void pop_back();
     void push_front(const dynamic &item);
@@ -380,7 +378,10 @@ std::ostream &operator<<(std::ostream &os, dynamic::empty);
 }
 
 // ?? Namespace
-cutty::dynamic operator""_d(const char *, std::size_t);
-cutty::dynamic operator""_d(unsigned long long);
-cutty::dynamic operator""_d(long double);
-cutty::dynamic operator""_d(char);
+namespace cutty::literals
+{
+    cutty::dynamic operator""_d(const char *, std::size_t);
+    cutty::dynamic operator""_d(unsigned long long);
+    cutty::dynamic operator""_d(long double);
+    cutty::dynamic operator""_d(char);
+}

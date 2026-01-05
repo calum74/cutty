@@ -9,6 +9,7 @@
 #include <ranges>
 
 namespace cy = cutty;
+using namespace cy::literals;
 
 int main()
 {

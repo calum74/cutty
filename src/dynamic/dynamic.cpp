@@ -493,23 +493,23 @@ bool operator>=(const cy::dynamic &x, const cy::dynamic &y)
     return !(x > y);
 }
 
-cy::dynamic operator""_d(unsigned long long x)
+cy::dynamic cy::literals::operator""_d(unsigned long long x)
 {
     return cy::dynamic(x);
 }
 
-cy::dynamic operator""_d(long double x)
+cy::dynamic cy::literals::operator""_d(long double x)
 {
     return cy::dynamic(x);
 }
 
 // TODO: A constant string (implemented as char*)
-cy::dynamic operator""_d(const char *str, std::size_t s)
+cy::dynamic cy::literals::operator""_d(const char *str, std::size_t s)
 {
     return cy::dynamic(std::string(str, s));
 }
 
-cy::dynamic operator""_d(char ch)
+cy::dynamic cy::literals::operator""_d(char ch)
 {
     return cy::dynamic(ch);
 }

@@ -186,10 +186,10 @@ Any C++ function can be wrapped, provided that it can be converted to a `std::fu
 
 ```c++
 auto fn = cy::dynamic::function([] { return cy::dynamic(42); });
-cy::print(fn());
+cy::print(fn());  // 42
 
 fn = cy::dynamic::function([&] (int x) { return x+1; });
-cy::print(fn(10));
+cy::print(fn(10)); // 11
 ```
 
 Calling a function with the wrong number of arguments results in an `unsupported` exception thrown.
@@ -218,21 +218,135 @@ The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 
 ## Header file and namespace
 
+```c++
+#include <cutty/dynamic.hpp>
+#include <cutty/dynamic/function.hpp>
+#include <cutty/dynamic/instantiate.hpp>
+```
+
+`class dynamic` is in the `cutty` namespace. Literals are defined in the `cutty::literals` namespace.
+
 ## Builtin types
 
-## class `dynamic`
+## Class `dynamic`
 
 Constructors:
 - `dynamic()` - creates an empty dynamic object, of type `empty`.
+- `dynamic(const T&)`
+- `dynamic(T&&)`
+- `dynamic(const dynamic&)`
+- `dynamic(dynamic&&)`
+- `dynamic(const char*)`, `dynamic(std::string_view)`
+- `dynamic(std::initializer_list<dynamic>)`
 
-Mixins:
+Wrapped methods:
+- `dynamic begin()`
+- `dynamic begin() const`
+- `dynamic cbegin() const`
+- `dynamic cend() const`
+- `dynamic end()`
+- `dynamic end() const`
+- `dynamic rbegin()`
+- `dynamic rbegin() const`
+- `dynamic crbegin() const`
+- `dynamic rend()`
+- `dynamic rend() const`
+- `dynamic crend() const`
+- `size_type size() const`
 
 Methods:
+- `int as_int()`
+- `double as_double()`
+- `dynamic const_ref()`
+- `dynamic first()`
+- `dynamic first() const`
+- `size_type hash() const`
+- `dynamic make_shared()`
+- `dynamic ref()`
+- `dynamic ref() const`
+- `dynamic second()`
+- `dynamic second() const`
+- `dynamic shared_ref()`
+- `dynamic shared_ref() const`
+- `std::string str() const`
+- `void swap(dynamic&)`
+- `const std::string &type_str() const`
+- `dynamic weak_ref()`
+
+Static methods:
+- `static dynamic const_reference(const T&)`
+- `static dynamic dict()`
+- `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)`
+- `static dynamic function(auto)`
+- `static dynamic list()`
+- `static dynamic list(std::initializer_list<dynamic>)`
+- `static dynamic map()`
+- `static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>)`
+- `static dynamic queue()`
+- `static dynamic queue(std::initializer_list<dynamic>)`
+- `static dynamic reference(T&)`
+- `static dynamic set()`
+- `static dynamic set(std::initializer_list<dynamic>)`
+- `static dynamic shared(const T&)`
+- `static dynamic shared(T&&)`
+
+
+Types:
+- `const_iterator`
+- `default_traits<T>`
+- `difference_type`
+- `empty`
+- `incompatible`
+- `int_type`
+- `iterator`
+- `size_type`
+- `traits<T>`
+- `unsupported`
+- `value_type`
 
 Conversions:
+- `explicit operator bool`
+- `explicit operator int`
+- `explicit operator size_type`
+- `explicit operator double`
 
+Wrapped operators:
+- `dynamic operator()`
+- `dynamic operator*()`
+- `dynamic & operator++()`
+- `dynamic operator++(int)`
+- `dynamic & operator--()`
+- `dynamic operator--(int)`
+- `dynamic operator[]`
+- `dynamic &operator=(dynamic&&)`, 
+- `dynamic &operator=(const dynamic&)`, 
+- `dynamic &operator+=, -= *= /= %= &=|= ^=, <<= >>=`, 
+- `bool operator==()`
+- `std::weak_ordering operator<=>`
+- + - * / %
+- << >>
 
-Operators:
+Literals:
+- `dynamic operator""_d(const char *, std::size_t)`
+- `dynamic operator""_d(unsigned long long)`
+- `dynamic operator""_d(long double)`
+- `dynamic operator""_d(char)`
+
+## Class `dynamic::default:traits`
+
+```c++
+template<typename T> struct dynamic::default_traits;
+```
+
+Implements the default traits for a dynamic type.
+
+## Class `dynamic::traits`
+
+```c++
+template<typename T> struct dynamic::traits;
+```
+
+Members
 
 ## Class `dynamic::empty`
 
