@@ -200,6 +200,11 @@ void cy::dynamic::push_back(const dynamic &item)
     m_type->push_back(*this, item);
 }
 
+void cy::dynamic::push_front(const dynamic &item)
+{
+    m_type->push_front(*this, item);
+}
+
 std::size_t cy::dynamic::size() const
 {
     return m_type->size(*this);

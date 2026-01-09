@@ -128,6 +128,8 @@ for(auto [k,v] : map)
 
 ## References
 
+Sample: TODO
+
 `dynamic` values can in fact be references to C++ values. It is the caller's responsibility to ensure that the underlying C++ object remains valid for the duration of the `dynamic` reference. To create a reference, use the `reference()` method, or the `const_reference` method.
 
 ```c++
@@ -148,6 +150,8 @@ cy::print(i);  // 41
 
 ## Shared objects
 
+Sample: TODO
+
 Copying a `dynamic` normally results in the underlying object being copied. If this is not desired, a `ref()` can be used, but this does not keep the underlying object alive. To solve this problem, `dynamic` implements shared pointers, which have similar semantics to `std::shared_ptr`. Client code does not need to know it is dealing with a shared object.
 
 Creating a shared value is done using the `shared()` method. Existing dynamic objects can be copied to a shared object using the `shared_ref()` method.
@@ -156,7 +160,7 @@ Creating a shared value is done using the `shared()` method. Existing dynamic ob
 cy::dynamic i = cy::dynamic::shared(42);
 cy::dynamic j = i;
 ++i;
-cy::print(j);  // 43;
+cy::print(j);  // 43
 ```
 
 ## Associative containers
@@ -175,6 +179,8 @@ cy::print(o2["fred"]);  // throws std::out_of_range
 ```
 
 ## Functions
+
+Sample: TODO
 
 Functions are created using the `dynamic::function()` method, and requires the header file `cutty/dynamic/function.hpp` just to cut down on header files.
 
@@ -230,14 +236,71 @@ The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 
 ## Class `dynamic`
 
+Holds a C++ value or reference.
+
 Constructors:
 - `dynamic()` - creates an empty dynamic object, of type `empty`.
-- `dynamic(const T&)`
-- `dynamic(T&&)`
-- `dynamic(const dynamic&)`
-- `dynamic(dynamic&&)`
-- `dynamic(const char*)`, `dynamic(std::string_view)`
-- `dynamic(std::initializer_list<dynamic>)`
+- `dynamic(const T&)` - copies and stores its argument, creating a dynamic of type `T`.
+- `dynamic(T&&)` - moves and stores its argument, creating a dynamic of type `T`.
+- `dynamic(const dynamic&)` - copies a dynamic value. For references and shared values, the wrapped value is not copied.
+- `dynamic(dynamic&&)` - moves a dynamic
+- `dynamic(const char*)`, `dynamic(std::string_view)` - creates a string
+- `dynamic(std::initializer_list<dynamic>)` - creates a list
+
+Types:
+- `const_iterator` - a `dynamic` used for containers
+- `default_traits<T>` - default implementation of dynamic traits. Inherit from this class to implement traits.
+- `difference_type` - a `dynamic` for containers
+- `empty` - the value of a default-initialised `dynamic`
+- `incompatible` exception thrown when a wrong or incompatible type is requested
+- `int_type` - how its are stored internally
+- `iterator` - `dynamic` used for containers
+- `size_type` - `std::size_t`
+- `traits<T>` used to configure the behaviour of `instantiate()`
+- `unsupported` exception thrown when an operation is not supported
+- `value_type` - a `dynamic` used for containers
+
+Methods:
+- `T &as<T>()` - gets the internal value (or referenced value), or throws `incompatible` if `T` is not held.
+- `const T &as<T>() const` - gets the internal value, const version.
+- `int as_int()` - converts the type to an `int` if possible, otherwise `unsupported` is thrown.
+- `double as_double()` - converts the value to a `double` if possible, otherwise `unsupported` is thrown
+- `dynamic const_ref()` - returns a const ref to this dynamic. The result behaves like a `const dynamic&`, and the referee must be in scope for the reference to be valid.
+- `dynamic first()` - gets the `first` field if available (particularly for wrapping `std::pair`). Throws `unsupported` if unsupported.
+- `dynamic first() const` - const version
+- `size_type hash() const` - calculates a hash value (using `traits::hash()`). Throws `unsupported` if unavailable.
+- `dynamic make_shared()` - reassigns this dynamic to a shared pointer. (TODO: Existing pointers??)
+- `dynamic ref()` - returns a ref to this dynamic. The result behaves like a `dynamic&` and can be used to update referee. (TODO: shared pointers??)
+- `dynamic ref() const` - returns a const ref to this dynamic. See `const_ref()`.
+- `dynamic second()` - gets the `second` field if available (particularly for wrapping `std::pair`)
+- `dynamic second() const` - const version
+- `dynamic shared_ref()` - TODO
+- `dynamic shared_ref() const` TODO
+- `std::string str() const` - gets a string representation of this `dynamic`, using `traits::str()`.
+- `T * try_get<T>()` - returns a pointer or `nullptr` if the `dynamic` does not hold exactly a `T`.
+- `const T * try_get<T>() const` - const version
+- `const std::type_info &type_info() const` - gets the `type_info` of the held object
+- `void swap(dynamic&)` - swaps this dynamic with another
+- `const std::string &type_str() const` - gets a pretty type string of this dynamic. The string is not portable.
+- `dynamic weak_ref()` - gets a weak reference to a shared `dynamic`. Throws `unsupported` if the object is not shared.
+
+Static methods:
+- `static dynamic const_reference(const T &t)` - returns a `dynamic` holding a reference to `t`
+- `static dynamic dict()` - returns a `dynamic` holding a dictionary
+- `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a dictionary initialized with the given data
+- `static dynamic function(auto f)` - returns a `dynamic` that is callable with the given function `f`. Requires `#include <cutty/dynamic/function.hpp>`
+- `template <typename T> static const types &instantiate()` - internal function that needs to be instantiated to add new wrapped types
+- `static dynamic list()` - returns a `dynamic` holding an empty list
+- `static dynamic list(std::initializer_list<dynamic>)` - returns a `dynamic` holding a list initialized with the given data
+- `static dynamic map()` - returns a `dynamic` holding an empty map
+- `static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a map initialised with the given data
+- `static dynamic queue()`
+- `static dynamic queue(std::initializer_list<dynamic>)`
+- `static dynamic reference(T&)`
+- `static dynamic set()`
+- `static dynamic set(std::initializer_list<dynamic>)`
+- `static dynamic shared(const T&)`
+- `static dynamic shared(T&&)`
 
 Wrapped methods:
 - `dynamic begin()`
@@ -253,56 +316,7 @@ Wrapped methods:
 - `dynamic rend() const`
 - `dynamic crend() const`
 - `size_type size() const`
-
-Methods:
-- `int as_int()`
-- `double as_double()`
-- `dynamic const_ref()`
-- `dynamic first()`
-- `dynamic first() const`
-- `size_type hash() const`
-- `dynamic make_shared()`
-- `dynamic ref()`
-- `dynamic ref() const`
-- `dynamic second()`
-- `dynamic second() const`
-- `dynamic shared_ref()`
-- `dynamic shared_ref() const`
-- `std::string str() const`
-- `void swap(dynamic&)`
-- `const std::string &type_str() const`
-- `dynamic weak_ref()`
-
-Static methods:
-- `static dynamic const_reference(const T&)`
-- `static dynamic dict()`
-- `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)`
-- `static dynamic function(auto)`
-- `static dynamic list()`
-- `static dynamic list(std::initializer_list<dynamic>)`
-- `static dynamic map()`
-- `static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>)`
-- `static dynamic queue()`
-- `static dynamic queue(std::initializer_list<dynamic>)`
-- `static dynamic reference(T&)`
-- `static dynamic set()`
-- `static dynamic set(std::initializer_list<dynamic>)`
-- `static dynamic shared(const T&)`
-- `static dynamic shared(T&&)`
-
-
-Types:
-- `const_iterator`
-- `default_traits<T>`
-- `difference_type`
-- `empty`
-- `incompatible`
-- `int_type`
-- `iterator`
-- `size_type`
-- `traits<T>`
-- `unsupported`
-- `value_type`
+- TODO: push_front(), push_back(), pop_back(), pop_front(), front(), back()
 
 Conversions:
 - `explicit operator bool`
@@ -311,20 +325,20 @@ Conversions:
 - `explicit operator double`
 
 Wrapped operators:
-- `dynamic operator()`
-- `dynamic operator*()`
+- `dynamic operator()(auto&&...)`
 - `dynamic & operator++()`
 - `dynamic operator++(int)`
 - `dynamic & operator--()`
 - `dynamic operator--(int)`
-- `dynamic operator[]`
+- `dynamic operator[](dynamic)` (comes in multiple versions)
 - `dynamic &operator=(dynamic&&)`, 
 - `dynamic &operator=(const dynamic&)`, 
-- `dynamic &operator+=, -= *= /= %= &=|= ^=, <<= >>=`, 
+- `dynamic &operator+=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=`, 
 - `bool operator==()`
-- `std::weak_ordering operator<=>`
-- + - * / %
-- << >>
+- `std::weak_ordering operator<=>()`
+- Binary operators: `+` `-` `*` `/` `%` `|` `&` `^`, '>>', `>>`
+- Unary operators: `+`, `-`, `~`, `*`
+- `std::ostream &<<(std::ostream&, const dynamic&)`
 
 Literals:
 - `dynamic operator""_d(const char *, std::size_t)`
@@ -342,13 +356,75 @@ Implements the default traits for a dynamic type.
 
 ## Class `dynamic::traits`
 
+This class is used to configure the behaviour of `dynamic` when wrapping a type. Clients can specialise this type.
+
 ```c++
 template<typename T> struct dynamic::traits;
 ```
 
-Members
+Types:
+- `const_reference`
+- `reference`
+
+Methods:
+- `static void stream_to(const_reference self, std::ostream &os)`
+- `static const std::string &type_str()`
+- `static bool as_bool(const_reference self)`
+- `static int as_int(const_reference self)`
+- `static double as_double(const_reference self)`
+- `static std::optional<dynamic::int_type> try_get_integral(const_reference self)`
+- `static std::optional<double> try_get_double(const_reference self)`
+- `static std::optional<std::string_view> try_get_string(const_reference self)`
+
+- `static bool op_eq(const_reference x, const dynamic &y)`
+- `static bool op_lt(const_reference x, const dynamic &y)`
+- `static dynamic op_add(const_reference x, const dynamic &y)`
+- `static dynamic op_sub(const_reference x, const dynamic &y)`
+- `static dynamic op_mul(const_reference x, const dynamic &y)`
+- `static dynamic op_div(const_reference x, const dynamic &y)`
+- `static dynamic op_mod(const_reference x, const dynamic &y)`
+- `static dynamic op_star(reference self)`
+- `static dynamic op_star(const_reference self)`
+- `static void op_inc(reference self)`
+- `static void op_dec(reference self)`
+- `static dynamic op_minus(const_reference self)`
+- `static dynamic call(const_reference self, std::size_t n_args, const dynamic *args)`
+- `static dynamic op_index(reference self, dynamic::int_type i)`
+- `static dynamic op_index(const_reference self, dynamic::int_type i)`
+- `static dynamic op_index(reference self, const char *i)`
+- `static dynamic op_index(const_reference self, const char *i)`
+- `static dynamic op_index(const_reference self, const dynamic &i)`
+- `static dynamic op_index(reference self, const dynamic &i)`
+- `static std::size_t hash(const_reference self)`
+- `static void push_back(reference self, const dynamic &y)`
+- `static void pop_back(reference self)`
+- `static void push_front(reference self, const dynamic &value)`
+- `static void pop_front(reference self)`
+- `static std::size_t size(const_reference self)`
+- `static dynamic begin(const_reference self)`
+- `static dynamic begin(reference self)`
+- `static dynamic rbegin(const_reference self)`
+- `static dynamic rbegin(reference self)`
+- `static dynamic end(const_reference self)`
+- `static dynamic end(reference self)`
+- `static dynamic rend(const_reference self)`
+- `static dynamic rend(reference self)`
+- `static dynamic front(const_reference self)`
+- `static dynamic front(reference self)`
+- `static dynamic back(const_reference self)`
+- `static dynamic back(reference self)`
+- `static void insert(reference self, const dynamic &value)`
+- `static void insert(reference self, const dynamic &k, const dynamic &v)`
+- `static dynamic first(const_reference self)`
+- `static dynamic first(reference self)`
+- `static dynamic second(const_reference &self)`
+- `static dynamic second(reference self)`
 
 ## Class `dynamic::empty`
 
 Used to represent the empty value.
 
+```c++
+cy::dynamic d;
+cy::dynamic::empty &e = d.as<cy::dynamic::empty>();
+```

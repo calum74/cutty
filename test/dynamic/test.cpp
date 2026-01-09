@@ -1,8 +1,6 @@
 #include <cutty/dynamic.hpp>
 #include <cutty/test.hpp>
 
-#include <map>
-
 namespace cy = cutty;
 using namespace cy::literals;
 
@@ -220,6 +218,39 @@ void lists()
         cy::check_throws<std::out_of_range>([&] { l[3]; });
         cy::check_throws<std::out_of_range>([&] { l[3_d]; });
     }
+
+    // Push & pop
+    {
+        cy::dynamic l = cy::dynamic::list();
+        l.push_back(1);
+        cy::check_equal(1, l.back());
+        l.back() = 2;
+        cy::check_equal(2, l.back());
+        l.pop_back();
+        // cy::check(l.empty());
+        cy::check_equal(l.size(), 0);
+    }
+}
+
+void queues()
+{
+    {
+        cy::dynamic l = cy::dynamic::queue();
+        l.push_back(1);
+        cy::check_equal(1, l.back());
+        l.back() = 2;
+        cy::check_equal(2, l.back());
+        l.pop_back();
+
+        // l.push_back(2);
+        l.push_front(2);
+        cy::check_equal(2, l.front());
+        l.front() = 3;
+        cy::check_equal(3, l.front());
+        l.pop_front();
+
+        cy::check_equal(l.size(), 0);
+    }
 }
 
 void maps()
@@ -256,17 +287,6 @@ void maps()
 
     // Iterating a map backwards - fails due to a compilation error in the STL
     {
-        std::map<cy::dynamic, cy::dynamic> m;
-
-        // Compiles OK
-        // m.begin() + 10;
-        
-        // Does not compile OK
-        if constexpr ( requires { m.rbegin() + 10; } )
-        {
-            // m.rbegin() + 10;
-        }
-
         cy::check_throws<cy::dynamic::unsupported>([&] {
             for (auto i = m2.rbegin(); i != m2.rend(); ++i)
             {
@@ -461,6 +481,7 @@ int main(int argc, const char *argv[])
                      {"references", references},
                      {"consts", consts},
                      {"lists", lists},
+                     {"queues", queues},
                      {"maps", maps},
                      {"dicts", dicts},
                      {"objects", objects},

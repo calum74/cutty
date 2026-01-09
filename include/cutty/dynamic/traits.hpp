@@ -26,33 +26,17 @@ template <std::size_t... Args, typename Fn> dynamic invoke(Fn &&fn, const dynami
     else                                                                                                               \
         throw_unsupported(OP, self);
 
-template<typename Container>
-concept indexed_container = requires(Container &c)
-{
+template <typename Container>
+concept indexed_container = requires(Container &c) {
     c[0];
     c.at(0);
 };
 
-template<typename Container>
-concept keyed_container = requires(const Container &c)
-{
+template <typename Container>
+concept keyed_container = requires(const Container &c) {
     typename Container::key_type;
     c.at(std::declval<typename Container::key_type>());
 };
-
-template<typename Container, typename Key>
-const Key & container_key_type(const Key &key)
-{
-    return key;
-}
-
-template<indexed_container Container, typename Key>
-const Key & container_key_type(const Key &key)
-{
-    return key;
-}
-
-
 
 // Customize this class to implement bespoke behaviour for a type T.
 template <typename T> class cutty::dynamic::default_traits
@@ -69,14 +53,6 @@ template <typename T> class cutty::dynamic::default_traits
     static void stream_to(const_reference self, std::ostream &os)
     {
         print_stream(os, self);
-        // if constexpr (requires { os << self; })
-        // {
-        //     os << self;
-        // }
-        // else
-        // {
-        //     os << "<object of type " << type_str() << " at " << &self << ">";
-        // }
     }
 
     static const std::string &type_str()
@@ -113,7 +89,7 @@ template <typename T> class cutty::dynamic::default_traits
         return x == y;
     }
 
-    static std::optional<std::int64_t> try_get_integral(const_reference self)
+    static std::optional<dynamic::int_type> try_get_integral(const_reference self)
     {
         if constexpr (std::integral<T> || std::floating_point<T>)
         {
@@ -149,14 +125,17 @@ template <typename T> class cutty::dynamic::default_traits
     {
         return x + y;
     }
+
     static dynamic op_sub(const_reference x, const dynamic &y)
     {
         return x - y;
     }
+
     static dynamic op_mul(const_reference x, const dynamic &y)
     {
         return x * y;
     }
+
     static dynamic op_div(const_reference x, const dynamic &y)
     {
         return x / y;
@@ -184,7 +163,8 @@ template <typename T> class cutty::dynamic::default_traits
 
     static void push_front(reference self, const dynamic &value)
     {
-        TRY_TO_RETURN(self.push_back(try_convert<typename T::value_type>(value, "push_front()")), "push_front()");
+        TRY_TO_RETURN(self.push_front(dynamic_detail::try_convert<typename T::value_type>(value, "push_front()")),
+                      "push_front()");
     }
 
     static void pop_front(reference self)

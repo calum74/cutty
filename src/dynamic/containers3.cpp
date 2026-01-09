@@ -8,6 +8,12 @@ namespace cy = cutty;
 using list_type = std::vector<cy::dynamic>;
 using queue_type = std::deque<cy::dynamic>;
 
+void fn()
+{
+    queue_type queue;
+    queue.push_front(cy::dynamic(123));
+}
+
 CY_INSTANTIATE(std::vector<cy::dynamic>)
 
 cy::dynamic cy::dynamic::list()

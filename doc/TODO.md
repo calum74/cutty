@@ -3,6 +3,7 @@
 - Mixins?
 - i++ not implemented
 - multi-index []
+- reverse iterators and list containers fail due to operator + not working as advertised on.
 
 # Units
 - Unify scalar and dscalar
