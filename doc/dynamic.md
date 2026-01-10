@@ -6,7 +6,7 @@ Solves the problem of working with multiple types.
 
 *Dynamic* adds the ability to store and work with data of different types. Philosophical arguments aside, sometimes it's easier to just store something in a dynamic variable. Unlike `std::any` or `std::variant`, you can work with dynamic objects, for example iterating elements or converting to a string. *Dynamic* could also be used for scenarios like JSON, interfacing with dynamic programming languages, or creating generic wrappers.
 
-*Dynamic* behaves similarly to the C# `dynamic` keyword, and can convert any C++ type to dynamic.
+*Dynamic* behaves similarly to the C# `dynamic` keyword, and can wrap any C++ type as `dynamic`.
 
 # Tutorial
 
@@ -70,7 +70,7 @@ cy::print(x.type_str());  // "int"
 
 ## Null objects
 
-The default `dynamic` object is "empty", and has the value `dynamic::empty`. There is no "null" in the C++ sense.
+The default `dynamic` object is "empty", and has the value `dynamic::empty_type`. There is no "null" in the C++ sense.
 
 ## Conversions
 
@@ -239,7 +239,7 @@ The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 Holds a C++ value or reference.
 
 Constructors:
-- `dynamic()` - creates an empty dynamic object, of type `empty`.
+- `dynamic()` - creates an empty dynamic object, of type `empty_type`.
 - `dynamic(const T&)` - copies and stores its argument, creating a dynamic of type `T`.
 - `dynamic(T&&)` - moves and stores its argument, creating a dynamic of type `T`.
 - `dynamic(const dynamic&)` - copies a dynamic value. For references and shared values, the wrapped value is not copied.
@@ -251,7 +251,7 @@ Types:
 - `const_iterator` - a `dynamic` used for containers
 - `default_traits<T>` - default implementation of dynamic traits. Inherit from this class to implement traits.
 - `difference_type` - a `dynamic` for containers
-- `empty` - the value of a default-initialised `dynamic`
+- `empty_type` - the value of a default-initialised `dynamic`
 - `incompatible` exception thrown when a wrong or incompatible type is requested
 - `int_type` - how its are stored internally
 - `iterator` - `dynamic` used for containers
@@ -286,15 +286,15 @@ Methods:
 
 Static methods:
 - `static dynamic const_reference(const T &t)` - returns a `dynamic` holding a reference to `t`
-- `static dynamic dict()` - returns a `dynamic` holding a dictionary
+- `static dynamic dict()` - returns a `dynamic` holding a dictionary (`std::unordered_map<dynamic,dynamic>`)
 - `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a dictionary initialized with the given data
 - `static dynamic function(auto f)` - returns a `dynamic` that is callable with the given function `f`. Requires `#include <cutty/dynamic/function.hpp>`
 - `template <typename T> static const types &instantiate()` - internal function that needs to be instantiated to add new wrapped types
-- `static dynamic list()` - returns a `dynamic` holding an empty list
+- `static dynamic list()` - returns a `dynamic` holding an empty list (`std::vector<dynamic>`)
 - `static dynamic list(std::initializer_list<dynamic>)` - returns a `dynamic` holding a list initialized with the given data
 - `static dynamic map()` - returns a `dynamic` holding an empty map
 - `static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a map initialised with the given data
-- `static dynamic queue()`
+- `static dynamic queue()` - returns a `dynamic` holding a queue (`std::deque<dynamic>`)
 - `static dynamic queue(std::initializer_list<dynamic>)`
 - `static dynamic reference(T&)`
 - `static dynamic set()`
@@ -316,7 +316,12 @@ Wrapped methods:
 - `dynamic rend() const`
 - `dynamic crend() const`
 - `size_type size() const`
-- TODO: push_front(), push_back(), pop_back(), pop_front(), front(), back()
+- `void push_front()`
+- `void push_back()`
+- `void pop_back()`
+- `void pop_front()`
+- `void erase(const dynamic&)`
+- `void erase(const dynamic&, const dynamic&)`
 
 Conversions:
 - `explicit operator bool`
@@ -407,6 +412,8 @@ Methods:
 - `static dynamic rbegin(reference self)`
 - `static dynamic end(const_reference self)`
 - `static dynamic end(reference self)`
+- `static void erase(reference self, const dynamic&)`
+- `static void erase(reference self, const dynamic&, const dynamic&)`
 - `static dynamic rend(const_reference self)`
 - `static dynamic rend(reference self)`
 - `static dynamic front(const_reference self)`
@@ -420,11 +427,11 @@ Methods:
 - `static dynamic second(const_reference &self)`
 - `static dynamic second(reference self)`
 
-## Class `dynamic::empty`
+## Class `dynamic::empty_type`
 
 Used to represent the empty value.
 
 ```c++
 cy::dynamic d;
-cy::dynamic::empty &e = d.as<cy::dynamic::empty>();
+cy::dynamic::empty_type &e = d.as<cy::dynamic::empty_type>();
 ```

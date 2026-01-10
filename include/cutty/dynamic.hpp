@@ -31,7 +31,7 @@ class dynamic
 
     template <typename T> class default_traits;
     template <typename T> class traits;
-    struct empty;
+    struct empty_type;
 
     // Exception thrown when something isn't implemented on the underlying type
     class unsupported : public std::runtime_error
@@ -369,12 +369,12 @@ cutty::dynamic operator-(const cutty::dynamic &x);
 // cutty::dynamic operator*(const cutty::dynamic &x);
 cutty::dynamic operator~(const cutty::dynamic &x);
 
-bool operator==(cutty::dynamic::empty, cutty::dynamic::empty);
-bool operator<(cutty::dynamic::empty, cutty::dynamic::empty);
+bool operator==(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
+bool operator<(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
 
 namespace cutty
 {
-std::ostream &operator<<(std::ostream &os, dynamic::empty);
+std::ostream &operator<<(std::ostream &os, dynamic::empty_type);
 }
 
 // ?? Namespace

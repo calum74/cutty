@@ -242,7 +242,6 @@ void queues()
         cy::check_equal(2, l.back());
         l.pop_back();
 
-        // l.push_back(2);
         l.push_front(2);
         cy::check_equal(2, l.front());
         l.front() = 3;

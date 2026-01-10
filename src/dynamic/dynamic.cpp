@@ -58,7 +58,7 @@ template <> const cy::dynamic &cy::dynamic_detail::try_convert<cy::dynamic>(cons
     return x;
 }
 
-cy::dynamic::dynamic() : dynamic(empty{})
+cy::dynamic::dynamic() : dynamic(empty_type{})
 {
 }
 
@@ -519,4 +519,4 @@ cy::dynamic cy::literals::operator""_d(char ch)
     return cy::dynamic(ch);
 }
 
-std::size_t std::hash<cy::dynamic::empty>::operator()(const cy::dynamic::empty&) const { return 0; }
+std::size_t std::hash<cy::dynamic::empty_type>::operator()(const cy::dynamic::empty_type&) const { return 0; }

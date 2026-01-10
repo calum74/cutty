@@ -4,6 +4,7 @@
 - i++ not implemented
 - multi-index []
 - reverse iterators and list containers fail due to operator + not working as advertised on.
+- Move constructors
 
 # Units
 - Unify scalar and dscalar
