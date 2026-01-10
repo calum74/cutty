@@ -13,7 +13,13 @@ template <typename T>
 concept supports_add = requires(T x) { x + x; };
 
 template <typename T>
+concept supports_add_int = requires(T x) { x + 1; };
+
+template <typename T>
 concept supports_sub = requires(T x) { x - x; };
+
+template <typename T>
+concept supports_sub_int = requires(T x) { x - 1; };
 
 template <typename T>
 concept supports_mul = requires(T x) { x * x; };
@@ -115,6 +121,13 @@ template <typename T> cutty::dynamic operator+(const T &x, const cutty::dynamic 
             return cutty::dynamic(x + *p);
         }
     }
+    else if constexpr (cutty::dynamic_detail::supports_add_int<T>)
+    {
+        if (auto i = y.m_type->try_get_integral(y))
+        {
+            return cutty::dynamic(x + *i);
+        }
+    }
     cutty::dynamic_detail::throw_unsupported(x, y, "+");
 }
 
@@ -136,6 +149,13 @@ template <typename T> cutty::dynamic operator-(const T &x, const cutty::dynamic 
         if (auto p = y.try_get<T>())
         {
             return cutty::dynamic(x - *p);
+        }
+    }
+    if constexpr (cutty::dynamic_detail::supports_sub_int<T>)
+    {
+        if (auto i = y.m_type->try_get_integral(y))
+        {
+            return cutty::dynamic(x - *i);
         }
     }
     cutty::dynamic_detail::throw_unsupported(x, y, "-");

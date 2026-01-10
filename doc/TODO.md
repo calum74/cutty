@@ -1,10 +1,36 @@
+# Dynamic
+- Mixins?
+- i++ not implemented
+- multi-index []
+- erase, empty
+
+- reverse iterators and list containers fail due to operator + not working as advertised on.
+- Move constructors
+
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
 
+# Tests
+- Store the last checkpoint?
+
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.
+
+# What about a "indexer" that can be assignable
+
+```c++
+template<typename Container, typename Key>
+struct index
+{
+
+};
+
+index_type operator[](const key_type&);
+```
+
+
 
 # Docs
 - [ ] Separator output

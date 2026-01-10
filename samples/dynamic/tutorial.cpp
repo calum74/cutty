@@ -3,11 +3,13 @@
 // 1. Header file
 #include <cutty/dynamic.hpp>
 #include <cutty/dynamic/function.hpp>
+#include <cutty/print.hpp>
 
 #include <iostream>
 #include <ranges>
 
 namespace cy = cutty;
+using namespace cy::literals;
 
 int main()
 {
@@ -272,6 +274,5 @@ int main()
     // Calling a function
     std::cout << "Call a function: " << d91a(9) << std::endl;
 
-    // Calling a function with the wrong number of arguments
-    
+    // Calling a function with the wrong number of arguments    
 }

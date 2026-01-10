@@ -92,6 +92,12 @@ template <typename Dynamic> class reference_type : public dynamic::type
         return get(x).m_type->try_get(get(x), t);
     }
 
+    const std::type_info& type_info(const dynamic&x) const override
+    {
+        // Should be the same as T??
+        return get(x).type_info();
+    }
+
     // Three flavours
     // const - target is const, e.g. size()
     // mut - target must be mutable (e.g. push_back()
@@ -137,8 +143,12 @@ template <typename Dynamic> class reference_type : public dynamic::type
     FORWARD1(back, dynamic)
 
     FORWARD1(size, std::size_t);
+    FORWARD1(empty, bool);
     FORWARD1(begin, dynamic)
     FORWARD1(end, dynamic)
+
+    FORWARD1(rbegin, dynamic)
+    FORWARD1(rend, dynamic)
 
     dynamic begin(dynamic &x) const override
     {
@@ -149,6 +159,17 @@ template <typename Dynamic> class reference_type : public dynamic::type
     {
         return get(x).m_type->end(get(x));
     }
+
+    dynamic rbegin(dynamic &x) const override
+    {
+        return get(x).m_type->rbegin(get(x));
+    }
+
+    dynamic rend(dynamic &x) const override
+    {
+        return get(x).m_type->rend(get(x));
+    }
+
 
     dynamic front(dynamic &x) const override
     {
@@ -198,18 +219,20 @@ template <typename Dynamic> class reference_type : public dynamic::type
 
     FORWARD1(type_str, const std::string &);
     FORWARD1(as_bool, bool);
+    FORWARD1(as_int, dynamic::int_type);
+    FORWARD1(as_double, double);
 
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override
     {
         return get(self).m_type->call(get(self), n_args, args);
     }
 
-    dynamic op_index(const dynamic &self, std::size_t i) const override
+    dynamic op_index(const dynamic &self, dynamic::int_type i) const override
     {
         return get(self).m_type->op_index(get(self), i);
     }
 
-    dynamic op_index(dynamic &self, std::size_t i) const override
+    dynamic op_index(dynamic &self, dynamic::int_type i) const override
     {
         return get(self).m_type->op_index(get(self), i);
     }
@@ -224,6 +247,16 @@ template <typename Dynamic> class reference_type : public dynamic::type
         return get(self).m_type->op_index(get(self), i);
     }
 
+    dynamic op_index(const dynamic &self, const char * i) const override
+    {
+        return get(self).m_type->op_index(get(self), i);
+    }
+
+    dynamic op_index(dynamic &self, const char * i) const override
+    {
+        return get(self).m_type->op_index(get(self), i);
+    }
+
     void insert(dynamic &self, const dynamic &value) const override
     {
         get(self).m_type->insert(get_mut(self, "insert()"), value);
@@ -232,6 +265,16 @@ template <typename Dynamic> class reference_type : public dynamic::type
     void insert(dynamic &self, const dynamic &k, const dynamic &v) const override
     {
         get(self).m_type->insert(get_mut(self, "insert()"), k, v);
+    }
+
+    void erase(dynamic &self, const dynamic &i) const override
+    {
+        get(self).m_type->erase(get_mut(self, "erase()"), i);
+    }
+
+    void erase(dynamic &self, const dynamic &i, const dynamic &j) const override
+    {
+        get(self).m_type->erase(get_mut(self, "erase()"), i, j);
     }
 
     dynamic first(dynamic &self) const override

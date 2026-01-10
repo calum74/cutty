@@ -409,6 +409,11 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return typeid(T) == t ? &get(x) : nullptr;
     }
 
+    const std::type_info& type_info(const dynamic&) const override
+    {
+        return typeid(T);
+    }
+
     bool op_lt(const dynamic &x, const dynamic &y) const override
     {
         return traits_type::op_lt(get(x), y);
@@ -535,6 +540,10 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
     WRAP_METHOD0(begin, dynamic, const)
     WRAP_METHOD0(end, dynamic, )
     WRAP_METHOD0(end, dynamic, const)
+    WRAP_METHOD0(rbegin, dynamic, )
+    WRAP_METHOD0(rbegin, dynamic, const)
+    WRAP_METHOD0(rend, dynamic, )
+    WRAP_METHOD0(rend, dynamic, const)
     WRAP_METHOD0(size, std::size_t, const)
 
     const std::string &type_str(const dynamic &) const override
@@ -547,17 +556,37 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::as_bool(get(x));
     }
 
+    dynamic::int_type as_int(const dynamic &x) const override
+    {
+        return traits_type::as_int(get(x));
+    }
+
+    double as_double(const dynamic &x) const override
+    {
+        return traits_type::as_double(get(x));
+    }
+
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override
     {
         return traits_type::call(get(self), n_args, args);
     }
 
-    dynamic op_index(const dynamic &x, std::size_t i) const override
+    dynamic op_index(const dynamic &x, dynamic::int_type i) const override
     {
         return traits_type::op_index(get(x), i);
     }
 
-    dynamic op_index(dynamic &x, std::size_t i) const override
+    dynamic op_index(dynamic &x, dynamic::int_type i) const override
+    {
+        return traits_type::op_index(get(x), i);
+    }
+
+    dynamic op_index(const dynamic &x, const char *i) const override
+    {
+        return traits_type::op_index(get(x), i);
+    }
+
+    dynamic op_index(dynamic &x, const char *i) const override
     {
         return traits_type::op_index(get(x), i);
     }
@@ -580,6 +609,21 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
     void insert(dynamic &x, const dynamic &k, const dynamic &v) const override
     {
         traits_type::insert(get_mut(x, "insert()"), k, v);
+    }
+
+    bool empty(const dynamic &x) const override
+    {
+        return traits_type::empty(get(x));
+    }
+
+    void erase(dynamic &x, const dynamic &i) const override
+    {
+        traits_type::erase(get_mut(x, "erase()"), i);
+    }
+
+    void erase(dynamic &x, const dynamic &i, const dynamic &j) const override
+    {
+        traits_type::erase(get_mut(x, "erase()"), i, j);
     }
 
     dynamic first(dynamic &x) const override

@@ -6,7 +6,7 @@
 #define CY_DYNAMIC_EXPLICIT explicit
 #endif
 
-#include "empty.hpp"
+#include "empty_type.hpp"
 #include "function.hpp"
 #include "get_type.hpp"
 #include "type.hpp"

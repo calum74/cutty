@@ -2,6 +2,7 @@
 #include <iostream>
 
 namespace cy = cutty;
+using namespace cy::literals;
 
 int main()
 {

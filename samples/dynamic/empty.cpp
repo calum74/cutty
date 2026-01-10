@@ -1,4 +1,5 @@
 #include <cutty/dynamic.hpp>
+#include <cutty/test.hpp>
 #include <iostream>
 
 namespace cy = cutty;
