@@ -44,15 +44,7 @@ struct cutty::dynamic::type
 
     virtual std::size_t hash(const dynamic &x) const = 0;
 
-    // virtual std::string_view type_name() const = 0;
-    // virtual std::string str(const dynamic&) const = 0;
-    // virtual bool small() const = 0;
-
     virtual const std::type_info & type_info(const dynamic &x) const = 0;
-    // virtual bool total_ordering(const dynamic&x, const dynamic &y) const = 0;
-
-    // virtual std::string str(const dynamic &x) const = 0;
-    // virtual dynamic to_string(const dynamic &x) const = 0;
 
     // Containers
     virtual void push_back(dynamic &x, const dynamic &y) const = 0;
@@ -77,6 +69,9 @@ struct cutty::dynamic::type
 
     virtual void insert(dynamic &, const dynamic &) const = 0;
     virtual void insert(dynamic &, const dynamic &k, const dynamic &v) const = 0;
+    virtual bool empty(const dynamic&) const = 0;
+    virtual void erase(dynamic&, const dynamic&) const = 0;
+    virtual void erase(dynamic&, const dynamic&, const dynamic&) const = 0;
     virtual dynamic first(dynamic &) const = 0;
     virtual dynamic first(const dynamic &) const = 0;
     virtual dynamic second(dynamic &) const = 0;
@@ -101,5 +96,4 @@ struct cutty::dynamic::type
 
     virtual dynamic op_index(const dynamic &x, const char* i) const = 0;
     virtual dynamic op_index(dynamic &x, const char *i) const = 0;
-
 };

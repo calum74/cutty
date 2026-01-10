@@ -11,9 +11,6 @@ void empty()
     cy::check_equal(empty.str(), "(empty)");
     cy::check_equal(empty, cy::dynamic());
 
-    // This will fail on Windows:
-    // cy::check(empty.type_str().ends_with("empty"));
-
     // Empty is equal to itself
     cy::check_equal(empty, empty);
 
@@ -169,6 +166,9 @@ void lists()
     cy::check_equal(l.size(), 3);
     auto l2 = cy::dynamic::list();
 
+    cy::check(cy::dynamic::list().empty());
+    cy::check(!cy::dynamic::list({1, 2, 3}).empty());
+
     for (auto x : l)
     {
         l2.push_back(x);
@@ -229,6 +229,19 @@ void lists()
         l.pop_back();
         // cy::check(l.empty());
         cy::check_equal(l.size(), 0);
+    }
+
+    // Erase
+    {
+        cy::dynamic l = {1, 2, 3, 4};
+        l.erase(l.begin());
+        cy::check_equal(l, cy::dynamic({2, 3, 4}));
+        l.erase(l.begin() + 1, l.end() - 1);
+        cy::check_equal(l, cy::dynamic({2, 4}));
+        l.erase(l.begin(), l.end());
+        cy::check(l.empty());
+
+        cy::check_throws<cy::dynamic::incompatible>([&] { l.erase({}); });
     }
 }
 

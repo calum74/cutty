@@ -186,6 +186,7 @@ class dynamic
     }
 
     // Containers
+    bool empty() const;
     size_type size() const;
 
     dynamic begin();
@@ -208,9 +209,6 @@ class dynamic
     dynamic back();
     dynamic back() const;
 
-    // Iterators
-    dynamic operator*() const;
-
     void push_back(const dynamic &item);
     void pop_back();
     void push_front(const dynamic &item);
@@ -218,12 +216,16 @@ class dynamic
 
     void insert(const dynamic &);
     void insert(const dynamic &k, const dynamic &v);
+    void erase(const dynamic&);
+    void erase(const dynamic&, const dynamic&);
+
     dynamic first();
     dynamic first() const;
     dynamic second();
     dynamic second() const;
 
     // Operators
+    dynamic operator*() const;
     dynamic &operator++();
     dynamic &operator--();
     dynamic operator++(int);
@@ -239,14 +241,11 @@ class dynamic
     explicit operator int() const;
     explicit operator size_type() const;
     explicit operator double() const;
-    //explicit operator std::string_view() const;
-    //explicit operator std::string() const;
 
     int as_int() const;
     double as_double() const;
-    // dynamic as_const();
 
-    // Members
+    // Indexers
     dynamic operator[](int index);
     dynamic operator[](int index) const;
     dynamic operator[](size_type index);
@@ -351,6 +350,7 @@ template <> cutty::dynamic get<1>(cutty::dynamic &e);
 std::ostream &operator<<(std::ostream &os, const dynamic &x);
 } // namespace cutty
 
+// TODO: Might be safer to move these into `dynamic` to avoid spurious conversions
 cutty::dynamic operator+(const cutty::dynamic &x, const cutty::dynamic &y);
 cutty::dynamic operator-(const cutty::dynamic &x, const cutty::dynamic &y);
 cutty::dynamic operator*(const cutty::dynamic &x, const cutty::dynamic &y);
@@ -369,6 +369,7 @@ cutty::dynamic operator-(const cutty::dynamic &x);
 // cutty::dynamic operator*(const cutty::dynamic &x);
 cutty::dynamic operator~(const cutty::dynamic &x);
 
+// TODO: Why are these here?
 bool operator==(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
 bool operator<(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
 

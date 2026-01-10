@@ -611,6 +611,21 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         traits_type::insert(get_mut(x, "insert()"), k, v);
     }
 
+    bool empty(const dynamic &x) const override
+    {
+        return traits_type::empty(get(x));
+    }
+
+    void erase(dynamic &x, const dynamic &i) const override
+    {
+        traits_type::erase(get_mut(x, "erase()"), i);
+    }
+
+    void erase(dynamic &x, const dynamic &i, const dynamic &j) const override
+    {
+        traits_type::erase(get_mut(x, "erase()"), i, j);
+    }
+
     dynamic first(dynamic &x) const override
     {
         return traits_type::first(get(x));

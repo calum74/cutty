@@ -177,6 +177,11 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(self.size(), "size()");
     }
 
+    static std::size_t empty(const_reference self)
+    {
+        TRY_TO_RETURN(self.empty(), "empty()");
+    }
+
     static dynamic begin(const_reference self)
     {
         TRY_TO_RETURN(dynamic(self.begin()), "begin()");
@@ -245,6 +250,16 @@ template <typename T> class cutty::dynamic::default_traits
     static void insert(reference self, const dynamic &k, const dynamic &v)
     {
         TRY_TO_RETURN((void)self.insert(std::make_pair(k, v)), "insert()");
+    }
+
+    static void erase(reference self, const dynamic &i)
+    {
+        TRY_TO_RETURN((void)self.erase(i.as<typename T::iterator>()), "erase()");
+    }
+
+    static void erase(reference self, const dynamic &i, const dynamic &j)
+    {
+        TRY_TO_RETURN((void)self.erase(i.as<typename T::iterator>(), j.as<typename T::iterator>()), "erase()");
     }
 
     static dynamic first(const_reference self)

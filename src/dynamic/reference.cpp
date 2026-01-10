@@ -143,6 +143,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
     FORWARD1(back, dynamic)
 
     FORWARD1(size, std::size_t);
+    FORWARD1(empty, bool);
     FORWARD1(begin, dynamic)
     FORWARD1(end, dynamic)
 
@@ -264,6 +265,16 @@ template <typename Dynamic> class reference_type : public dynamic::type
     void insert(dynamic &self, const dynamic &k, const dynamic &v) const override
     {
         get(self).m_type->insert(get_mut(self, "insert()"), k, v);
+    }
+
+    void erase(dynamic &self, const dynamic &i) const override
+    {
+        get(self).m_type->erase(get_mut(self, "erase()"), i);
+    }
+
+    void erase(dynamic &self, const dynamic &i, const dynamic &j) const override
+    {
+        get(self).m_type->erase(get_mut(self, "erase()"), i, j);
     }
 
     dynamic first(dynamic &self) const override

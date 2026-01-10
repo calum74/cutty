@@ -520,3 +520,18 @@ cy::dynamic cy::literals::operator""_d(char ch)
 }
 
 std::size_t std::hash<cy::dynamic::empty_type>::operator()(const cy::dynamic::empty_type&) const { return 0; }
+
+bool cy::dynamic::empty() const
+{
+    return m_type->empty(*this);
+}
+
+void cy::dynamic::erase(const dynamic &i)
+{
+    m_type->erase(*this, i);
+}
+
+void cy::dynamic::erase(const dynamic &i, const dynamic &j)
+{
+    m_type->erase(*this, i, j);
+}
