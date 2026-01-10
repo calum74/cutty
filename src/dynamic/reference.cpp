@@ -219,7 +219,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
 
     FORWARD1(type_str, const std::string &);
     FORWARD1(as_bool, bool);
-    FORWARD1(as_int, int);
+    FORWARD1(as_int, dynamic::int_type);
     FORWARD1(as_double, double);
 
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override

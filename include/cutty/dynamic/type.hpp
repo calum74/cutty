@@ -30,7 +30,7 @@ struct cutty::dynamic::type
     virtual const std::string &type_str(const dynamic &) const = 0;
 
     virtual bool as_bool(const dynamic &) const = 0;
-    virtual int as_int(const dynamic &) const = 0;
+    virtual dynamic::int_type as_int(const dynamic &) const = 0;
     virtual double as_double(const dynamic&) const = 0;
 
     virtual bool op_eq(const dynamic &x, const dynamic &y) const = 0;

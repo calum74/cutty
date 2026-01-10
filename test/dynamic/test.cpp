@@ -450,7 +450,7 @@ void conversions()
 {
     // int conversions
     auto i = 123_d;
-    cy::check_equal((int)i, 123);
+    cy::check_equal((cy::dynamic::int_type)i, 123);
     cy::check_equal(i.as_int(), 123);
 
     // double conversions
@@ -459,7 +459,7 @@ void conversions()
     cy::check_equal((double)d, 3.5);
     cy::check_equal(i.as_double(), 123);
     cy::check_equal(d.as_double(), 3.5);
-    cy::check_equal((int)d, 3);
+    cy::check_equal((cy::dynamic::int_type)d, 3);
     cy::check_equal(d.as_int(), 3);
 
     // bool conversions

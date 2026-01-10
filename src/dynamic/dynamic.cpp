@@ -324,7 +324,7 @@ cy::dynamic::operator bool() const
     return m_type->as_bool(*this);
 }
 
-cy::dynamic::operator int() const
+cy::dynamic::operator int_type() const
 {
     return m_type->as_int(*this);
 }

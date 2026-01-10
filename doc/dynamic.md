@@ -285,7 +285,7 @@ Methods:
 - `dynamic weak_ref()` - gets a weak reference to a shared `dynamic`. Throws `unsupported` if the object is not shared.
 
 Static methods:
-- `static dynamic const_reference(const T &t)` - returns a `dynamic` holding a reference to `t`
+- `static dynamic const_reference(const T &t)` - returns a `dynamic` holding a const reference to `t`
 - `static dynamic dict()` - returns a `dynamic` holding a dictionary (`std::unordered_map<dynamic,dynamic>`)
 - `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a dictionary initialized with the given data
 - `static dynamic function(auto f)` - returns a `dynamic` that is callable with the given function `f`. Requires `#include <cutty/dynamic/function.hpp>`
@@ -295,12 +295,11 @@ Static methods:
 - `static dynamic map()` - returns a `dynamic` holding an empty map
 - `static dynamic map(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a map initialised with the given data
 - `static dynamic queue()` - returns a `dynamic` holding a queue (`std::deque<dynamic>`)
-- `static dynamic queue(std::initializer_list<dynamic>)`
-- `static dynamic reference(T&)`
-- `static dynamic set()`
-- `static dynamic set(std::initializer_list<dynamic>)`
-- `static dynamic shared(const T&)`
-- `static dynamic shared(T&&)`
+- `static dynamic queue(std::initializer_list<dynamic>)` - returns a `dynamic` holding a queue, initialised with the given data
+- `static dynamic reference(T&)` - returns a `dynamic` holding a reference to `T`. If `T` is const, then the reference is const. 
+- `static dynamic set()` - returns a `dynamic` holding a set (`std::unordered_set<dynamic>`)
+- `static dynamic set(std::initializer_list<dynamic>)` - returns a `dynamic` holding an unordered set, initialised with data
+- `static dynamic shared(const T&)`, `static dynamic shared(T&&)` - returns a `dynamic` containing a shared reference-counted reference to a `T`.
 
 Wrapped methods:
 - `dynamic begin()`
@@ -323,10 +322,9 @@ Wrapped methods:
 - `void erase(const dynamic&)`
 - `void erase(const dynamic&, const dynamic&)`
 
-Conversions:
+Wrapped conversions:
 - `explicit operator bool`
-- `explicit operator int`
-- `explicit operator size_type`
+- `explicit operator int_type`
 - `explicit operator double`
 
 Wrapped operators:
@@ -338,18 +336,18 @@ Wrapped operators:
 - `dynamic operator[](dynamic)` (comes in multiple versions)
 - `dynamic &operator=(dynamic&&)`, 
 - `dynamic &operator=(const dynamic&)`, 
-- `dynamic &operator+=, -=, *=, /=, %=, &=, |=, ^=, <<=, >>=`, 
+- `dynamic &operator+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, 
 - `bool operator==()`
 - `std::weak_ordering operator<=>()`
-- Binary operators: `+` `-` `*` `/` `%` `|` `&` `^`, '>>', `>>`
+- Binary operaors: `+` `-` `*` `/` `%` `|` `&` `^`, '>>', `>>`
 - Unary operators: `+`, `-`, `~`, `*`
-- `std::ostream &<<(std::ostream&, const dynamic&)`
+- `std::ostream &<<(std::ostream&, const dynamic&)` - outputs the contents to a stream, using `cy::print_str()`.
 
-Literals:
-- `dynamic operator""_d(const char *, std::size_t)`
-- `dynamic operator""_d(unsigned long long)`
-- `dynamic operator""_d(long double)`
-- `dynamic operator""_d(char)`
+Literals (namespace `cutty::literals`):
+- `dynamic operator""_d(const char *, std::size_t)` - creates a dynamic wrapping `std::string`
+- `dynamic operator""_d(unsigned long long)` - creates a dynamic wrapping `dynamic::int_type`
+- `dynamic operator""_d(long double)` - creates a dynamic wrapping `double`
+- `dynamic operator""_d(char)` - creates a dynamic wrapping `char`
 
 ## Class `dynamic::default:traits`
 
@@ -380,7 +378,6 @@ Methods:
 - `static std::optional<dynamic::int_type> try_get_integral(const_reference self)`
 - `static std::optional<double> try_get_double(const_reference self)`
 - `static std::optional<std::string_view> try_get_string(const_reference self)`
-
 - `static bool op_eq(const_reference x, const dynamic &y)`
 - `static bool op_lt(const_reference x, const dynamic &y)`
 - `static dynamic op_add(const_reference x, const dynamic &y)`

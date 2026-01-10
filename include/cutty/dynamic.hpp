@@ -238,8 +238,7 @@ class dynamic
 
     // Conversions
     explicit operator bool() const;
-    explicit operator int() const;
-    explicit operator size_type() const;
+    explicit operator int_type() const;
     explicit operator double() const;
 
     int as_int() const;
@@ -378,7 +377,6 @@ namespace cutty
 std::ostream &operator<<(std::ostream &os, dynamic::empty_type);
 }
 
-// ?? Namespace
 namespace cutty::literals
 {
     cutty::dynamic operator""_d(const char *, std::size_t);

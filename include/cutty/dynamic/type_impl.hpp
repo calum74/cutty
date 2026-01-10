@@ -556,7 +556,7 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::as_bool(get(x));
     }
 
-    int as_int(const dynamic &x) const override
+    dynamic::int_type as_int(const dynamic &x) const override
     {
         return traits_type::as_int(get(x));
     }
