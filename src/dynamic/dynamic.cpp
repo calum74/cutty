@@ -334,7 +334,7 @@ cy::dynamic::operator double() const
     return m_type->as_double(*this);
 }
 
-int cy::dynamic::as_int() const
+cy::dynamic::int_type cy::dynamic::as_int() const
 {
     return m_type->as_int(*this);
 }

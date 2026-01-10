@@ -67,7 +67,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
         get(x).m_type->stream_to(get(x), os);
     }
 
-    std::optional<std::int64_t> try_get_integral(const dynamic &x) const override
+    std::optional<dynamic::int_type> try_get_integral(const dynamic &x) const override
     {
         return get(x).m_type->try_get_integral(get(x));
     }

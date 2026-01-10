@@ -74,9 +74,9 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN((bool)self, "bool");
     }
 
-    static int as_int(const_reference self)
+    static dynamic::int_type as_int(const_reference self)
     {
-        TRY_TO_RETURN((int)self, "bool");
+        TRY_TO_RETURN((dynamic::int_type)self, "as_int");
     }
 
     static double as_double(const_reference self)

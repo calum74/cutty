@@ -22,7 +22,7 @@ struct cutty::dynamic::type
 
     virtual void stream_to(const dynamic &, std::ostream &) const = 0;
 
-    virtual std::optional<std::int64_t> try_get_integral(const dynamic &) const = 0;
+    virtual std::optional<int_type> try_get_integral(const dynamic &) const = 0;
     virtual std::optional<double> try_get_double(const dynamic &) const = 0;
     virtual std::optional<std::string_view> try_get_string(const dynamic &) const = 0;
     virtual void *try_get(dynamic &, const std::type_info &) const = 0;

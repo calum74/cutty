@@ -377,7 +377,7 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::op_eq(get(x), y);
     }
 
-    std::optional<std::int64_t> try_get_integral(const dynamic &x) const override
+    std::optional<dynamic::int_type> try_get_integral(const dynamic &x) const override
     {
         return traits_type::try_get_integral(get(x));
     }

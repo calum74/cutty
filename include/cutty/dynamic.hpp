@@ -241,7 +241,7 @@ class dynamic
     explicit operator int_type() const;
     explicit operator double() const;
 
-    int as_int() const;
+    int_type as_int() const;
     double as_double() const;
 
     // Indexers
