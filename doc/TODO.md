@@ -1,4 +1,5 @@
 # Dynamic
+- operators not in namespace
 - Mixins?
 - i++ not implemented
 - at

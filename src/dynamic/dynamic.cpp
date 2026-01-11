@@ -270,6 +270,26 @@ cy::dynamic &cy::dynamic::operator++()
     return *this;
 }
 
+cy::dynamic cy::dynamic::operator++(int)
+{
+    dynamic copy = *this;
+    m_type->op_inc(*this);
+    return copy;
+}
+
+cy::dynamic &cy::dynamic::operator--()
+{
+    m_type->op_dec(*this);
+    return *this;
+}
+
+cy::dynamic cy::dynamic::operator--(int)
+{
+    dynamic copy = *this;
+    m_type->op_dec(*this);
+    return copy;
+}
+
 cy::dynamic cy::dynamic::operator*() const
 {
     return m_type->op_star(*this);
@@ -278,6 +298,11 @@ cy::dynamic cy::dynamic::operator*() const
 cy::dynamic operator-(const cy::dynamic &x)
 {
     return x.m_type->op_minus(x);
+}
+
+cy::dynamic operator+(const cy::dynamic &x)
+{
+    return x.m_type->op_plus(x);
 }
 
 std::ostream &cy::operator<<(std::ostream &os, const dynamic &x)

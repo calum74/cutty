@@ -438,6 +438,7 @@ Methods:
 - `static dynamic op_minus(const_reference self)`
 - `static dynamic op_mod(const_reference x, const dynamic &y)`
 - `static dynamic op_mul(const_reference x, const dynamic &y)`
+- `static dynamic op_plus(const_reference self)`
 - `static dynamic op_star(reference self)`
 - `static dynamic op_star(const_reference self)`
 - `static dynamic op_sub(const_reference x, const dynamic &y)`

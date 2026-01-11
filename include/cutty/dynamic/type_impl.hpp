@@ -525,6 +525,11 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::op_minus(get(x));
     }
 
+    dynamic op_plus(const dynamic &x) const override
+    {
+        return traits_type::op_plus(get(x));
+    }
+
     dynamic op_star(dynamic &x) const override
     {
         return traits_type::op_star(get(x));

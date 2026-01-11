@@ -307,6 +307,11 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(dynamic(-self), "-");
     }
 
+    static dynamic op_plus(const_reference self)
+    {
+        TRY_TO_RETURN(dynamic(+self), "+");
+    }
+
     static dynamic call(const_reference self, std::size_t n_args, const dynamic *args)
     {
         if constexpr (requires { typename dynamic_detail::function_traits<T>::args_type; })

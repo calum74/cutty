@@ -189,6 +189,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
     }
 
     FORWARD1(op_minus, dynamic)
+    FORWARD1(op_plus, dynamic)
 
     FORWARD1(hash, std::size_t)
 

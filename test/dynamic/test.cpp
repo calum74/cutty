@@ -482,6 +482,22 @@ void ranges()
     // Reverse - bidirectional range??
 }
 
+void operators()
+{
+    cy::check_equal(-1_d, -1);
+    cy::check_equal(+1_d, 1);
+
+    {
+        cy::dynamic i = 10;
+        ++i;
+        cy::check_equal(i, 11);
+        --i;
+        cy::check_equal(i, 10);
+        cy::check_equal(i++, 10);
+        cy::check_equal(i--, 11);
+    }
+}
+
 int main(int argc, const char *argv[])
 {
     return cy::test(argc, argv,
@@ -501,5 +517,6 @@ int main(int argc, const char *argv[])
                      {"comparisons", comparisons},
                      {"literals", literals},
                      {"conversions", conversions},
-                     {"ranges", ranges}});
+                     {"ranges", ranges},
+                     {"operators", operators}});
 }

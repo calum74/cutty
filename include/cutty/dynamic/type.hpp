@@ -82,6 +82,7 @@ struct cutty::dynamic::type
     virtual dynamic op_star(dynamic &x) const = 0;
     virtual void op_inc(dynamic &x) const = 0;
     virtual void op_dec(dynamic &x) const = 0;
+    virtual dynamic op_plus(const dynamic &x) const = 0;
     virtual dynamic op_minus(const dynamic &x) const = 0;
 
     // virtual dynamic call0(const dynamic &self) const;
