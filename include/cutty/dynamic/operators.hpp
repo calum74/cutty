@@ -94,6 +94,8 @@ void throw_incompatible(const T &, const dynamic &y, const char *op)
 
 } // namespace cutty::dynamic_detail
 
+namespace cutty
+{
 template <typename T> cutty::dynamic operator+(const T &x, const cutty::dynamic &y)
 {
     if constexpr (std::floating_point<T> || std::integral<T>)
@@ -301,4 +303,5 @@ template <typename T> bool operator==(const T &x, const cutty::dynamic &y)
     }
 
     return false;
+}
 }

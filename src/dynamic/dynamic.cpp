@@ -299,12 +299,12 @@ cy::dynamic cy::dynamic::operator*() const
     return m_type->op_star(*this);
 }
 
-cy::dynamic operator-(const cy::dynamic &x)
+cy::dynamic cy::operator-(const cy::dynamic &x)
 {
     return x.m_type->op_minus(x);
 }
 
-cy::dynamic operator+(const cy::dynamic &x)
+cy::dynamic cutty::operator+(const cy::dynamic &x)
 {
     return x.m_type->op_plus(x);
 }
@@ -328,27 +328,27 @@ std::weak_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
                                      : std::weak_ordering::greater;
 }
 
-cy::dynamic operator+(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator+(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_add(x, y);
 }
 
-cy::dynamic operator-(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator-(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_sub(x, y);
 }
 
-cy::dynamic operator*(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator*(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_mul(x, y);
 }
 
-cy::dynamic operator/(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator/(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_div(x, y);
 }
 
-cy::dynamic operator%(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator%(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_mod(x, y);
 }
@@ -517,21 +517,6 @@ cy::dynamic cy::dynamic::second()
     return m_type->second(*this);
 }
 
-bool operator>(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return y < x;
-}
-
-bool operator<=(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return !(y > x);
-}
-
-bool operator>=(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return !(x > y);
-}
-
 cy::dynamic cy::literals::operator""_d(unsigned long long x)
 {
     return cy::dynamic(x);
@@ -542,7 +527,6 @@ cy::dynamic cy::literals::operator""_d(long double x)
     return cy::dynamic(x);
 }
 
-// TODO: A constant string (implemented as char*)
 cy::dynamic cy::literals::operator""_d(const char *str, std::size_t s)
 {
     return cy::dynamic(std::string(str, s));

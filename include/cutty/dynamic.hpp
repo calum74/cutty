@@ -1,9 +1,3 @@
-// This is the client header file for dynamic values.
-// Written by Calum Grant
-// https://www.github.com/calum74/dynamic
-//
-// Implements the class `dynamic`, which
-
 #pragma once
 #include <iosfwd>
 #include <stdexcept>
@@ -16,6 +10,9 @@
 
 namespace cutty
 {
+/**
+ * A dynamic wrapper for any C++ type.
+ */
 class dynamic
 {
   public:
@@ -35,7 +32,7 @@ class dynamic
 
     class exception : public std::runtime_error
     {
-    protected:
+      protected:
         exception(const char *msg);
     };
 
@@ -90,7 +87,9 @@ class dynamic
         construct_by_value(instantiate<std::decay_t<T>>(), &v);
     }
 
-    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v) requires(std::is_rvalue_reference_v<T>)
+    template <typename T>
+    CY_DYNAMIC_EXPLICIT dynamic(T &&v)
+        requires(std::is_rvalue_reference_v<T>)
     {
         construct_by_rvalue(instantiate<std::decay_t<T>>(), &v);
     }
@@ -184,14 +183,12 @@ class dynamic
     dynamic weak_ref() const;
     void make_shared();
 
-    template<typename T>
-    static dynamic shared(const T&t)
+    template <typename T> static dynamic shared(const T &t)
     {
         return dynamic(t, shared_tag());
     }
 
-    template<typename T>
-    static dynamic shared(T&&t)
+    template <typename T> static dynamic shared(T &&t)
     {
         return dynamic(std::move(t), shared_tag());
     }
@@ -227,8 +224,8 @@ class dynamic
 
     void insert(const dynamic &);
     void insert(const dynamic &k, const dynamic &v);
-    void erase(const dynamic&);
-    void erase(const dynamic&, const dynamic&);
+    void erase(const dynamic &);
+    void erase(const dynamic &, const dynamic &);
 
     dynamic first();
     dynamic first() const;
@@ -291,7 +288,7 @@ class dynamic
     const type *m_type;
     void *m_ptr;
 
-private:
+  private:
     dynamic(dynamic &src, by_reference_tag);
     dynamic(const dynamic &src, by_reference_tag);
     dynamic(const dynamic &src, const_value_tag);
@@ -330,6 +327,46 @@ private:
     const void *as(const std::type_info &) const;
     dynamic call(std::size_t n_args, const dynamic *args) const;
 };
+
+template <std::size_t> dynamic get(const dynamic &);
+template <std::size_t> dynamic get(const dynamic &);
+template <std::size_t> dynamic get(dynamic &);
+template <> dynamic get<0>(const dynamic &e);
+template <> dynamic get<1>(const dynamic &e);
+template <> dynamic get<0>(dynamic &e);
+template <> dynamic get<1>(dynamic &e);
+
+// Operators
+dynamic operator+(const dynamic &x, const dynamic &y);
+dynamic operator-(const dynamic &x, const dynamic &y);
+dynamic operator*(const dynamic &x, const dynamic &y);
+dynamic operator/(const dynamic &x, const dynamic &y);
+dynamic operator%(const dynamic &x, const dynamic &y);
+
+dynamic operator|(const dynamic &x, const dynamic &y);
+dynamic operator&(const dynamic &x, const dynamic &y);
+dynamic operator^(const dynamic &x, const dynamic &y);
+
+dynamic operator<<(const dynamic &x, const dynamic &y);
+dynamic operator>>(const dynamic &x, const dynamic &y);
+
+dynamic operator+(const dynamic &x);
+dynamic operator-(const dynamic &x);
+dynamic operator~(const dynamic &x);
+
+std::ostream &operator<<(std::ostream &os, const dynamic &x);
+
+namespace literals
+{
+dynamic operator""_d(const char *, std::size_t);
+dynamic operator""_d(unsigned long long);
+dynamic operator""_d(long double);
+dynamic operator""_d(char);
+} // namespace literals
+
+std::ostream &operator<<(std::ostream &os, dynamic::empty_type);
+bool operator==(dynamic::empty_type, dynamic::empty_type);
+std::strong_ordering operator<=>(dynamic::empty_type, dynamic::empty_type);
 } // namespace cutty
 
 template <> struct std::hash<cutty::dynamic>
@@ -351,51 +388,3 @@ namespace std
 {
 template void swap(cutty::dynamic &, cutty::dynamic &);
 } // namespace std
-
-namespace cutty
-{
-template <std::size_t> cutty::dynamic get(const cutty::dynamic &);
-template <std::size_t> cutty::dynamic get(const cutty::dynamic &);
-template <std::size_t> cutty::dynamic get(cutty::dynamic &);
-template <> cutty::dynamic get<0>(const cutty::dynamic &e);
-template <> cutty::dynamic get<1>(const cutty::dynamic &e);
-template <> cutty::dynamic get<0>(cutty::dynamic &e);
-template <> cutty::dynamic get<1>(cutty::dynamic &e);
-std::ostream &operator<<(std::ostream &os, const dynamic &x);
-} // namespace cutty
-
-// TODO: Might be safer to move these into `dynamic` to avoid spurious conversions
-cutty::dynamic operator+(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator-(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator*(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator/(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator%(const cutty::dynamic &x, const cutty::dynamic &y);
-
-cutty::dynamic operator|(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator&(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator^(const cutty::dynamic &x, const cutty::dynamic &y);
-
-cutty::dynamic operator<<(const cutty::dynamic &x, const cutty::dynamic &y);
-cutty::dynamic operator>>(const cutty::dynamic &x, const cutty::dynamic &y);
-
-cutty::dynamic operator+(const cutty::dynamic &x);
-cutty::dynamic operator-(const cutty::dynamic &x);
-// cutty::dynamic operator*(const cutty::dynamic &x);
-cutty::dynamic operator~(const cutty::dynamic &x);
-
-// TODO: Why are these here?
-bool operator==(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
-bool operator<(cutty::dynamic::empty_type, cutty::dynamic::empty_type);
-
-namespace cutty
-{
-std::ostream &operator<<(std::ostream &os, dynamic::empty_type);
-}
-
-namespace cutty::literals
-{
-    cutty::dynamic operator""_d(const char *, std::size_t);
-    cutty::dynamic operator""_d(unsigned long long);
-    cutty::dynamic operator""_d(long double);
-    cutty::dynamic operator""_d(char);
-}

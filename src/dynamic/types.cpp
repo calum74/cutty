@@ -4,14 +4,14 @@
 
 namespace cy = cutty;
 
-bool operator==(cy::dynamic::empty_type, cy::dynamic::empty_type)
+bool cutty::operator==(cy::dynamic::empty_type, cy::dynamic::empty_type)
 {
     return true;
 }
 
-bool operator<(cy::dynamic::empty_type, cy::dynamic::empty_type)
+std::strong_ordering cutty::operator<=>(cy::dynamic::empty_type, cy::dynamic::empty_type)
 {
-    return false;
+    return std::strong_ordering::equal;
 }
 
 std::ostream &cy::operator<<(std::ostream &os, cy::dynamic::empty_type)
