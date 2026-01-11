@@ -414,9 +414,9 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return typeid(T);
     }
 
-    bool op_lt(const dynamic &x, const dynamic &y) const override
+    std::partial_ordering op_cmp(const dynamic &x, const dynamic &y) const override
     {
-        return traits_type::op_lt(get(x), y);
+        return traits_type::op_cmp(get(x), y);
     }
 
     [[noreturn]]

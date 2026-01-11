@@ -34,7 +34,7 @@ struct cutty::dynamic::type
     virtual double as_double(const dynamic&) const = 0;
 
     virtual bool op_eq(const dynamic &x, const dynamic &y) const = 0;
-    virtual bool op_lt(const dynamic &x, const dynamic &y) const = 0;
+    virtual std::partial_ordering op_cmp(const dynamic &x, const dynamic &y) const = 0;
 
     virtual dynamic op_add(const dynamic &x, const dynamic &y) const = 0;
     virtual dynamic op_sub(const dynamic &x, const dynamic &y) const = 0;

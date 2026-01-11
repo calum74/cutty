@@ -116,9 +116,9 @@ template <typename T> class cutty::dynamic::default_traits
         return {};
     }
 
-    static bool op_lt(const_reference x, const dynamic &y)
+    static std::partial_ordering op_cmp(const_reference x, const dynamic &y)
     {
-        return x < y;
+        return x <=> y;
     }
 
     static dynamic op_add(const_reference x, const dynamic &y)

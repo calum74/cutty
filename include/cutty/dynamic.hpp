@@ -283,7 +283,7 @@ class dynamic
 
     // Comparison operators
     bool operator==(const dynamic &) const;
-    std::weak_ordering operator<=>(const dynamic &) const;
+    std::partial_ordering operator<=>(const dynamic &) const;
 
     const type *m_type;
     void *m_ptr;

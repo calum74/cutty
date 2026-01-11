@@ -425,6 +425,7 @@ Methods:
 - `static void insert(reference self, const dynamic &value)`
 - `static void insert(reference self, const dynamic &k, const dynamic &v)`
 - `static dynamic op_add(const_reference x, const dynamic &y)`
+- `static std::partial_ordering op_cmp(const_reference x, const dynamic &y)`
 - `static void op_dec(reference self)`
 - `static dynamic op_div(const_reference x, const dynamic &y)`
 - `static bool op_eq(const_reference x, const dynamic &y)`
@@ -435,7 +436,7 @@ Methods:
 - `static dynamic op_index(const_reference self, const char *i)`
 - `static dynamic op_index(const_reference self, const dynamic &i)`
 - `static dynamic op_index(reference self, const dynamic &i)`
-- `static bool op_lt(const_reference x, const dynamic &y)`
+- `static std::weak_ordering op_cmp(const_reference x, const dynamic &y)`
 - `static dynamic op_minus(const_reference self)`
 - `static dynamic op_mod(const_reference x, const dynamic &y)`
 - `static dynamic op_mul(const_reference x, const dynamic &y)`

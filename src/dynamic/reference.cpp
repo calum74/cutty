@@ -125,7 +125,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
     }
 
     FORWARD2(op_eq, bool)
-    FORWARD2(op_lt, bool)
+    FORWARD2(op_cmp, std::partial_ordering)
 
     FORWARD2(op_add, dynamic)
     FORWARD2(op_sub, dynamic)

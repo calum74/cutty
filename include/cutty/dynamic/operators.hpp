@@ -41,7 +41,15 @@ concept supports_mod = requires(T x) { x % x; };
         }                                                                                                              \
     };
 
-BINOP(less, <)
+    template <typename T> struct cmp
+    {                                                                                                                  
+        using return_type = std::partial_ordering;                                                                                      
+        std::partial_ordering operator()(const T &x, const T &y) const                                                                  
+            requires requires { x <=> y; }                                                                              
+        {                                                                                                              
+            return x <=> y;                                                                                             
+        }                                                                                                              
+    };
 
 template <typename T, template <typename> typename Operator> struct operator_impl
 {
@@ -230,38 +238,38 @@ template <typename T> cutty::dynamic operator%(const T &x, const cutty::dynamic 
     cutty::dynamic_detail::throw_unsupported(x, y, "%");
 }
 
-template <typename T> bool operator<(const T &x, const cutty::dynamic &y)
+template <typename T> std::partial_ordering operator<=>(const T &x, const cutty::dynamic &y)
 {
-    if constexpr (std::integral<T> || std::floating_point<T>)
+    if constexpr ((std::integral<T> || std::floating_point<T>) && !std::same_as<T, bool>)
     {
         if (auto d = y.m_type->try_get_double(y))
         {
-            return x < *d;
+            return x <=> *d;
         }
         else
         {
-            return true;
+            return std::partial_ordering::less;
         }
     }
     else if constexpr (cutty::dynamic_detail::string<T>)
     {
         if (auto s = y.m_type->try_get_string(y))
         {
-            return x < *s;
+            return x <=> *s;
         }
         else if (y.m_type->try_get_double(y))
         {
-            return false;
+            return std::partial_ordering::greater;
         }
         else
         {
-            return true;
+            return std::partial_ordering::less;
         }
     }
     else
     {
         // Look at the type-ids (TODO)
-        return cutty::dynamic_detail::operator_impl<T, cutty::dynamic_detail::less>()(x, y, "<");
+        return cutty::dynamic_detail::operator_impl<T, cutty::dynamic_detail::cmp>()(x, y, "<=>");
     }
 }
 
@@ -304,4 +312,4 @@ template <typename T> bool operator==(const T &x, const cutty::dynamic &y)
 
     return false;
 }
-}
+} // namespace cutty

@@ -320,12 +320,9 @@ bool cy::dynamic::operator==(const cy::dynamic &y) const
     return m_type->op_eq(*this, y);
 }
 
-std::weak_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
+std::partial_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
 {
-    // TODO: Implement <=> on type
-    return m_type->op_lt(*this, y)   ? std::weak_ordering::less
-           : m_type->op_eq(*this, y) ? std::weak_ordering::equivalent
-                                     : std::weak_ordering::greater;
+    return m_type->op_cmp(*this, y);
 }
 
 cy::dynamic cy::operator+(const cy::dynamic &x, const cy::dynamic &y)
