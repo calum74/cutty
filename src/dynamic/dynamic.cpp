@@ -3,11 +3,15 @@
 
 namespace cy = cutty;
 
-cy::dynamic::incompatible::incompatible(const char *msg) : std::runtime_error(msg)
+cy::dynamic::exception::exception(const char *msg) : std::runtime_error(msg)
 {
 }
 
-cy::dynamic::unsupported::unsupported(const char *msg) : std::runtime_error(msg)
+cy::dynamic::incompatible::incompatible(const char *msg) : exception(msg)
+{
+}
+
+cy::dynamic::unsupported::unsupported(const char *msg) : exception(msg)
 {
 }
 

@@ -286,6 +286,7 @@ Types:
 - `default_traits<T>` - default implementation of dynamic traits. Inherit from this class to implement traits.
 - `difference_type` - a `dynamic` for containers
 - `empty_type` - the value of a default-initialised `dynamic`
+- `exception` - base class of `dynamic` exceptions
 - `incompatible` exception thrown when a wrong or incompatible type is requested
 - `int_type` - how its are stored internally
 - `iterator` - `dynamic` used for containers

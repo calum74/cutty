@@ -33,15 +33,21 @@ class dynamic
     template <typename T> class traits;
     struct empty_type;
 
+    class exception : public std::runtime_error
+    {
+    protected:
+        exception(const char *msg);
+    };
+
     // Exception thrown when something isn't implemented on the underlying type
-    class unsupported : public std::runtime_error
+    class unsupported : public exception
     {
       public:
         unsupported(const char *msg);
     };
 
     // Exception thrown when a type cannot be converted
-    class incompatible : public std::runtime_error
+    class incompatible : public exception
     {
       public:
         incompatible(const char *msg);
