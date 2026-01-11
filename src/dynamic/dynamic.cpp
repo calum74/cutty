@@ -127,6 +127,11 @@ void cy::dynamic::construct_by_value(const types &t, const void *p)
     construct(&t.by_value, p);
 }
 
+void cy::dynamic::construct_by_rvalue(const types &t, void *p)
+{
+    construct(&t.by_value, p);
+}
+
 void cy::dynamic::construct_by_ref(const types &t, const void *p)
 {
     construct(&t.by_ref, p);

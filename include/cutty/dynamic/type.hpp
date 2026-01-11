@@ -5,7 +5,7 @@
 struct cutty::dynamic::type
 {
     virtual ~type() = default;
-    virtual void construct(dynamic &unsassigned, const void *) const = 0;
+    virtual void construct(dynamic &unassigned, const void *) const = 0;
     virtual void construct(dynamic &unassigned, void *) const = 0;
 
     virtual void construct_copy(const dynamic &src, dynamic &dest_unassigned) const = 0;

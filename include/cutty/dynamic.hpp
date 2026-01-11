@@ -84,6 +84,11 @@ class dynamic
         construct_by_value(instantiate<std::decay_t<T>>(), &v);
     }
 
+    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(T &&v) requires(std::is_rvalue_reference_v<T>)
+    {
+        construct_by_rvalue(instantiate<std::decay_t<T>>(), &v);
+    }
+
     template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
     {
         construct_by_value(instantiate<const T *>(), &v);
@@ -249,12 +254,15 @@ class dynamic
     dynamic operator[](int index) const;
     dynamic operator[](size_type index);
     dynamic operator[](size_type index) const;
-    dynamic at(size_type index);
-    dynamic at(size_type index) const;
     dynamic operator[](const dynamic &key);
     dynamic operator[](const dynamic &key) const;
     dynamic operator[](const char *key);
     dynamic operator[](const char *key) const;
+
+    dynamic at(size_type index);
+    dynamic at(size_type index) const;
+    dynamic at(const dynamic &key);
+    dynamic at(const dynamic &key) const;
 
     // Assignment operators
     dynamic &operator=(dynamic &&src);
@@ -306,6 +314,7 @@ private:
     void construct(const type *t, const void *p);
 
     void construct_by_value(const types &, const void *p);
+    void construct_by_rvalue(const types &, void *p);
     void construct_by_ref(const types &, const void *p);
     void construct_shared(const types &, const void *p);
 

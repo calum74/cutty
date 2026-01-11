@@ -4,7 +4,7 @@ Samples: [short_tutorial.cpp](../samples/short_tutorial.cpp), [tutorial.cpp](../
 
 Solves the problem of working with multiple types.
 
-*Dynamic* adds the ability to store and work with data of different types. Philosophical arguments aside, sometimes it's easier to just store something in a dynamic variable. Unlike `std::any` or `std::variant`, you can work with dynamic objects, for example iterating elements or converting to a string. *Dynamic* could also be used for scenarios like JSON, interfacing with dynamic programming languages, or creating generic wrappers.
+Finally, what you never asked for, a fully-featured `dynamic` type in C++!  *Dynamic* adds the ability to store and work with data of different types. Philosophical arguments aside, sometimes it's easier to just store something in a dynamic variable. Unlike `std::any` or `std::variant`, you can work with dynamic objects, for example iterating elements or converting to a string. *Dynamic* could also be used for scenarios like JSON, interfacing with dynamic programming languages, or creating generic wrappers.
 
 *Dynamic* behaves similarly to the C# `dynamic` keyword, and can wrap any C++ type as `dynamic`.
 
@@ -56,9 +56,9 @@ When operations are not supported by their underlying types (for example, `std::
 cy::dynamic("abc") + 12;   // Throws `dynamic::incompatible`
 ```
 
-## Accessing the internal value
+## Accessing the wrapped value
 
-The stored type can be accessed using the `type()` method, and `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the internal data, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
+The stored type can be accessed using the `type()` method, and `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the wrapped value, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
 
 ```c++
 cy::dynamic x = 12;
@@ -84,7 +84,7 @@ There are also explicit conversion operators for `bool`, `int` and `double`.
 
 Dynamic objects can wrap C++ containers, and the methods `list()`, `dict()`, `map()`, `object()` and `queue()` create these objects.
 
-| Container | Internal type |
+| Container | Wrapped type |
 | --------- | ------------- |
 | `dynamic::list()` | `std::vector<dynamic>` |
 | `dynamic::dict()` | `std::unordered_map<dynamic, dynamic>` |
@@ -112,10 +112,10 @@ list.front() = "";
 As usual, if an object does not support an operation at compile time, it will result in an exception thrown at runtime.
 
 ```c++
-list.push_front(0);  // Exception thrown
+not_a_list.push_front(0);  // Exception thrown
 ```
 
-Containers can be iterated, and pairs bound:
+Containers can be iterated, and elements bound:
 
 ```c++
 for(auto [k,v] : map)
@@ -220,6 +220,16 @@ auto x = cy::dynamic(MyStruct{});
 
 The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 
+# Implementation
+
+`dynamic` is implemented as a class with 2 pointers. The first pointer is the `type` and the second pointer is the *value*. For small values (for example, integers, doubles, iterators, references etc) *value* stores the wrapped object inline and there is no memory allocation. *type* points to a pure const static class (of type `dynamic::type`) with `virtual` methods to implement all functionality for the wrapped type.
+
+For larger values (strings, lists etc.), *value* points to some heap object managed through `type`. `type` class is responsible for allocating, copying and freeing any heap-allocated memory.
+
+This scheme is flexible enough for `type` to also implement references, const references and shared pointers.
+
+Whilst clients can implement a `dynamic::type` class manually, the default `type` implementation is configurable via the `dynamic::traits` class.
+
 # Reference
 
 ## Header file and namespace
@@ -232,7 +242,31 @@ The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 
 `class dynamic` is in the `cutty` namespace. Literals are defined in the `cutty::literals` namespace.
 
-## Builtin types
+## Built in types
+
+The following types are wrapped by default:
+
+- `dynamic::empty_type`
+- `std::string`, `std::string_view`, `char*`
+- `bool`
+- `signed char`, `unsigned char`, `char`
+- `short`, `unsigned short`
+- `int`, `unsigned int`
+- `long`, `unsigned long`
+- `long long`, `unsigned long long`
+- `float`, `double`
+- `std::function<dynamic(const dynamic&, ...)>`
+
+Containers:
+- `std::vector<dynamic>`
+- `std::deque<dynamic>`
+- `std::unordered_map<dynamic, dynamic>`
+- `std::unordered_set<dynamic>`
+- `std::unordered_map<std::string, dynamic>`
+- `std::map<dynamic, dynamic>`
+- `std::set<dynamic>`
+
+Note that derived types (iterators etc) are also wrapped.
 
 ## Class `dynamic`
 
@@ -261,21 +295,21 @@ Types:
 - `value_type` - a `dynamic` used for containers
 
 Methods:
-- `T &as<T>()` - gets the internal value (or referenced value), or throws `incompatible` if `T` is not held.
-- `const T &as<T>() const` - gets the internal value, const version.
+- `T &as<T>()` - gets the wrapped value (or referenced value), or throws `incompatible` if `T` is not held.
+- `const T &as<T>() const` - gets the wrapped value, const version.
 - `int as_int()` - converts the type to an `int` if possible, otherwise `unsupported` is thrown.
 - `double as_double()` - converts the value to a `double` if possible, otherwise `unsupported` is thrown
 - `dynamic const_ref()` - returns a const ref to this dynamic. The result behaves like a `const dynamic&`, and the referee must be in scope for the reference to be valid.
 - `dynamic first()` - gets the `first` field if available (particularly for wrapping `std::pair`). Throws `unsupported` if unsupported.
 - `dynamic first() const` - const version
 - `size_type hash() const` - calculates a hash value (using `traits::hash()`). Throws `unsupported` if unavailable.
-- `dynamic make_shared()` - reassigns this dynamic to a shared pointer. (TODO: Existing pointers??)
-- `dynamic ref()` - returns a ref to this dynamic. The result behaves like a `dynamic&` and can be used to update referee. (TODO: shared pointers??)
+- `dynamic make_shared()` - reassigns this dynamic to a shared pointer.
+- `dynamic ref()` - returns a ref to this dynamic. The result behaves like a `dynamic&` and can be used to update referee.
 - `dynamic ref() const` - returns a const ref to this dynamic. See `const_ref()`.
 - `dynamic second()` - gets the `second` field if available (particularly for wrapping `std::pair`)
 - `dynamic second() const` - const version
-- `dynamic shared_ref()` - TODO
-- `dynamic shared_ref() const` TODO
+- `dynamic shared_ref()` - return a shared reference to this object, by copying it if necessary
+- `dynamic shared_ref() const` - return a const shared reference to this object
 - `std::string str() const` - gets a string representation of this `dynamic`, using `traits::str()`.
 - `T * try_get<T>()` - returns a pointer or `nullptr` if the `dynamic` does not hold exactly a `T`.
 - `const T * try_get<T>() const` - const version
@@ -289,7 +323,7 @@ Static methods:
 - `static dynamic dict()` - returns a `dynamic` holding a dictionary (`std::unordered_map<dynamic,dynamic>`)
 - `static dynamic dict(std::initializer_list<std::pair<dynamic, dynamic>>)` - returns a `dynamic` holding a dictionary initialized with the given data
 - `static dynamic function(auto f)` - returns a `dynamic` that is callable with the given function `f`. Requires `#include <cutty/dynamic/function.hpp>`
-- `template <typename T> static const types &instantiate()` - internal function that needs to be instantiated to add new wrapped types
+- `template <typename T> static const types &instantiate()` - function that needs to be instantiated to add new wrapped types
 - `static dynamic list()` - returns a `dynamic` holding an empty list (`std::vector<dynamic>`)
 - `static dynamic list(std::initializer_list<dynamic>)` - returns a `dynamic` holding a list initialized with the given data
 - `static dynamic map()` - returns a `dynamic` holding an empty map
@@ -306,21 +340,21 @@ Wrapped methods:
 - `dynamic begin() const`
 - `dynamic cbegin() const`
 - `dynamic cend() const`
+- `dynamic crbegin() const`
+- `dynamic crend() const`
 - `dynamic end()`
 - `dynamic end() const`
-- `dynamic rbegin()`
-- `dynamic rbegin() const`
-- `dynamic crbegin() const`
-- `dynamic rend()`
-- `dynamic rend() const`
-- `dynamic crend() const`
-- `size_type size() const`
-- `void push_front()`
-- `void push_back()`
-- `void pop_back()`
-- `void pop_front()`
 - `void erase(const dynamic&)`
 - `void erase(const dynamic&, const dynamic&)`
+- `void pop_back()`
+- `void pop_front()`
+- `void push_front(const dynamic&)`
+- `void push_back(const dynamic&)`
+- `dynamic rbegin()`
+- `dynamic rbegin() const`
+- `dynamic rend()`
+- `dynamic rend() const`
+- `size_type size() const`
 
 Wrapped conversions:
 - `explicit operator bool`
@@ -333,7 +367,7 @@ Wrapped operators:
 - `dynamic operator++(int)`
 - `dynamic & operator--()`
 - `dynamic operator--(int)`
-- `dynamic operator[](dynamic)` (comes in multiple versions)
+- `dynamic operator[](...)`
 - `dynamic &operator=(dynamic&&)`, 
 - `dynamic &operator=(const dynamic&)`, 
 - `dynamic &operator+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, 
@@ -370,63 +404,63 @@ Types:
 - `reference`
 
 Methods:
-- `static void stream_to(const_reference self, std::ostream &os)`
-- `static const std::string &type_str()`
 - `static bool as_bool(const_reference self)`
-- `static int as_int(const_reference self)`
 - `static double as_double(const_reference self)`
-- `static std::optional<dynamic::int_type> try_get_integral(const_reference self)`
-- `static std::optional<double> try_get_double(const_reference self)`
-- `static std::optional<std::string_view> try_get_string(const_reference self)`
-- `static bool op_eq(const_reference x, const dynamic &y)`
-- `static bool op_lt(const_reference x, const dynamic &y)`
-- `static dynamic op_add(const_reference x, const dynamic &y)`
-- `static dynamic op_sub(const_reference x, const dynamic &y)`
-- `static dynamic op_mul(const_reference x, const dynamic &y)`
-- `static dynamic op_div(const_reference x, const dynamic &y)`
-- `static dynamic op_mod(const_reference x, const dynamic &y)`
-- `static dynamic op_star(reference self)`
-- `static dynamic op_star(const_reference self)`
-- `static void op_inc(reference self)`
-- `static void op_dec(reference self)`
-- `static dynamic op_minus(const_reference self)`
+- `static int as_int(const_reference self)`
+- `static dynamic back(const_reference self)`
+- `static dynamic back(reference self)`
+- `static dynamic begin(const_reference self)`
+- `static dynamic begin(reference self)`
 - `static dynamic call(const_reference self, std::size_t n_args, const dynamic *args)`
+- `static dynamic end(const_reference self)`
+- `static dynamic end(reference self)`
+- `static void erase(reference self, const dynamic&)`
+- `static void erase(reference self, const dynamic&, const dynamic&)`
+- `static dynamic first(const_reference self)`
+- `static dynamic first(reference self)`
+- `static dynamic front(const_reference self)`
+- `static dynamic front(reference self)`
+- `static std::size_t hash(const_reference self)`
+- `static void insert(reference self, const dynamic &value)`
+- `static void insert(reference self, const dynamic &k, const dynamic &v)`
+- `static dynamic op_add(const_reference x, const dynamic &y)`
+- `static void op_dec(reference self)`
+- `static dynamic op_div(const_reference x, const dynamic &y)`
+- `static bool op_eq(const_reference x, const dynamic &y)`
+- `static void op_inc(reference self)`
 - `static dynamic op_index(reference self, dynamic::int_type i)`
 - `static dynamic op_index(const_reference self, dynamic::int_type i)`
 - `static dynamic op_index(reference self, const char *i)`
 - `static dynamic op_index(const_reference self, const char *i)`
 - `static dynamic op_index(const_reference self, const dynamic &i)`
 - `static dynamic op_index(reference self, const dynamic &i)`
-- `static std::size_t hash(const_reference self)`
-- `static void push_back(reference self, const dynamic &y)`
+- `static bool op_lt(const_reference x, const dynamic &y)`
+- `static dynamic op_minus(const_reference self)`
+- `static dynamic op_mod(const_reference x, const dynamic &y)`
+- `static dynamic op_mul(const_reference x, const dynamic &y)`
+- `static dynamic op_star(reference self)`
+- `static dynamic op_star(const_reference self)`
+- `static dynamic op_sub(const_reference x, const dynamic &y)`
+- `static void stream_to(const_reference self, std::ostream &os)`
 - `static void pop_back(reference self)`
-- `static void push_front(reference self, const dynamic &value)`
 - `static void pop_front(reference self)`
-- `static std::size_t size(const_reference self)`
-- `static dynamic begin(const_reference self)`
-- `static dynamic begin(reference self)`
+- `static void push_back(reference self, const dynamic &y)`
+- `static void push_front(reference self, const dynamic &value)`
 - `static dynamic rbegin(const_reference self)`
 - `static dynamic rbegin(reference self)`
-- `static dynamic end(const_reference self)`
-- `static dynamic end(reference self)`
-- `static void erase(reference self, const dynamic&)`
-- `static void erase(reference self, const dynamic&, const dynamic&)`
 - `static dynamic rend(const_reference self)`
 - `static dynamic rend(reference self)`
-- `static dynamic front(const_reference self)`
-- `static dynamic front(reference self)`
-- `static dynamic back(const_reference self)`
-- `static dynamic back(reference self)`
-- `static void insert(reference self, const dynamic &value)`
-- `static void insert(reference self, const dynamic &k, const dynamic &v)`
-- `static dynamic first(const_reference self)`
-- `static dynamic first(reference self)`
 - `static dynamic second(const_reference &self)`
 - `static dynamic second(reference self)`
+- `static std::size_t size(const_reference self)`
+- `static const std::string &type_str()`
+- `static std::optional<double> try_get_double(const_reference self)`
+- `static std::optional<dynamic::int_type> try_get_integral(const_reference self)`
+- `static std::optional<std::string_view> try_get_string(const_reference self)`
 
 ## Class `dynamic::empty_type`
 
-Used to represent the empty value.
+Used to represent the empty value. This class has no members.
 
 ```c++
 cy::dynamic d;

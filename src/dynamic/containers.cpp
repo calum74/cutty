@@ -9,8 +9,6 @@ using unordered_map_type = std::unordered_map<cy::dynamic, cy::dynamic>;
 using unordered_set_type = std::unordered_set<cy::dynamic>;
 using object_type = std::unordered_map<std::string, cy::dynamic>;
 
-CY_INSTANTIATE(object_type);
-
 cy::dynamic cy::dynamic::object()
 {
     return dynamic(object_type{});

@@ -23,7 +23,7 @@ Utilities:
 * [Print](doc/print.md) - print any value
 * [Separator](doc/separator.md) - makes printing lists easier
 
-## List of libraries coming soon
+## Experimental libraries
 
 * Property - Emulating C# property wrappers in C++
 * Shared memory - cross platform memory mapped files

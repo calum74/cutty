@@ -1,11 +1,8 @@
 # Dynamic
 - Mixins?
 - i++ not implemented
-- multi-index []
-- erase, empty
-
+- at
 - reverse iterators and list containers fail due to operator + not working as advertised on.
-- Move constructors
 
 # Units
 - Unify scalar and dscalar
@@ -67,7 +64,6 @@ What about a movable sequence to ensure no reuse/reentry?
 Get map test passing
 Finish stuff
 Strings that are char*
-Objects and dicts with string keys
 Find a use case
 
 # Projects to add
