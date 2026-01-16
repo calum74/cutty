@@ -10,6 +10,7 @@ void empty()
     cy::dynamic empty;
     cy::check_equal(empty.str(), "(empty)");
     cy::check_equal(empty, cy::dynamic());
+    cy::check(!empty.has_value());
 
     // Empty is equal to itself
     cy::check_equal(empty, empty);
@@ -19,12 +20,14 @@ void empty()
 
     auto empty_ref = empty.ref();
     cy::check_equal(empty, empty_ref);
+    cy::check(!empty_ref.has_value());
 
     cy::check_equal(empty.hash(), empty.hash());
 
     cy::check_equal(cy::dynamic{}, cy::dynamic());
     cy::dynamic empty2 = {};
     cy::check_equal(empty2, cy::dynamic());
+    cy::check(!empty2.has_value());
 }
 
 void bools()
@@ -129,6 +132,17 @@ void references()
         cy::check_equal(i, 42);
         cy::check(i.type_str() == "int");
     }
+
+    // References to dynamic
+    {
+        cy::dynamic x = 10;
+        cy::dynamic y = x.ref();
+        cy::dynamic z = y;  // z is a copy of y
+        z = 20;
+        cy::check_equal(x, 10);   // Unaffected
+        y = 15;
+        cy::check_equal(x, 15);   // y is a ref
+    }
 }
 
 void consts()
@@ -156,6 +170,16 @@ void consts()
         auto const_str = s.as_const();
         cy::check_throws<cy::dynamic::unsupported>([&] { const_str[0] = 'A'; });
         s[0] = 'a'; // Ok
+    }
+
+    // Const as
+    {
+        cy::dynamic i = 42;
+        const auto j = i;
+        cy::check_equal(i.as<int>(), 42);
+        cy::check_equal(j.as<int>(), 42);
+        cy::check_equal(i.as<const int>(), 42);
+        cy::check_equal(j.as<const int>(), 42);
     }
 }
 
@@ -355,7 +379,7 @@ void objects()
         cy::check_equal(c["hello"_d], 123);
         cy::check_throws<std::out_of_range>([&] { c["x"]; });
 
-        // Numerical indexes aren't supported
+        // Numerical indexes aren't supported on objects
         cy::check_throws<cy::dynamic::unsupported>([&] { o[123]; });
     }
 }
@@ -387,7 +411,23 @@ void shared_pointers()
         auto ss2 = ss;
         ss = {}; // Bye bye
         cy::check_equal(ss, cy::dynamic());
+        cy::check(!ss.has_value());
         cy::check_equal(wp.shared_ref(), "hello");
+
+        // You cannot use weak_refs directly
+        cy::check_throws<cy::dynamic::unsupported>([&] {cy::check_equal(wp, "hello"); });
+
+        // Convert to a shared pointer before testing has_value
+        cy::check_throws<cy::dynamic::unsupported>([&] { wp.has_value(); });
+
+        cy::check(wp.shared_ref().has_value());
+        wp = {};  // wp is now dead
+
+        // The result of a shared_ref is an empty()
+        cy::check_equal(wp.shared_ref(), cy::dynamic());
+        cy::check(!wp.shared_ref().has_value());
+
+        cy::check_throws<cy::dynamic::unsupported>([] { cy::dynamic().weak_ref(); });
     }
 }
 
@@ -465,6 +505,9 @@ void conversions()
     // bool conversions
     cy::check(i);
     cy::check(!0_d);
+
+    // empty conversion to bool is not supported
+    cy::check_throws<cy::dynamic::unsupported> ([] { cy::check(cy::dynamic()); });
 }
 
 void ranges()

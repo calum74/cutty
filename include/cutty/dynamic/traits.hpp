@@ -177,9 +177,14 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(self.size(), "size()");
     }
 
-    static std::size_t empty(const_reference self)
+    static bool empty(const_reference self)
     {
         TRY_TO_RETURN(self.empty(), "empty()");
+    }
+
+    static bool has_value(const_reference self)
+    {
+        return !std::is_same_v<T, dynamic::empty_type>;
     }
 
     static dynamic begin(const_reference self)

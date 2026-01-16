@@ -144,6 +144,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
 
     FORWARD1(size, std::size_t);
     FORWARD1(empty, bool);
+    FORWARD1(has_value, bool);
     FORWARD1(begin, dynamic)
     FORWARD1(end, dynamic)
 

@@ -1,17 +1,16 @@
 # Dynamic
-- operators not in namespace
 - Mixins?
 - i++ not implemented
-- at
+- at not implemented
 - reverse iterators and list containers fail due to operator + not working as advertised on.
+- ?? Optional
+- ?? Assignment from optional ??
+- ?? Assignment from variant ??
 
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
-
-# Tests
-- Store the last checkpoint?
 
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.

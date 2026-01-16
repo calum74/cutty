@@ -70,6 +70,7 @@ struct cutty::dynamic::type
     virtual void insert(dynamic &, const dynamic &) const = 0;
     virtual void insert(dynamic &, const dynamic &k, const dynamic &v) const = 0;
     virtual bool empty(const dynamic&) const = 0;
+    virtual bool has_value(const dynamic&) const = 0;
     virtual void erase(dynamic&, const dynamic&) const = 0;
     virtual void erase(dynamic&, const dynamic&, const dynamic&) const = 0;
     virtual dynamic first(dynamic &) const = 0;

@@ -125,6 +125,8 @@ class dynamic
         return *(const T *)as(typeid(T));
     }
 
+    bool has_value() const;
+
     // Gets type info of the internal value
     const std::type_info &type_info() const;
 

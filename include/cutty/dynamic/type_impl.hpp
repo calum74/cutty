@@ -621,6 +621,11 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::empty(get(x));
     }
 
+    bool has_value(const dynamic &x) const override
+    {
+        return traits_type::has_value(get(x));
+    }
+
     void erase(dynamic &x, const dynamic &i) const override
     {
         traits_type::erase(get_mut(x, "erase()"), i);

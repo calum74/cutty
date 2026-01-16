@@ -1,16 +1,16 @@
 # Dynamic
 
-Samples: [short_tutorial.cpp](../samples/short_tutorial.cpp), [tutorial.cpp](../samples/tutorial.cpp)
+Samples: [short_tutorial.cpp](../samples/dynamic/short_tutorial.cpp), [tutorial.cpp](../samples/dynamic/tutorial.cpp)
 
 Solves the problem of working with multiple types.
 
-Finally, what you never asked for, a fully-featured `dynamic` type in C++!  *Dynamic* adds the ability to store and work with data of different types. Philosophical arguments aside, sometimes it's easier to just store something in a dynamic variable. Unlike `std::any` or `std::variant`, you can work with dynamic objects, for example iterating elements or converting to a string. *Dynamic* could also be used for scenarios like JSON, interfacing with dynamic programming languages, or creating generic wrappers.
+Finally, what you never asked for, a fully-featured `dynamic` type in C++!  *Dynamic* adds the ability to wrap and work with any C++ type, with errors thrown at runtime instead of compile time.  Unlike `std::any` or `std::variant`, `dynamic` allows you can work with dynamic objects, for example accessing elements, performing arithmetic or converting to a string. Possible use cases include working with structured data, interfacing with dynamic programming languages, spreadsheets, or creating generic wrappers.
 
 *Dynamic* behaves similarly to the C# `dynamic` keyword, and can wrap any C++ type as `dynamic`.
 
 # Tutorial
 
-The header file for the library is `cutty/dynamic.hpp`, and as usual we'll use the namespace `cy` for `cutty`.
+The header file for the library is `cutty/dynamic.hpp`, and we'll use the namespace `cy` for `cutty`.
 
 ```c++
 #include <cutty/dynamic.hpp>
@@ -18,9 +18,9 @@ The header file for the library is `cutty/dynamic.hpp`, and as usual we'll use t
 namespace cy = cutty;
 ```
 
-This header file includes the main "client-side" library for working with dynamic types. If you need to define new dynamic types, you also need to include `<cutty/dynamic/instantiate.hpp>`. If you need to create generic function wrappers, include `<cutty/dynamic/function.hpp>`.
+This header file includes the main user-facing library for working with dynamic types. If you need to define new dynamic types, you also need to include `<cutty/dynamic/instantiate.hpp>`. If you need function wrappers, include `<cutty/dynamic/function.hpp>`.
 
-To create a dynamic value, pass a C++ value to `dynamic` constructor, or assign it.
+To create a dynamic value, pass a C++ value to the `dynamic` constructor.
 
 ```c++
 cy::dynamic a;          // An empty dynamic
@@ -30,7 +30,7 @@ cy::dynamic c = "abc";  // A string dynamic
 
 ## Output
 
-Output is supported using `operator<<` or `cy::print()`. The `str()` method returns a string representation of the dynamic, and this is always defined.
+Output is supported using `operator<<` or `cy::print()`. The `str()` method returns a string representation of the dynamic, and this is always implemented.
 
 ```c++
 cy::print(a);   // Output: (empty)  
@@ -40,7 +40,7 @@ std::cout << c.str() << std::endl;
 
 ## Operations
 
-`dynamic` values support all of the operators of their underlying types. In addition, the other operand will be converted to `dynamic` if needed.
+`dynamic` values support all of the operators of their underlying types. The other operand will be converted to `dynamic` if needed.
 
 ```c++
 cy::dynamic(1) + cy::dynamic(2);  // 3
@@ -56,9 +56,11 @@ When operations are not supported by their underlying types (for example, `std::
 cy::dynamic("abc") + 12;   // Throws `dynamic::incompatible`
 ```
 
+All other operators are wrapped, including all arithmetic and comparison operators, as well as call `()` and index `[]`. Multi-parameter indexers are not implemented at this time. The `<=>` operator has type `std::partial_ordering`.
+
 ## Accessing the wrapped value
 
-The stored type can be accessed using the `type()` method, and `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the wrapped value, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
+The stored type can be accessed using the `type_info()` method, and the `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the wrapped value, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
 
 ```c++
 cy::dynamic x = 12;
@@ -70,21 +72,34 @@ cy::print(x.type_str());  // "int"
 
 ## Null objects
 
-The default `dynamic` object is "empty", and has the value `dynamic::empty_type`. There is no "null" in the C++ sense.
+Sample: [empty.cpp](../samples/dynamic/empty.cpp)
+
+The default `dynamic` object has a value of type `dynamic::empty_type`. There is no "null" in the C++ sense. To test if an object is null, compare it with another empty dynamic, or use the `has_value()` method as follows:
+
+```c++
+if(x.has_value())
+{
+    // x is not empty
+}
+```
+
+Don't use `dynamic::empty()` as this checks if a container is empty.
 
 ## Conversions
 
-C++ values can be turned into `dynamic` by passing them to the `dynamic` constructor. Then a copy of the value is stored in the `dynamic`. Copying the `dynamic` creates a copy of the value.
+C++ values can be turned into `dynamic` by passing them to the `dynamic` constructor. This takes a copy of the value and is stored in the `dynamic`. Copying the `dynamic` creates a copy of the value.
 
-Every `dynamic` has a string representation, accessed by the `dynamic::str()` methods. The methods `as_int()` and `as_double()`
+Every `dynamic` has a string representation, accessed by the `dynamic::str()` method. The methods `as_int()` and `as_double()` return a numerical representation of the value if available, or throws `dynamic::unsupported` otherwise.
 
-There are also explicit conversion operators for `bool`, `int` and `double`.
+There are explicit conversion operators for `bool`, `int_type` and `double`.
 
 ## Lists and containers
 
+Sample: [lists.cpp](../samples/dynamic/lists.cpp)
+
 Dynamic objects can wrap C++ containers, and the methods `list()`, `dict()`, `map()`, `object()` and `queue()` create these objects.
 
-| Container | Wrapped type |
+| Construction | Wrapped type |
 | --------- | ------------- |
 | `dynamic::list()` | `std::vector<dynamic>` |
 | `dynamic::dict()` | `std::unordered_map<dynamic, dynamic>` |
@@ -109,13 +124,13 @@ list[0] = 3;
 list.front() = "";
 ```
 
-As usual, if an object does not support an operation at compile time, it will result in an exception thrown at runtime.
+As usual, if an object does not support an operation at compile time, it will result in an exception (`dynamic::unsupported`) thrown at runtime.
 
 ```c++
 not_a_list.push_front(0);  // Exception thrown
 ```
 
-Containers can be iterated, and elements bound:
+Containers can be iterated, and its elements bound:
 
 ```c++
 for(auto [k,v] : map)
@@ -128,9 +143,7 @@ for(auto [k,v] : map)
 
 ## References
 
-Sample: TODO
-
-`dynamic` values can in fact be references to C++ values. It is the caller's responsibility to ensure that the underlying C++ object remains valid for the duration of the `dynamic` reference. To create a reference, use the `reference()` method, or the `const_reference` method.
+`dynamic` values can be references to C++ values. It is the caller's responsibility to ensure that the underlying C++ object remains valid for the duration of the `dynamic` reference. To create a reference, use the `reference()` method, or the `const_reference` method.
 
 ```c++
 int value = 42;
@@ -148,13 +161,11 @@ j = 41;
 cy::print(i);  // 41
 ```
 
-## Shared objects
+## Shared references
 
-Sample: TODO
+Copying a `dynamic` normally results in the underlying object being copied. If this is not desired, a `ref()` can be used, but this does not keep the underlying object alive. To solve this problem, `dynamic` implements shared references, which have similar semantics to `std::shared_ptr`. Client code does not need to know it is dealing with a shared object.
 
-Copying a `dynamic` normally results in the underlying object being copied. If this is not desired, a `ref()` can be used, but this does not keep the underlying object alive. To solve this problem, `dynamic` implements shared pointers, which have similar semantics to `std::shared_ptr`. Client code does not need to know it is dealing with a shared object.
-
-Creating a shared value is done using the `shared()` method. Existing dynamic objects can be copied to a shared object using the `shared_ref()` method.
+Creating a shared value is done using the `dynamic::shared()` static method. Existing dynamic objects can be copied to a shared object using the `shared_ref()` method.
 
 ```c++
 cy::dynamic i = cy::dynamic::shared(42);
@@ -163,11 +174,26 @@ cy::dynamic j = i;
 cy::print(j);  // 43
 ```
 
+Reference counted pointers could form cyclical data structures, so a solution to this is *weak pointers* which can be used to break cycles by implementing non-owning back-edges in the data structure. The method `dynamic::weak_ref()` create a *weak reference*, which does not keeps its value alive, and cane be upgraded to a `shared_ref()` as follows:
+
+```c++
+cy::dynamic i = cy::dynamic::shared(42);
+cy::dynamic j = i.weak_ref();
+cy::print(j.shared_ref());  // 42
+i = 40;
+// No more refs to 42
+cy::print(j.shared_ref());  // (empty)
+```
+
+You must always call `shared_ref()` before attempting to use a weak reference.
+
 ## Associative containers
+
+Sample: [maps.cpp](../samples/dynamic/maps.cpp)
 
 Dictionaries, maps and objects are different associative containers, created by `dict()`, `map()` and `object()` respectively. Dictionaries are unsorted, maps are sorted, and objects have string keys, but otherwise the behave very similarly.
 
-The containers can be created using an initializer list, and accessed using `[]`. Other container methods (such as `size()`, `front()`, `back()`, `begin()`, `end()` etc. also work). Attempting to modify the contents of a const container will result in an `unsupported` exception.
+The containers can be created using an initializer list, and accessed using `[]`. Other container methods (such as `size()`, `front()`, `back()`, `begin()`, `end()`, `push_back` etc. also work). Attempting to modify the contents of a const container will result in an `unsupported` exception.
 
 ```c++
 auto o = cy::dynamic::object();
@@ -180,7 +206,7 @@ cy::print(o2["fred"]);  // throws std::out_of_range
 
 ## Functions
 
-Sample: TODO
+Sample: [functions.cpp](../samples/dynamic/functions.cpp)
 
 Functions are created using the `dynamic::function()` method, and requires the header file `cutty/dynamic/function.hpp` just to cut down on header files.
 
@@ -202,17 +228,21 @@ Calling a function with the wrong number of arguments results in an `unsupported
 
 ## User types
 
-In order to keep header files small, the standard header files do not support adding user-defined types. This can be done by including `cutty/dynamic/instantiate.hpp` in a .cpp file which defines the type to wrap, and specialising `cy::dynamic::instantiate<T>()` with the type.
+Samples: [enable_user_type.cpp](../samples/dynamic/enable_user_type.cpp), [use_user_type.cpp](../samples/dynamic/use_user_type.cpp), [user_type.hpp](../samples/dynamic/user_type.hpp)
+
+In order to keep header files small, the `dynamic.hpp` header files do not support user-defined types. Instead, clients should create a separate `.cpp` file which includes `cutty/dynamic/instantiate.hpp`, and specialise `cy::dynamic::instantiate<T>()` with the new type.
+
+This scheme ensures that the header files are relatively small and faster to compile, and that the user-defined type only gets compiled once.
 
 ```c++
 #include "MyStruct.hpp"
 
 #include <cutty/dynamic/instantiate.hpp>
 
-template const cy::dynamic::types & cy::dynamic::instantiate<MyStruct>();
+template const cy::dynamic::types &cy::dynamic::instantiate<MyStruct>();
 ```
 
-If this is done in one .cpp file, then any other source file can wrap `MyStruct` as needed.
+Any other source file can wrap `MyStruct` as needed.
 
 ```c++
 auto x = cy::dynamic(MyStruct{});
@@ -220,11 +250,45 @@ auto x = cy::dynamic(MyStruct{});
 
 The type `cy::dynamic::traits<>` can be specialised to configure the wrapping.
 
+## Const correctness
+
+Mutating methods will fail `unsupported` if attempts are made to modify a `const` value. Const values can be obtained by the regular `const` keyword in C++
+
+```c++
+cy::dynamic d;
+const cy::dynamic c1;  // const
+const cy::dynamic &c2 = c1;  // const
+int i;
+const int j;
+cy::dynamic c3 = cy::dynamic::const_reference(i);  // const
+cy::dynamic c4 = cy::dynamic::reference(j);  // const
+cy::dynamic c5 = d.as_const();  // const
+cy::dynamic c6 = d.const_ref();  // const
+cy::dynamic c7 = c1.ref();  // const
+cy::dynamic c8 = c1.shared_ref();  // const
+```
+
+Users of a `dynamic` will be unaware that their object is immutable simply by looking at the type.
+
+## Object lifetimes
+
+`dynamic` can pass objects by value, reference or by shared reference, and the user cannot usually notice the difference. Assigning to a `dynamic` will generally create a copy, unless the copied object is a shared reference.
+
+The destructor of `dynamic` will also destroy the wrapped object and free any additional resources.
+
+## Threading
+
+`dynamic` types have the same thread safety as their wrapped type. Concurrent assignments to a `dynamic` are not threadsafe. Shared references can be acquired and released safely from multiple threads.
+
+## Exceptions
+
+In addition to exceptions from the wrapped object, creating or assigning a `dynamic` can throw `std::bad_alloc` if additional memory resources could not be acquired. The destructor of the wrapped object must not throw exceptions.
+
 # Implementation
 
-`dynamic` is implemented as a class with 2 pointers. The first pointer is the `type` and the second pointer is the *value*. For small values (for example, integers, doubles, iterators, references etc) *value* stores the wrapped object inline and there is no memory allocation. *type* points to a pure const static class (of type `dynamic::type`) with `virtual` methods to implement all functionality for the wrapped type.
+`dynamic` is implemented as a class with 2 pointers. The first pointer is the *type* and the second pointer is the *value*. For small values (for example, integers, doubles, iterators, references etc) *value* stores the wrapped object inline and there is no memory allocation. *type* points to a pure const static class (of type `dynamic::type`) with `virtual` methods to implement all functionality for the wrapped type.
 
-For larger values (strings, lists etc.), *value* points to some heap object managed through `type`. `type` class is responsible for allocating, copying and freeing any heap-allocated memory.
+For larger values (strings, lists etc.), *value* points to some heap object managed through `type`. The `type` class is responsible for allocating, copying and freeing any heap-allocated memory.
 
 This scheme is flexible enough for `type` to also implement references, const references and shared pointers.
 
@@ -266,7 +330,7 @@ Containers:
 - `std::map<dynamic, dynamic>`
 - `std::set<dynamic>`
 
-Note that derived types (iterators etc) are also wrapped.
+Associated types (iterators etc) are also wrapped.
 
 ## Class `dynamic`
 
@@ -280,6 +344,8 @@ Constructors:
 - `dynamic(dynamic&&)` - moves a dynamic
 - `dynamic(const char*)`, `dynamic(std::string_view)` - creates a string
 - `dynamic(std::initializer_list<dynamic>)` - creates a list
+
+Constructors can throw `std::bad_alloc` if it is unable to allocate memory.
 
 Types:
 - `const_iterator` - a `dynamic` used for containers
@@ -304,6 +370,7 @@ Methods:
 - `dynamic first()` - gets the `first` field if available (particularly for wrapping `std::pair`). Throws `unsupported` if unsupported.
 - `dynamic first() const` - const version
 - `size_type hash() const` - calculates a hash value (using `traits::hash()`). Throws `unsupported` if unavailable.
+- `bool has_value() const` - returns true for all values except empty. Should not thrown.
 - `dynamic make_shared()` - reassigns this dynamic to a shared pointer.
 - `dynamic ref()` - returns a ref to this dynamic. The result behaves like a `dynamic&` and can be used to update referee.
 - `dynamic ref() const` - returns a const ref to this dynamic. See `const_ref()`.
@@ -371,20 +438,20 @@ Wrapped operators:
 - `dynamic operator[](...)`
 - `dynamic &operator=(dynamic&&)`, 
 - `dynamic &operator=(const dynamic&)`, 
-- `dynamic &operator+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`, 
+- `dynamic &operator+=`, `-=`, `*=`, `/=`, `%=`, `&=`, `|=`, `^=`, `<<=`, `>>=`
 - `bool operator==()`
-- `std::weak_ordering operator<=>()`
-- Binary operaors: `+` `-` `*` `/` `%` `|` `&` `^`, '>>', `>>`
+- `std::partial_ordering operator<=>()`
+- Binary operaors: `+` `-` `*` `/` `%` `|` `&` `^`, `>>`, `>>`
 - Unary operators: `+`, `-`, `~`, `*`
 - `std::ostream &<<(std::ostream&, const dynamic&)` - outputs the contents to a stream, using `cy::print_str()`.
 
-Literals (namespace `cutty::literals`):
+Literals (in the namespace `cutty::literals`):
 - `dynamic operator""_d(const char *, std::size_t)` - creates a dynamic wrapping `std::string`
 - `dynamic operator""_d(unsigned long long)` - creates a dynamic wrapping `dynamic::int_type`
 - `dynamic operator""_d(long double)` - creates a dynamic wrapping `double`
 - `dynamic operator""_d(char)` - creates a dynamic wrapping `char`
 
-## Class `dynamic::default:traits`
+## Class `dynamic::default_traits`
 
 ```c++
 template<typename T> struct dynamic::default_traits;
@@ -422,6 +489,7 @@ Methods:
 - `static dynamic front(const_reference self)`
 - `static dynamic front(reference self)`
 - `static std::size_t hash(const_reference self)`
+- `static bool has_value(const_reference self)`
 - `static void insert(reference self, const dynamic &value)`
 - `static void insert(reference self, const dynamic &k, const dynamic &v)`
 - `static dynamic op_add(const_reference x, const dynamic &y)`
@@ -436,7 +504,7 @@ Methods:
 - `static dynamic op_index(const_reference self, const char *i)`
 - `static dynamic op_index(const_reference self, const dynamic &i)`
 - `static dynamic op_index(reference self, const dynamic &i)`
-- `static std::weak_ordering op_cmp(const_reference x, const dynamic &y)`
+- `static std::partial_ordering op_cmp(const_reference x, const dynamic &y)`
 - `static dynamic op_minus(const_reference self)`
 - `static dynamic op_mod(const_reference x, const dynamic &y)`
 - `static dynamic op_mul(const_reference x, const dynamic &y)`

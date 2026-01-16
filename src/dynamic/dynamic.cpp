@@ -541,6 +541,11 @@ bool cy::dynamic::empty() const
     return m_type->empty(*this);
 }
 
+bool cy::dynamic::has_value() const
+{
+    return m_type->has_value(*this);
+}
+
 void cy::dynamic::erase(const dynamic &i)
 {
     m_type->erase(*this, i);
