@@ -5,7 +5,7 @@
 struct cutty::dynamic::type
 {
     virtual ~type() = default;
-    virtual void construct(dynamic &unsassigned, const void *) const = 0;
+    virtual void construct(dynamic &unassigned, const void *) const = 0;
     virtual void construct(dynamic &unassigned, void *) const = 0;
 
     virtual void construct_copy(const dynamic &src, dynamic &dest_unassigned) const = 0;
@@ -22,16 +22,19 @@ struct cutty::dynamic::type
 
     virtual void stream_to(const dynamic &, std::ostream &) const = 0;
 
-    virtual std::optional<std::int64_t> try_get_integral(const dynamic &) const = 0;
+    virtual std::optional<int_type> try_get_integral(const dynamic &) const = 0;
     virtual std::optional<double> try_get_double(const dynamic &) const = 0;
     virtual std::optional<std::string_view> try_get_string(const dynamic &) const = 0;
     virtual void *try_get(dynamic &, const std::type_info &) const = 0;
     virtual const void *try_get(const dynamic &, const std::type_info &) const = 0;
     virtual const std::string &type_str(const dynamic &) const = 0;
+
     virtual bool as_bool(const dynamic &) const = 0;
+    virtual dynamic::int_type as_int(const dynamic &) const = 0;
+    virtual double as_double(const dynamic&) const = 0;
 
     virtual bool op_eq(const dynamic &x, const dynamic &y) const = 0;
-    virtual bool op_lt(const dynamic &x, const dynamic &y) const = 0;
+    virtual std::partial_ordering op_cmp(const dynamic &x, const dynamic &y) const = 0;
 
     virtual dynamic op_add(const dynamic &x, const dynamic &y) const = 0;
     virtual dynamic op_sub(const dynamic &x, const dynamic &y) const = 0;
@@ -41,15 +44,7 @@ struct cutty::dynamic::type
 
     virtual std::size_t hash(const dynamic &x) const = 0;
 
-    // virtual std::string_view type_name() const = 0;
-    // virtual std::string str(const dynamic&) const = 0;
-    // virtual bool small() const = 0;
-
-    // virtual const std::type_info & get_type() = 0;
-    // virtual bool total_ordering(const dynamic&x, const dynamic &y) const = 0;
-
-    // virtual std::string str(const dynamic &x) const = 0;
-    // virtual dynamic to_string(const dynamic &x) const = 0;
+    virtual const std::type_info & type_info(const dynamic &x) const = 0;
 
     // Containers
     virtual void push_back(dynamic &x, const dynamic &y) const = 0;
@@ -62,6 +57,10 @@ struct cutty::dynamic::type
     virtual dynamic begin(const dynamic &) const = 0;
     virtual dynamic end(dynamic &) const = 0;
     virtual dynamic end(const dynamic &) const = 0;
+    virtual dynamic rbegin(dynamic &) const = 0;
+    virtual dynamic rbegin(const dynamic &) const = 0;
+    virtual dynamic rend(dynamic &) const = 0;
+    virtual dynamic rend(const dynamic &) const = 0;
 
     virtual dynamic front(dynamic &) const = 0;
     virtual dynamic front(const dynamic &) const = 0;
@@ -70,6 +69,10 @@ struct cutty::dynamic::type
 
     virtual void insert(dynamic &, const dynamic &) const = 0;
     virtual void insert(dynamic &, const dynamic &k, const dynamic &v) const = 0;
+    virtual bool empty(const dynamic&) const = 0;
+    virtual bool has_value(const dynamic&) const = 0;
+    virtual void erase(dynamic&, const dynamic&) const = 0;
+    virtual void erase(dynamic&, const dynamic&, const dynamic&) const = 0;
     virtual dynamic first(dynamic &) const = 0;
     virtual dynamic first(const dynamic &) const = 0;
     virtual dynamic second(dynamic &) const = 0;
@@ -80,6 +83,7 @@ struct cutty::dynamic::type
     virtual dynamic op_star(dynamic &x) const = 0;
     virtual void op_inc(dynamic &x) const = 0;
     virtual void op_dec(dynamic &x) const = 0;
+    virtual dynamic op_plus(const dynamic &x) const = 0;
     virtual dynamic op_minus(const dynamic &x) const = 0;
 
     // virtual dynamic call0(const dynamic &self) const;
@@ -87,8 +91,11 @@ struct cutty::dynamic::type
     // virtual dynamic call2(const dynamic &self, const dynamic &arg0, const dynamic &arg1) const;
     virtual dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const = 0;
 
-    virtual dynamic op_index(const dynamic &x, size_type i) const = 0;
-    virtual dynamic op_index(dynamic &x, size_type i) const = 0;
+    virtual dynamic op_index(const dynamic &x, int_type i) const = 0;
+    virtual dynamic op_index(dynamic &x, int_type i) const = 0;
     virtual dynamic op_index(const dynamic &x, const dynamic &i) const = 0;
     virtual dynamic op_index(dynamic &x, const dynamic &i) const = 0;
+
+    virtual dynamic op_index(const dynamic &x, const char* i) const = 0;
+    virtual dynamic op_index(dynamic &x, const char *i) const = 0;
 };

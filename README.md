@@ -5,6 +5,7 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets, wi
 ## List of libraries
 
 Types:
+* [Dynamic](docs/dynamic.md) - full `dynamic` type available in C++
 * [Mixins](doc/mixins.md) - general framework to add extension methods to existing types
 * [Sequence](doc/sequence.md) - universal sequences
 * [Tags](doc/tags.md) - lightweight wrapped types
@@ -22,9 +23,8 @@ Utilities:
 * [Print](doc/print.md) - print any value
 * [Separator](doc/separator.md) - makes printing lists easier
 
-## List of libraries coming soon
+## Experimental libraries
 
-* Dynamic - full `dynamic` type available in C++
 * Property - Emulating C# property wrappers in C++
 * Shared memory - cross platform memory mapped files
 * Persist - a storage manager for memory-mapped files

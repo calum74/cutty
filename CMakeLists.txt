@@ -64,9 +64,12 @@ add_library(cutty
     src/test.cpp
     src/dynamic/dynamic.cpp
     src/dynamic/containers.cpp
+    src/dynamic/containers2.cpp
+    src/dynamic/containers3.cpp
     src/dynamic/functions.cpp
     src/dynamic/reference.cpp
-    src/dynamic/types.cpp)
+    src/dynamic/types.cpp
+    src/dynamic/types2.cpp)
 
 link_libraries(cutty)
 
@@ -74,13 +77,14 @@ add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
 add_executable(with samples/with.cpp)
 add_executable(dynamic_functions test/dynamic/functions.cpp)
-add_executable(dynamic_test1 test/dynamic/test1.cpp)
+add_executable(dynamic_test test/dynamic/test.cpp)
 add_executable(dynamic_bools samples/dynamic/bools.cpp)
 add_executable(dynamic_empty samples/dynamic/empty.cpp)
 add_executable(dynamic_user_type samples/dynamic/enable_user_type.cpp samples/dynamic/use_user_type.cpp)
 add_executable(dynamic_hello samples/dynamic/hello.cpp)
 add_executable(dynamic_maps samples/dynamic/maps.cpp)
 add_executable(dynamic_tutorial samples/dynamic/tutorial.cpp)
+add_executable(dynamic_short_tutorial samples/dynamic/short_tutorial.cpp)
 add_executable(pretty_type test/pretty_type.cpp)
 add_executable(pretty_type_sample samples/pretty_type.cpp)
 add_executable(scope_hooks samples/scope_hooks.cpp)
@@ -120,6 +124,8 @@ add_test(dynamic_user_type dynamic_user_type)
 add_test(dynamic_hello dynamic_hello)
 add_test(dynamic_maps dynamic_maps)
 add_test(dynamic_tutorial dynamic_tutorial)
+add_test(dynamic_short_tutorial dynamic_short_tutorial)
+add_test(dynamic_test dynamic_test)
 add_test(persist persist_test)
 add_test(pretty_type pretty_type)
 add_test(pretty_type_sample pretty_type_sample)

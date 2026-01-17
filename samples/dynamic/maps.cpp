@@ -15,9 +15,9 @@ int main()
     // A dict is stored as a hash table.
     auto d = cy::dynamic::dict();
 
-    // m[1] = 2;   FIXME
+    m[1] = 2;
     d["hello"] = "fred";
-    // d[true] = "bob";
+    d[true] = "bob";
 
     // Output a list of contents
     std::cout << m << std::endl;

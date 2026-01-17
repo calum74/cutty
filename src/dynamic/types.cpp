@@ -4,39 +4,22 @@
 
 namespace cy = cutty;
 
-bool operator==(cy::dynamic::empty, cy::dynamic::empty)
+bool cutty::operator==(cy::dynamic::empty_type, cy::dynamic::empty_type)
 {
     return true;
 }
 
-bool operator<(cy::dynamic::empty, cy::dynamic::empty)
+std::strong_ordering cutty::operator<=>(cy::dynamic::empty_type, cy::dynamic::empty_type)
 {
-    return false;
+    return std::strong_ordering::equal;
 }
 
-std::ostream &operator<<(std::ostream &os, cy::dynamic::empty)
+std::ostream &cy::operator<<(std::ostream &os, cy::dynamic::empty_type)
 {
     return os << "(empty)";
 }
 
-CY_INSTANTIATE(cy::dynamic::empty)
-CY_INSTANTIATE(bool)
-CY_INSTANTIATE(signed char)
-CY_INSTANTIATE(unsigned char)
-CY_INSTANTIATE(char)
-
-CY_INSTANTIATE(short)
-CY_INSTANTIATE(unsigned short)
-CY_INSTANTIATE(int)
-CY_INSTANTIATE(unsigned int)
-CY_INSTANTIATE(long)
-CY_INSTANTIATE(unsigned long)
-CY_INSTANTIATE(long long)
-CY_INSTANTIATE(unsigned long long)
-
-CY_INSTANTIATE(float)
-CY_INSTANTIATE(double)
-
+CY_INSTANTIATE(cy::dynamic::empty_type)
 CY_INSTANTIATE(std::string)
 CY_INSTANTIATE(char *)
 CY_INSTANTIATE(std::string_view)

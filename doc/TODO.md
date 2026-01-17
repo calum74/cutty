@@ -1,3 +1,12 @@
+# Dynamic
+- Mixins?
+- i++ not implemented
+- at not implemented
+- reverse iterators and list containers fail due to operator + not working as advertised on.
+- ?? Optional
+- ?? Assignment from optional ??
+- ?? Assignment from variant ??
+
 # Units
 - Unify scalar and dscalar
 - Bug converting $/mile int o £/km
@@ -5,6 +14,20 @@
 
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.
+
+# What about a "indexer" that can be assignable
+
+```c++
+template<typename Container, typename Key>
+struct index
+{
+
+};
+
+index_type operator[](const key_type&);
+```
+
+
 
 # Docs
 - [ ] Separator output
@@ -41,7 +64,6 @@ What about a movable sequence to ensure no reuse/reentry?
 Get map test passing
 Finish stuff
 Strings that are char*
-Objects and dicts with string keys
 Find a use case
 
 # Projects to add

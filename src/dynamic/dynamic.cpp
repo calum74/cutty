@@ -3,11 +3,15 @@
 
 namespace cy = cutty;
 
-cy::dynamic::incompatible::incompatible(const char *msg) : std::runtime_error(msg)
+cy::dynamic::exception::exception(const char *msg) : std::runtime_error(msg)
 {
 }
 
-cy::dynamic::unsupported::unsupported(const char *msg) : std::runtime_error(msg)
+cy::dynamic::incompatible::incompatible(const char *msg) : exception(msg)
+{
+}
+
+cy::dynamic::unsupported::unsupported(const char *msg) : exception(msg)
 {
 }
 
@@ -38,6 +42,11 @@ cy::dynamic::dynamic(const dynamic &src, weak_reference_tag)
     src.m_type->construct_weak_ref(src, *this);
 }
 
+cy::dynamic cy::dynamic::as_const() const
+{
+    return cy::dynamic(*this, const_value_tag());
+}
+
 cy::dynamic::dynamic(dynamic &&src, shared_tag)
 {
     src.m_type->construct_shared(src, *this);
@@ -53,7 +62,7 @@ template <> const cy::dynamic &cy::dynamic_detail::try_convert<cy::dynamic>(cons
     return x;
 }
 
-cy::dynamic::dynamic() : dynamic(empty{})
+cy::dynamic::dynamic() : dynamic(empty_type{})
 {
 }
 
@@ -122,6 +131,11 @@ void cy::dynamic::construct_by_value(const types &t, const void *p)
     construct(&t.by_value, p);
 }
 
+void cy::dynamic::construct_by_rvalue(const types &t, void *p)
+{
+    construct(&t.by_value, p);
+}
+
 void cy::dynamic::construct_by_ref(const types &t, const void *p)
 {
     construct(&t.by_ref, p);
@@ -185,9 +199,19 @@ const void *cy::dynamic::as(const std::type_info &t) const
         throw incompatible("Failed conversion to C++ type");
 }
 
+const std::type_info &cy::dynamic::type_info() const
+{
+    return m_type->type_info(*this);
+}
+
 void cy::dynamic::push_back(const dynamic &item)
 {
     m_type->push_back(*this, item);
+}
+
+void cy::dynamic::push_front(const dynamic &item)
+{
+    m_type->push_front(*this, item);
 }
 
 std::size_t cy::dynamic::size() const
@@ -214,10 +238,60 @@ cy::dynamic cy::dynamic::end() const
     return m_type->end(*this);
 }
 
+cy::dynamic cy::dynamic::rbegin()
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::rbegin() const
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::crbegin() const
+{
+    return m_type->rbegin(*this);
+}
+
+cy::dynamic cy::dynamic::rend()
+{
+    return m_type->rend(*this);
+}
+
+cy::dynamic cy::dynamic::rend() const
+{
+    return m_type->rend(*this);
+}
+
+cy::dynamic cy::dynamic::crend() const
+{
+    return m_type->rend(*this);
+}
+
 cy::dynamic &cy::dynamic::operator++()
 {
     m_type->op_inc(*this);
     return *this;
+}
+
+cy::dynamic cy::dynamic::operator++(int)
+{
+    dynamic copy = *this;
+    m_type->op_inc(*this);
+    return copy;
+}
+
+cy::dynamic &cy::dynamic::operator--()
+{
+    m_type->op_dec(*this);
+    return *this;
+}
+
+cy::dynamic cy::dynamic::operator--(int)
+{
+    dynamic copy = *this;
+    m_type->op_dec(*this);
+    return copy;
 }
 
 cy::dynamic cy::dynamic::operator*() const
@@ -225,12 +299,17 @@ cy::dynamic cy::dynamic::operator*() const
     return m_type->op_star(*this);
 }
 
-cy::dynamic operator-(const cy::dynamic &x)
+cy::dynamic cy::operator-(const cy::dynamic &x)
 {
     return x.m_type->op_minus(x);
 }
 
-std::ostream &operator<<(std::ostream &os, const cy::dynamic &x)
+cy::dynamic cutty::operator+(const cy::dynamic &x)
+{
+    return x.m_type->op_plus(x);
+}
+
+std::ostream &cy::operator<<(std::ostream &os, const dynamic &x)
 {
     x.m_type->stream_to(x, os);
     return os;
@@ -241,35 +320,32 @@ bool cy::dynamic::operator==(const cy::dynamic &y) const
     return m_type->op_eq(*this, y);
 }
 
-std::weak_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
+std::partial_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
 {
-    // TODO: Implement <=> on type
-    return m_type->op_lt(*this, y)   ? std::weak_ordering::less
-           : m_type->op_eq(*this, y) ? std::weak_ordering::equivalent
-                                     : std::weak_ordering::greater;
+    return m_type->op_cmp(*this, y);
 }
 
-cy::dynamic operator+(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator+(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_add(x, y);
 }
 
-cy::dynamic operator-(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator-(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_sub(x, y);
 }
 
-cy::dynamic operator*(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator*(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_mul(x, y);
 }
 
-cy::dynamic operator/(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator/(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_div(x, y);
 }
 
-cy::dynamic operator%(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::operator%(const cy::dynamic &x, const cy::dynamic &y)
 {
     return x.m_type->op_mod(x, y);
 }
@@ -277,6 +353,26 @@ cy::dynamic operator%(const cy::dynamic &x, const cy::dynamic &y)
 cy::dynamic::operator bool() const
 {
     return m_type->as_bool(*this);
+}
+
+cy::dynamic::operator int_type() const
+{
+    return m_type->as_int(*this);
+}
+
+cy::dynamic::operator double() const
+{
+    return m_type->as_double(*this);
+}
+
+cy::dynamic::int_type cy::dynamic::as_int() const
+{
+    return m_type->as_int(*this);
+}
+
+double cy::dynamic::as_double() const
+{
+    return m_type->as_double(*this);
 }
 
 cy::dynamic::dynamic(std::initializer_list<dynamic> l) : dynamic(list(l))
@@ -290,12 +386,22 @@ cy::dynamic cy::dynamic::call(std::size_t n_args, const dynamic *args) const
 
 cy::dynamic cy::dynamic::operator[](size_type index)
 {
-    return m_type->op_index(*this, index);
+    return m_type->op_index(*this, std::int64_t(index));
 }
 
 cy::dynamic cy::dynamic::operator[](size_type index) const
 {
-    return m_type->op_index(*this, index);
+    return m_type->op_index(*this, std::int64_t(index));
+}
+
+cy::dynamic cy::dynamic::operator[](int index)
+{
+    return m_type->op_index(*this, std::int64_t(index));
+}
+
+cy::dynamic cy::dynamic::operator[](int index) const
+{
+    return m_type->op_index(*this, std::int64_t(index));
 }
 
 cy::dynamic cy::dynamic::operator[](const dynamic &index)
@@ -304,6 +410,16 @@ cy::dynamic cy::dynamic::operator[](const dynamic &index)
 }
 
 cy::dynamic cy::dynamic::operator[](const dynamic &index) const
+{
+    return m_type->op_index(*this, index);
+}
+
+cy::dynamic cy::dynamic::operator[](const char *index)
+{
+    return m_type->op_index(*this, index);
+}
+
+cy::dynamic cy::dynamic::operator[](const char *index) const
 {
     return m_type->op_index(*this, index);
 }
@@ -363,7 +479,17 @@ template <> cy::dynamic cy::get<0ul>(const cy::dynamic &x)
     return x.first();
 }
 
+template <> cy::dynamic cy::get<0ul>(cy::dynamic &x)
+{
+    return x.first();
+}
+
 template <> cy::dynamic cy::get<1ul>(const cy::dynamic &x)
+{
+    return x.second();
+}
+
+template <> cy::dynamic cy::get<1ul>(cy::dynamic &x)
 {
     return x.second();
 }
@@ -388,38 +514,44 @@ cy::dynamic cy::dynamic::second()
     return m_type->second(*this);
 }
 
-bool operator>(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return y < x;
-}
-
-bool operator<=(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return !(y > x);
-}
-
-bool operator>=(const cy::dynamic &x, const cy::dynamic &y)
-{
-    return !(x > y);
-}
-
-cy::dynamic operator""_d(unsigned long long x)
+cy::dynamic cy::literals::operator""_d(unsigned long long x)
 {
     return cy::dynamic(x);
 }
 
-cy::dynamic operator""_d(long double x)
+cy::dynamic cy::literals::operator""_d(long double x)
 {
     return cy::dynamic(x);
 }
 
-// TODO: A constant string (implemented as char*
-cy::dynamic operator""_d(const char *str, std::size_t s)
+cy::dynamic cy::literals::operator""_d(const char *str, std::size_t s)
 {
     return cy::dynamic(std::string(str, s));
 }
 
-cy::dynamic operator""_d(char ch)
+cy::dynamic cy::literals::operator""_d(char ch)
 {
     return cy::dynamic(ch);
+}
+
+std::size_t std::hash<cy::dynamic::empty_type>::operator()(const cy::dynamic::empty_type&) const { return 0; }
+
+bool cy::dynamic::empty() const
+{
+    return m_type->empty(*this);
+}
+
+bool cy::dynamic::has_value() const
+{
+    return m_type->has_value(*this);
+}
+
+void cy::dynamic::erase(const dynamic &i)
+{
+    m_type->erase(*this, i);
+}
+
+void cy::dynamic::erase(const dynamic &i, const dynamic &j)
+{
+    m_type->erase(*this, i, j);
 }
