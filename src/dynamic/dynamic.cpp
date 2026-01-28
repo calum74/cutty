@@ -309,9 +309,9 @@ cy::dynamic cutty::operator+(const cy::dynamic &x)
     return x.m_type->op_plus(x);
 }
 
-std::ostream &cy::operator<<(std::ostream &os, const dynamic &x)
+std::ostream &cy::operator<<(std::ostream &os, const detail::explicit_dynamic &x)
 {
-    x.m_type->stream_to(x, os);
+    x.value.m_type->stream_to(x.value, os);
     return os;
 }
 
@@ -543,7 +543,12 @@ bool cy::dynamic::empty() const
 
 bool cy::dynamic::has_value() const
 {
-    return m_type->has_value(*this);
+    return category() != value_category::empty;
+}
+
+cy::dynamic::value_category cy::dynamic::category() const
+{
+    return m_type->get_category(*this);
 }
 
 void cy::dynamic::erase(const dynamic &i)
@@ -554,4 +559,39 @@ void cy::dynamic::erase(const dynamic &i)
 void cy::dynamic::erase(const dynamic &i, const dynamic &j)
 {
     m_type->erase(*this, i, j);
+}
+
+cy::detail::explicit_dynamic::explicit_dynamic(const dynamic &v) : value(v)
+{
+}
+
+bool cy::dynamic::has_integer() const
+{
+    return category() == value_category::integer;
+}
+
+bool cy::dynamic::has_number() const
+{
+    auto cat = category();
+    return cat == value_category::integer || cat == value_category::floating_point;
+}
+
+bool cy::dynamic::has_floating_point() const
+{
+    return category() == value_category::floating_point;
+}
+
+bool cy::dynamic::has_string() const
+{
+    return category() == value_category::string;
+}
+
+std::string cy::dynamic::as_string() const
+{
+    return m_type->as_string(*this);
+}
+
+std::string_view cy::dynamic::as_string_view() const
+{
+    return m_type->as_string_view(*this);
 }

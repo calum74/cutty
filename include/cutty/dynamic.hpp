@@ -30,6 +30,47 @@ class dynamic
     template <typename T> class traits;
     struct empty_type;
 
+    /**
+        An indicator of the semantics of this value.
+     */
+    enum class value_category
+    {
+        /**
+            Stores empty_type, or an equivalent like None or void.
+         */
+        empty,
+
+        /**
+            Any integer type, including chars.
+         */
+        integer,
+
+        /**
+            A floating point type, float or double.
+         */
+        floating_point,
+
+        /**
+            A string type.
+         */
+        string,
+
+        /**
+            A list, array, vector or deque type
+         */
+        list,
+
+        /**
+            A map, unordered map, dictionary or object type.
+         */
+        dictionary,
+
+        /**
+            Anything else that is non-empty
+         */
+        other
+    };
+
     class exception : public std::runtime_error
     {
       protected:
@@ -126,6 +167,16 @@ class dynamic
     }
 
     bool has_value() const;
+    bool has_empty() const;
+    bool has_integer() const;
+    bool has_floating_point() const;
+    bool has_number() const;
+    bool has_string() const;
+    bool has_list() const;
+    bool has_dictionary() const;
+    bool has_other() const;
+
+    value_category category() const;
 
     // Gets type info of the internal value
     const std::type_info &type_info() const;
@@ -253,6 +304,8 @@ class dynamic
 
     int_type as_int() const;
     double as_double() const;
+    std::string as_string() const;
+    std::string_view as_string_view() const;
 
     // Indexers
     dynamic operator[](int index);
@@ -338,6 +391,15 @@ template <> dynamic get<1>(const dynamic &e);
 template <> dynamic get<0>(dynamic &e);
 template <> dynamic get<1>(dynamic &e);
 
+namespace detail
+{
+    struct explicit_dynamic
+    {
+        explicit_dynamic(const dynamic &v);
+        dynamic value;
+    };
+}
+
 // Operators
 dynamic operator+(const dynamic &x, const dynamic &y);
 dynamic operator-(const dynamic &x, const dynamic &y);
@@ -349,14 +411,14 @@ dynamic operator|(const dynamic &x, const dynamic &y);
 dynamic operator&(const dynamic &x, const dynamic &y);
 dynamic operator^(const dynamic &x, const dynamic &y);
 
-dynamic operator<<(const dynamic &x, const dynamic &y);
+dynamic operator<<(const dynamic &x, const detail::explicit_dynamic &y);
 dynamic operator>>(const dynamic &x, const dynamic &y);
 
 dynamic operator+(const dynamic &x);
 dynamic operator-(const dynamic &x);
 dynamic operator~(const dynamic &x);
 
-std::ostream &operator<<(std::ostream &os, const dynamic &x);
+std::ostream &operator<<(std::ostream &os, const detail::explicit_dynamic &x);
 
 namespace literals
 {
@@ -369,6 +431,7 @@ dynamic operator""_d(char);
 std::ostream &operator<<(std::ostream &os, dynamic::empty_type);
 bool operator==(dynamic::empty_type, dynamic::empty_type);
 std::strong_ordering operator<=>(dynamic::empty_type, dynamic::empty_type);
+
 } // namespace cutty
 
 template <> struct std::hash<cutty::dynamic>

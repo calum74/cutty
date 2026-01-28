@@ -571,6 +571,16 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::as_double(get(x));
     }
 
+    std::string as_string(const dynamic &x) const override
+    {
+        return traits_type::as_string(get(x));
+    }
+
+    std::string_view as_string_view(const dynamic &x) const override
+    {
+        return traits_type::as_string_view(get(x));
+    }
+
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override
     {
         return traits_type::call(get(self), n_args, args);
@@ -621,9 +631,9 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::empty(get(x));
     }
 
-    bool has_value(const dynamic &x) const override
+    dynamic::value_category get_category(const dynamic &x) const override
     {
-        return traits_type::has_value(get(x));
+        return traits_type::get_category(get(x));
     }
 
     void erase(dynamic &x, const dynamic &i) const override

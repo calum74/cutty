@@ -44,7 +44,7 @@ template <typename T> void print_item(std::ostream &os, const T &t)
     {
         separator sep;
         os << "{";
-        for (auto &i : t)
+        for (auto &&i : t)
         {
             os << sep;
             print_item(os, i);

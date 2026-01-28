@@ -137,11 +137,11 @@ void references()
     {
         cy::dynamic x = 10;
         cy::dynamic y = x.ref();
-        cy::dynamic z = y;  // z is a copy of y
+        cy::dynamic z = y; // z is a copy of y
         z = 20;
-        cy::check_equal(x, 10);   // Unaffected
+        cy::check_equal(x, 10); // Unaffected
         y = 15;
-        cy::check_equal(x, 15);   // y is a ref
+        cy::check_equal(x, 15); // y is a ref
     }
 }
 
@@ -415,13 +415,13 @@ void shared_pointers()
         cy::check_equal(wp.shared_ref(), "hello");
 
         // You cannot use weak_refs directly
-        cy::check_throws<cy::dynamic::unsupported>([&] {cy::check_equal(wp, "hello"); });
+        cy::check_throws<cy::dynamic::unsupported>([&] { cy::check_equal(wp, "hello"); });
 
         // Convert to a shared pointer before testing has_value
         cy::check_throws<cy::dynamic::unsupported>([&] { wp.has_value(); });
 
         cy::check(wp.shared_ref().has_value());
-        wp = {};  // wp is now dead
+        wp = {}; // wp is now dead
 
         // The result of a shared_ref is an empty()
         cy::check_equal(wp.shared_ref(), cy::dynamic());
@@ -507,7 +507,7 @@ void conversions()
     cy::check(!0_d);
 
     // empty conversion to bool is not supported
-    cy::check_throws<cy::dynamic::unsupported> ([] { cy::check(cy::dynamic()); });
+    cy::check_throws<cy::dynamic::unsupported>([] { cy::check(cy::dynamic()); });
 }
 
 void ranges()
@@ -541,6 +541,37 @@ void operators()
     }
 }
 
+void category()
+{
+    cy::check_equal(cy::dynamic().category(), cy::dynamic::value_category::empty);
+    cy::check_equal((123_d).category(), cy::dynamic::value_category::integer);
+    cy::check_equal((1.5_d).category(), cy::dynamic::value_category::floating_point);
+    cy::check_equal(("abc"_d).category(), cy::dynamic::value_category::string);
+    cy::check_equal(cy::dynamic::list().category(), cy::dynamic::value_category::list);
+    cy::check_equal(cy::dynamic::map().category(), cy::dynamic::value_category::dictionary);
+    cy::check_equal(cy::dynamic::object().category(), cy::dynamic::value_category::dictionary);
+
+    cy::check((123_d).has_integer());
+    cy::check(!(123_d).has_floating_point());
+    cy::check((123_d).has_number());
+    cy::check((123_d).has_value());
+    cy::check((123_d).as_int() == 123);
+    cy::check((123_d).as_double() == 123.0);
+    cy::check((123_d).str() == "123");
+
+    cy::check(!(1.5_d).has_integer());
+    cy::check((1.5_d).has_floating_point());
+    cy::check((1.5_d).has_number());
+    cy::check((1.5_d).has_value());
+    cy::check((1.5_d).as_int() == 1);
+    cy::check((1.5_d).as_double() == 1.5);
+
+    cy::check(("abc"_d).has_string());
+    cy::check(("abc"_d).str() == "abc");
+    cy::check(("abc"_d).as_string() == "abc");
+    cy::check(("abc"_d).as_string_view() == "abc");
+}
+
 int main(int argc, const char *argv[])
 {
     return cy::test(argc, argv,
@@ -561,5 +592,6 @@ int main(int argc, const char *argv[])
                      {"literals", literals},
                      {"conversions", conversions},
                      {"ranges", ranges},
-                     {"operators", operators}});
+                     {"operators", operators},
+                     {"category", category}});
 }
