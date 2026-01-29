@@ -60,15 +60,38 @@ All other operators are wrapped, including all arithmetic and comparison operato
 
 ## Accessing the wrapped value
 
-The stored type can be accessed using the `type_info()` method, and the `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the wrapped value, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
+The "category" of stored object can be obtained using `dynamic::category()`, which returns one of the following:
+
+- `dynamic::value_category::empty`
+- `dynamic::value_category::integer`
+- `dynamic::value_category::floating_point`
+- `dynamic::value_category::string`
+- `dynamic::value_category::list`
+- `dynamic::value_category::dictionary`
+- `dynamic::value_category::other`
+
+The methods `has_value()`, `has_integer()`, `has_floating_point()`, `has_number()` and `has_string()` return whether the given value category is stored (`has_number()` being true for both integers and doubles), and the methods `as_int()`, `as_double()`, `as_string()` and `as_string_view()` return the value *if available*, otherwise throw an exception.
 
 ```c++
 cy::dynamic x = 12;
-int &i = x.as<int>();
+
+if(x.has_number())
+{
+    std::cout << "The number is " << x.as_double() << std::endl;
+}
+```
+
+The precise type can be accessed using the `type_info()` method, and the `type_str()` method returns a string representation of the stored type. The `as()` method gets a reference to the wrapped value, or throws `dynamic::incompatible` if the stored data does not match the requested type. `try_get<T>()` returns a pointer to `T` if successful, or `nullptr` if the stored type is not `T`.
+
+```c++
+cy::dynamic x = 12;
+int &i = x.as<int>();  // Prefer: as_int()
 x.type_info();
 int *p = x.try_get<int>();
 cy::print(x.type_str());  // "int"
 ```
+
+It is generally safer and easier to use the `has_/as_` accessors instead of relying on the stored type.
 
 ## Null objects
 
@@ -348,29 +371,36 @@ Constructors:
 Constructors can throw `std::bad_alloc` if it is unable to allocate memory.
 
 Types:
-- `const_iterator` - a `dynamic` used for containers
+- `const_iterator` - a `dynamic` used for container support
 - `default_traits<T>` - default implementation of dynamic traits. Inherit from this class to implement traits.
-- `difference_type` - a `dynamic` for containers
+- `difference_type` - a `dynamic` used for container support
 - `empty_type` - the value of a default-initialised `dynamic`
 - `exception` - base class of `dynamic` exceptions
 - `incompatible` exception thrown when a wrong or incompatible type is requested
-- `int_type` - how its are stored internally
-- `iterator` - `dynamic` used for containers
+- `int_type` - how ints are stored internally
+- `iterator` - a `dynamic` used with for container support
 - `size_type` - `std::size_t`
 - `traits<T>` used to configure the behaviour of `instantiate()`
 - `unsupported` exception thrown when an operation is not supported
-- `value_type` - a `dynamic` used for containers
+- `value_category` used to indicate the semantic contents
+- `value_type` - a `dynamic` used with containers
 
 Methods:
 - `T &as<T>()` - gets the wrapped value (or referenced value), or throws `incompatible` if `T` is not held.
 - `const T &as<T>() const` - gets the wrapped value, const version.
-- `int as_int()` - converts the type to an `int` if possible, otherwise `unsupported` is thrown.
-- `double as_double()` - converts the value to a `double` if possible, otherwise `unsupported` is thrown
+- `int as_int() const` - converts the type to an `int` if possible, otherwise `unsupported` is thrown.
+- `double as_double() const` - converts the value to a `double` if possible, otherwise `unsupported` is thrown
+- `std::string as_string() const` - converts the value to a string if possible, otherwise `unsupported` is thrown. Unlike `str()`, this function can fail if the value is not a string.
+- `std::string_view as_string_view() const` - returns a `std::string_view` of the stored value if possible, otherwise `unsupported` is thrown. Unlike `str()`, this function can fail if a string_view representation is unavailable, even for string-like objects.
 - `dynamic const_ref()` - returns a const ref to this dynamic. The result behaves like a `const dynamic&`, and the referee must be in scope for the reference to be valid.
 - `dynamic first()` - gets the `first` field if available (particularly for wrapping `std::pair`). Throws `unsupported` if unsupported.
 - `dynamic first() const` - const version
 - `size_type hash() const` - calculates a hash value (using `traits::hash()`). Throws `unsupported` if unavailable.
-- `bool has_value() const` - returns true for all values except empty. Should not thrown.
+- `bool has_floating_point() const` - returns true if the value is semantically a floating point value, and `as_double()` will succeed.
+- `bool has_integer() const` - returns true if the value is semantically an integer, and `as_int()` will succeed. Should not throw.
+- `bool has_number() const` - returns true if this value is numeric (integer or floating point). Should not throw.
+- `bool has_value() const` - returns true for all values except empty. Should not throw.
+- `bool has_string() const` - returns true if this value is a string. `as_string()` will succeed. Should not throw.
 - `dynamic make_shared()` - reassigns this dynamic to a shared pointer.
 - `dynamic ref()` - returns a ref to this dynamic. The result behaves like a `dynamic&` and can be used to update referee.
 - `dynamic ref() const` - returns a const ref to this dynamic. See `const_ref()`.
@@ -451,6 +481,7 @@ Literals (in the namespace `cutty::literals`):
 - `dynamic operator""_d(long double)` - creates a dynamic wrapping `double`
 - `dynamic operator""_d(char)` - creates a dynamic wrapping `char`
 
+
 ## Class `dynamic::default_traits`
 
 ```c++
@@ -475,11 +506,14 @@ Methods:
 - `static bool as_bool(const_reference self)`
 - `static double as_double(const_reference self)`
 - `static int as_int(const_reference self)`
+- `static std::string as_string(const_reference self)`
+- `static std::string_view as_string_view(const_reference self)`
 - `static dynamic back(const_reference self)`
 - `static dynamic back(reference self)`
 - `static dynamic begin(const_reference self)`
 - `static dynamic begin(reference self)`
 - `static dynamic call(const_reference self, std::size_t n_args, const dynamic *args)`
+- `static dynamic::value_category category(const_reference self)`
 - `static dynamic end(const_reference self)`
 - `static dynamic end(reference self)`
 - `static void erase(reference self, const dynamic&)`
@@ -537,3 +571,15 @@ Used to represent the empty value. This class has no members.
 cy::dynamic d;
 cy::dynamic::empty_type &e = d.as<cy::dynamic::empty_type>();
 ```
+
+## Enum `dynamic::value_category`
+
+The enum has the following members
+
+- `empty` - `has_value()` is false
+- `integer` - `has_integer()` and `has_number()` are true, and `as_int()` and `as_double()` return values
+- `floating_point` - `has_float()` and `has_number()` are true, and `as_int() and `as_double()` return values.
+- `string` - `has_string()` is true, and `as_string()` returns a value. `as_string_view()` *may* return a value.
+- `list`
+- `dictionary`
+- `other` - anything else that isn't empty. `has_value()` is true.

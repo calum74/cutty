@@ -47,7 +47,7 @@ struct cutty::dynamic::type
     virtual std::size_t hash(const dynamic &x) const = 0;
 
     virtual const std::type_info & type_info(const dynamic &x) const = 0;
-    virtual value_category get_category(const dynamic&) const = 0;
+    virtual value_category category(const dynamic&) const = 0;
 
     // Containers
     virtual void push_back(dynamic &x, const dynamic &y) const = 0;

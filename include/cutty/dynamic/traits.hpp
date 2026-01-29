@@ -187,7 +187,7 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(self.empty(), "empty()");
     }
 
-    static value_category get_category(const_reference self)
+    static value_category category(const_reference self)
     {
         if constexpr (std::is_same_v<T, dynamic::empty_type>)
         {

@@ -548,7 +548,7 @@ bool cy::dynamic::has_value() const
 
 cy::dynamic::value_category cy::dynamic::category() const
 {
-    return m_type->get_category(*this);
+    return m_type->category(*this);
 }
 
 void cy::dynamic::erase(const dynamic &i)

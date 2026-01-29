@@ -631,9 +631,9 @@ template <typename U, typename Mode> class type_impl : public dynamic::type
         return traits_type::empty(get(x));
     }
 
-    dynamic::value_category get_category(const dynamic &x) const override
+    dynamic::value_category category(const dynamic &x) const override
     {
-        return traits_type::get_category(get(x));
+        return traits_type::category(get(x));
     }
 
     void erase(dynamic &x, const dynamic &i) const override
