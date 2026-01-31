@@ -144,7 +144,7 @@ template <typename Dynamic> class reference_type : public dynamic::type
 
     FORWARD1(size, std::size_t);
     FORWARD1(empty, bool);
-    FORWARD1(has_value, bool);
+    FORWARD1(category, dynamic::value_category);
     FORWARD1(begin, dynamic)
     FORWARD1(end, dynamic)
 
@@ -223,6 +223,8 @@ template <typename Dynamic> class reference_type : public dynamic::type
     FORWARD1(as_bool, bool);
     FORWARD1(as_int, dynamic::int_type);
     FORWARD1(as_double, double);
+    FORWARD1(as_string, std::string);
+    FORWARD1(as_string_view, std::string_view);
 
     dynamic call(const dynamic &self, std::size_t n_args, const dynamic *args) const override
     {

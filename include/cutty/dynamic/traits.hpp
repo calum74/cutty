@@ -4,11 +4,6 @@
 
 #include <cutty/print.hpp>
 
-namespace cutty
-{
-std::ostream &operator<<(std::ostream &os, dynamic &x);
-}
-
 namespace cutty::dynamic_detail
 {
 template <typename T> const T &try_convert(const dynamic &x, const char *op);
@@ -81,7 +76,17 @@ template <typename T> class cutty::dynamic::default_traits
 
     static double as_double(const_reference self)
     {
-        TRY_TO_RETURN((double)self, "double");
+        TRY_TO_RETURN((double)self, "as_double");
+    }
+
+    static std::string as_string(const_reference self)
+    {
+        TRY_TO_RETURN(std::string(self), "as_string");
+    }
+
+    static std::string_view as_string_view(const_reference self)
+    {
+        TRY_TO_RETURN(std::string_view(self), "as_string_view");
     }
 
     static bool op_eq(const_reference x, const dynamic &y)
@@ -182,9 +187,36 @@ template <typename T> class cutty::dynamic::default_traits
         TRY_TO_RETURN(self.empty(), "empty()");
     }
 
-    static bool has_value(const_reference self)
+    static value_category category(const_reference self)
     {
-        return !std::is_same_v<T, dynamic::empty_type>;
+        if constexpr (std::is_same_v<T, dynamic::empty_type>)
+        {
+            return value_category::empty;
+        }
+        if constexpr (std::integral<T>)
+        {
+            return value_category::integer;
+        }
+        else if constexpr (std::floating_point<T>)
+        {
+            return value_category::floating_point;
+        }
+        else if constexpr (dynamic_detail::string<T>)
+        {
+            return value_category::string;
+        }
+        else if constexpr (indexed_container<T>)
+        {
+            return value_category::list;
+        }
+        else if constexpr (keyed_container<T>)
+        {
+            return value_category::dictionary;
+        }
+        else
+        {
+            return value_category::other;
+        }
     }
 
     static dynamic begin(const_reference self)

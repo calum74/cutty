@@ -2,10 +2,15 @@
 - Mixins?
 - i++ not implemented
 - at not implemented
+- Not all operators implemented:
+    << >> |
+- Operators maybe not in cutty namespace, but should be members of dynamic?
 - reverse iterators and list containers fail due to operator + not working as advertised on.
 - ?? Optional
 - ?? Assignment from optional ??
 - ?? Assignment from variant ??
+- What about functions exported as C functions dynamic(*)(dynamic, ...) etc?
+- Functions should not take const reference?
 
 # Units
 - Unify scalar and dscalar
