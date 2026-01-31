@@ -1,6 +1,12 @@
 #pragma once
 #include <functional>
 
+#ifndef CY_DYNAMIC_EXPLICIT
+#include <cutty/dynamic.hpp>
+#endif
+
+#include <cutty/pretty_type.hpp>
+
 namespace cutty::dynamic_detail
 {
 template <typename Fn> struct lambda_traits;
@@ -31,6 +37,8 @@ template <typename R, typename... Args> struct function_traits<R (*)(Args...)>
     using args_type = std::tuple<Args...>;
 };
 
+[[noreturn]] void throw_wrong_arg_type(std::string_view given, std::string_view expected);
+
 template <typename T> const T &try_convert(const dynamic &src)
 {
     if constexpr (std::is_same_v<std::decay_t<T>, dynamic>)
@@ -38,11 +46,12 @@ template <typename T> const T &try_convert(const dynamic &src)
         return src;
     }
     else if (auto *p = src.try_get<T>())
+    {
         return *p;
+    }
     else
     {
-        // Better diagnostic ??
-        throw dynamic::incompatible("Wrong argument type to function");
+        throw_wrong_arg_type(src.type_str(), pretty_type<T>());
     }
 }
 
@@ -93,4 +102,9 @@ template <typename Fn> cutty::dynamic cutty::dynamic::function(Fn fn)
 {
     static_assert(dynamic_detail::fully_typed_function<Fn>, "Function must have fully typed arguments");
     return dynamic(dynamic_detail::make_dynamic_function(fn), dynamic::shared_tag());
+}
+
+cutty::dynamic::dynamic(dynamic_detail::probably_a_function auto&& fn) : dynamic(dynamic_detail::make_dynamic_function(fn), dynamic::shared_tag())
+{
+    // static_assert(dynamic_detail::fully_typed_function<decltype(fn)>, "Function must have fully typed arguments");
 }

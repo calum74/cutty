@@ -231,7 +231,7 @@ cy::print(o2["fred"]);  // throws std::out_of_range
 
 Sample: [functions.cpp](../samples/dynamic/functions.cpp)
 
-Functions are created using the `dynamic::function()` method, and requires the header file `cutty/dynamic/function.hpp` just to cut down on header files.
+Functions are created by passing a callable object (a lambda or a function) to the `dynamic` constructor. It requires (for now) the header file `cutty/dynamic/function.hpp` just to avoid unnecessary includes.
 
 ```c++
 #include <cutty/dynamic/function.hpp>
@@ -240,10 +240,10 @@ Functions are created using the `dynamic::function()` method, and requires the h
 Any C++ function can be wrapped, provided that it can be converted to a `std::function<>` with dynamic arguments. C++ arguments are automatically wrapped if needed.
 
 ```c++
-auto fn = cy::dynamic::function([] { return cy::dynamic(42); });
+cy::dynamic fn = [] { return cy::dynamic(42); };
 cy::print(fn());  // 42
 
-fn = cy::dynamic::function([&] (int x) { return x+1; });
+fn = [] (int x) { return x+1; };
 cy::print(fn(10)); // 11
 ```
 

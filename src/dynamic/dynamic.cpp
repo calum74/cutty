@@ -534,7 +534,10 @@ cy::dynamic cy::literals::operator""_d(char ch)
     return cy::dynamic(ch);
 }
 
-std::size_t std::hash<cy::dynamic::empty_type>::operator()(const cy::dynamic::empty_type&) const { return 0; }
+std::size_t std::hash<cy::dynamic::empty_type>::operator()(const cy::dynamic::empty_type &) const
+{
+    return 0;
+}
 
 bool cy::dynamic::empty() const
 {
@@ -586,6 +589,11 @@ bool cy::dynamic::has_string() const
     return category() == value_category::string;
 }
 
+bool cy::dynamic::has_function() const
+{
+    return category() == value_category::function;
+}
+
 std::string cy::dynamic::as_string() const
 {
     return m_type->as_string(*this);
@@ -594,4 +602,11 @@ std::string cy::dynamic::as_string() const
 std::string_view cy::dynamic::as_string_view() const
 {
     return m_type->as_string_view(*this);
+}
+
+void cy::dynamic_detail::throw_wrong_arg_type(std::string_view given, std::string_view expected)
+{
+    std::stringstream ss;
+    ss << "Wrong argument type to function: given '" << given << "', expected '" << expected << "'";
+    throw cy::dynamic::incompatible(ss.str().c_str());
 }
