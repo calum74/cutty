@@ -10,6 +10,13 @@
 
 namespace cutty
 {
+namespace dynamic_detail
+{
+template <typename T>
+concept probably_a_function =
+    requires(T &t) { &std::decay_t<T>::operator(); } || std::is_function_v<std::remove_pointer_t<std::decay_t<T>>>;
+} // namespace detail
+
 /**
  * A dynamic wrapper for any C++ type.
  */
@@ -64,6 +71,11 @@ class dynamic
             A map, unordered map, dictionary or object type.
          */
         dictionary,
+
+        /**
+            A function, method, lambda etc.
+         */
+        function,
 
         /**
             Anything else that is non-empty
@@ -123,7 +135,9 @@ class dynamic
     // Construct a list (vector<dynamic>)
     CY_DYNAMIC_EXPLICIT dynamic(std::initializer_list<dynamic>);
 
-    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T &v)
+    template <typename T>
+    CY_DYNAMIC_EXPLICIT dynamic(const T &v)
+        requires(!dynamic_detail::probably_a_function<T>)
     {
         construct_by_value(instantiate<std::decay_t<T>>(), &v);
     }
@@ -135,7 +149,9 @@ class dynamic
         construct_by_rvalue(instantiate<std::decay_t<T>>(), &v);
     }
 
-    template <typename T> CY_DYNAMIC_EXPLICIT dynamic(const T *v)
+    template <typename T>
+    CY_DYNAMIC_EXPLICIT dynamic(const T *v)
+        requires(!dynamic_detail::probably_a_function<T>)
     {
         construct_by_value(instantiate<const T *>(), &v);
     }
@@ -174,6 +190,7 @@ class dynamic
     bool has_string() const;
     bool has_list() const;
     bool has_dictionary() const;
+    bool has_function() const;
     bool has_other() const;
 
     value_category category() const;
@@ -199,6 +216,8 @@ class dynamic
 
     // You must #include <dynamic/function.hpp>
     template <typename Fn> static dynamic function(Fn);
+
+    dynamic(dynamic_detail::probably_a_function auto &&x);
 
     template <typename... Args> dynamic operator()(Args &&...args) const
     {
@@ -393,12 +412,12 @@ template <> dynamic get<1>(dynamic &e);
 
 namespace detail
 {
-    struct explicit_dynamic
-    {
-        explicit_dynamic(const dynamic &v);
-        dynamic value;
-    };
-}
+struct explicit_dynamic
+{
+    explicit_dynamic(const dynamic &v);
+    dynamic value;
+};
+} // namespace detail
 
 // Operators
 dynamic operator+(const dynamic &x, const dynamic &y);

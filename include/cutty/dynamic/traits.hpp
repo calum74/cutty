@@ -213,6 +213,10 @@ template <typename T> class cutty::dynamic::default_traits
         {
             return value_category::dictionary;
         }
+        else if constexpr (dynamic_detail::probably_a_function<T>)
+        {
+            return value_category::function;
+        }
         else
         {
             return value_category::other;
