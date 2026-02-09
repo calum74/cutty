@@ -45,7 +45,6 @@ std::cout << c.str() << std::endl;
 ```c++
 cy::dynamic(1) + cy::dynamic(2);  // 3
 cy::dynamic(1) + 2;  // 3
-1 + cy::dynamic(2);  // 3
 
 cy::print(cy::dynamic("abc") + cy::dynamic("def"));   // abcdef
 ```
