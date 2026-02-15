@@ -34,13 +34,13 @@ concept printable = requires(const T &t, std::ostream &os) { os << t; };
 template <typename T>
 concept print_as_tuple = std::tuple_size<std::remove_cvref_t<T>>::value >= 0;
 
+template <typename T>
+concept print_as_range = std::ranges::range<T> && (!printable<T> || std::is_array_v<T>) 
+    && !std::same_as<std::remove_const_t<std::remove_extent_t<T>>, char>;
+
 template <typename T> void print_item(std::ostream &os, const T &t)
 {
-    if constexpr (printable<T>)
-    {
-        os << t;
-    }
-    else if constexpr (std::ranges::range<T>)
+    if constexpr (print_as_range<T>)
     {
         separator sep;
         os << "{";
@@ -50,6 +50,10 @@ template <typename T> void print_item(std::ostream &os, const T &t)
             print_item(os, i);
         }
         os << "}";
+    }
+    else if constexpr (printable<T>)
+    {
+        os << t;
     }
     else if constexpr (print_as_tuple<T>)
     {

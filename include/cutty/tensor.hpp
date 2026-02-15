@@ -4,7 +4,7 @@ namespace cutty
 {
 namespace config
 {
-    /** An extension point for custom tensors */
+/** An extension point for custom tensors. ?? Rename to tensor_traits */
 template <typename T> struct tensor;
 }; // namespace config
 
@@ -82,8 +82,6 @@ template <numeric T> struct tensor<T>
         return t;
     }
 };
-
-// !! TODO: Make this into ranges
 
 // Specialisation of tensor to handle C-style arrays
 template <cutty::tensor T, size_t N> struct tensor<T[N]>
@@ -244,5 +242,6 @@ template <size_t N> struct tensor<epsilon<N>>
 };
 } // namespace config
 
+template <tensor T> constexpr int tensor_rank = config::tensor<T>::rank();
 
-}
+} // namespace cutty
