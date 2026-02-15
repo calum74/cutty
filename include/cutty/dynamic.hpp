@@ -359,6 +359,25 @@ class dynamic
     bool operator==(const dynamic &) const;
     std::partial_ordering operator<=>(const dynamic &) const;
 
+    // Arithmetic operators
+    dynamic operator+(const dynamic &y) const;
+    dynamic operator-(const dynamic &y) const;
+    dynamic operator*(const dynamic &y) const;
+    dynamic operator/(const dynamic &y) const;
+    dynamic operator%(const dynamic &y) const;
+
+    // Bitwise operators
+    dynamic operator|(const dynamic &y) const;
+    dynamic operator&(const dynamic &y) const;
+    dynamic operator^(const dynamic &y) const;
+    dynamic operator<<(const dynamic &y) const;
+    dynamic operator>>(const dynamic &y) const;
+
+    // Unary operators
+    dynamic operator+() const;
+    dynamic operator-() const;
+    dynamic operator~() const;
+
     const type *m_type;
     void *m_ptr;
 
@@ -412,30 +431,12 @@ template <> dynamic get<1>(dynamic &e);
 
 namespace detail
 {
-struct explicit_dynamic
-{
-    explicit_dynamic(const dynamic &v);
-    dynamic value;
-};
+    struct explicit_dynamic
+    {
+        explicit_dynamic(const dynamic &v);
+        dynamic value;
+    };
 } // namespace detail
-
-// Operators
-dynamic operator+(const dynamic &x, const dynamic &y);
-dynamic operator-(const dynamic &x, const dynamic &y);
-dynamic operator*(const dynamic &x, const dynamic &y);
-dynamic operator/(const dynamic &x, const dynamic &y);
-dynamic operator%(const dynamic &x, const dynamic &y);
-
-dynamic operator|(const dynamic &x, const dynamic &y);
-dynamic operator&(const dynamic &x, const dynamic &y);
-dynamic operator^(const dynamic &x, const dynamic &y);
-
-dynamic operator<<(const dynamic &x, const detail::explicit_dynamic &y);
-dynamic operator>>(const dynamic &x, const dynamic &y);
-
-dynamic operator+(const dynamic &x);
-dynamic operator-(const dynamic &x);
-dynamic operator~(const dynamic &x);
 
 std::ostream &operator<<(std::ostream &os, const detail::explicit_dynamic &x);
 

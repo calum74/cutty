@@ -299,14 +299,14 @@ cy::dynamic cy::dynamic::operator*() const
     return m_type->op_star(*this);
 }
 
-cy::dynamic cy::operator-(const cy::dynamic &x)
+cy::dynamic cy::dynamic::operator-() const
 {
-    return x.m_type->op_minus(x);
+    return m_type->op_minus(*this);
 }
 
-cy::dynamic cutty::operator+(const cy::dynamic &x)
+cy::dynamic cutty::dynamic::operator+() const
 {
-    return x.m_type->op_plus(x);
+    return m_type->op_plus(*this);
 }
 
 std::ostream &cy::operator<<(std::ostream &os, const detail::explicit_dynamic &x)
@@ -325,29 +325,29 @@ std::partial_ordering cy::dynamic::operator<=>(const cy::dynamic &y) const
     return m_type->op_cmp(*this, y);
 }
 
-cy::dynamic cy::operator+(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::dynamic::operator+(const cy::dynamic &y) const
 {
-    return x.m_type->op_add(x, y);
+    return m_type->op_add(*this, y);
 }
 
-cy::dynamic cy::operator-(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::dynamic::operator-(const cy::dynamic &y) const
 {
-    return x.m_type->op_sub(x, y);
+    return m_type->op_sub(*this, y);
 }
 
-cy::dynamic cy::operator*(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::dynamic::operator*(const cy::dynamic &y) const
 {
-    return x.m_type->op_mul(x, y);
+    return m_type->op_mul(*this, y);
 }
 
-cy::dynamic cy::operator/(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::dynamic::operator/(const cy::dynamic &y) const
 {
-    return x.m_type->op_div(x, y);
+    return m_type->op_div(*this, y);
 }
 
-cy::dynamic cy::operator%(const cy::dynamic &x, const cy::dynamic &y)
+cy::dynamic cy::dynamic::operator%(const cy::dynamic &y) const
 {
-    return x.m_type->op_mod(x, y);
+    return m_type->op_mod(*this, y);
 }
 
 cy::dynamic::operator bool() const

@@ -19,7 +19,6 @@ int main()
     // Operations
     cy::dynamic(1) + cy::dynamic(2); // 3
     cy::dynamic(1) + 2;              // 3
-    1 + cy::dynamic(2);              // 3
 
     {
         cy::dynamic x = 12;
