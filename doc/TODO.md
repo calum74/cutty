@@ -17,6 +17,10 @@
 - Bug converting $/mile int o £/km
 - Literals prevent mixins
 
+# Tensors
+- Fixed-size vs variable-size tensor
+- Fixed-rank vs variable-rank tensor
+
 # Tags
 - [ ] Get rid of fraction, and use the builtin `kilo`, etc.
 

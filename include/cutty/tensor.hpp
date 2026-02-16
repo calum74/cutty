@@ -243,5 +243,43 @@ template <size_t N> struct tensor<epsilon<N>>
 } // namespace config
 
 template <tensor T> constexpr int tensor_rank = config::tensor<T>::rank();
+template <tensor T, int Axis> constexpr size_t tensor_size = config::tensor<T>::template size<Axis>();
+
+namespace detail
+{
+// Helper to construct a tensor using a std::array
+template <numeric T, size_t... Dims> struct make_tensor;
+
+template <numeric T> struct make_tensor<T>
+{
+    using type = T;
+};
+
+template <numeric T, size_t H, size_t... Ts> struct make_tensor<T, H, Ts...>
+{
+    using type = std::array<typename make_tensor<T, Ts...>::type, H>;
+};
+
+template<fixed_string L, tensor T> requires(tensor_rank<T> == L.size())
+struct labelled_tensor
+{
+    T tensor;
+};
+
+template<fixed_string L, typename T>
+labelled_tensor<L, T> label(T&&tensor)
+{
+    return {tensor};
+}
+
+}  // detail
+
+// A fixed-size tensor created using std::array
+template <typename T, size_t... Dims> using array_tensor = typename detail::make_tensor<T, Dims...>::type;
+
+// A fixed size tensor of doubles
+template <size_t... Dims> using double_tensor = array_tensor<double, Dims...>;
+
+template<fixed_string L, typename T, size_t...Dims> using labelled_tensor = detail::labelled_tensor<L, array_tensor<T, Dims...>>;
 
 } // namespace cutty
