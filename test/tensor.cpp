@@ -28,14 +28,17 @@ void output()
 
 void values()
 {
-    cy::double_tensor<2, 2> t { 1, 2, 3, 4};
+    cy::double_tensor<2, 2> t { 1, 2, 3, 4 };
 
     // Accessors
+    cy::tensor_at(t, 0, 0) = 0;
+    cy::check_equal(cy::tensor_at(t, 1, 0), 3);
 }
 
 void labels()
 {
-    cy::labelled_tensor<"ij", double, 2, 2> x {  1, 2, 3, 4 }; 
+    // !! Not sure this is a good idea
+    cy::labelled_tensor<"ij", double, 2, 2> x = { 1, 2, 3, 4 }; 
 }
 
 int main()

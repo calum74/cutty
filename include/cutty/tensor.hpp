@@ -282,4 +282,18 @@ template <size_t... Dims> using double_tensor = array_tensor<double, Dims...>;
 
 template<fixed_string L, typename T, size_t...Dims> using labelled_tensor = detail::labelled_tensor<L, array_tensor<T, Dims...>>;
 
+template<tensor T, typename... Pos>
+const auto &tensor_at(const T &t, Pos... pos) requires (sizeof...(Pos) == tensor_rank<T>)
+{
+    size_t index[] = { static_cast<size_t>(pos)... };
+    return config::tensor<T>::at(t, index);
+}
+
+template<tensor T, typename... Pos>
+auto &tensor_at(T &t, Pos... pos) requires (sizeof...(Pos) == tensor_rank<T>)
+{
+    size_t index[] = { static_cast<size_t>(pos)... };
+    return config::tensor<T>::at(t, index);
+}
+
 } // namespace cutty
