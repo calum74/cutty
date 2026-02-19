@@ -266,13 +266,39 @@ struct labelled_tensor
     T tensor;
 };
 
-template<fixed_string L, typename T>
+template<fixed_string L, tensor T>
 labelled_tensor<L, T> label(T&&tensor)
 {
     return {tensor};
 }
 
 }  // detail
+
+namespace config
+{
+    template<fixed_string L, cutty::tensor T>
+    struct tensor<detail::labelled_tensor<L,T>>
+    {
+        using value_type = typename tensor<T>::value_type;
+        constexpr static size_t rank() { return tensor_rank<T>; }
+
+        template<size_t Axis>
+        constexpr static size_t size()
+        {
+            return tensor_size<T, Axis>;
+        }
+
+        static const auto &at(const detail::labelled_tensor<L,T> &lt, const size_t *index)
+        {
+            return tensor<T>::at(lt.tensor, index);
+        }
+
+        static auto &at(detail::labelled_tensor<L,T> &lt, const size_t *index)
+        {
+            return tensor<T>::at(lt.tensor, index);
+        }
+    };
+}
 
 // A fixed-size tensor created using std::array
 template <typename T, size_t... Dims> using array_tensor = typename detail::make_tensor<T, Dims...>::type;

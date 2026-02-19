@@ -35,10 +35,12 @@ void values()
     cy::check_equal(cy::tensor_at(t, 1, 0), 3);
 }
 
+static_assert(cy::tensor<cy::labelled_tensor<"ij", double, 2, 2>>, "labelled tensors are tensors");
+
 void labels()
 {
-    // !! Not sure this is a good idea
     cy::labelled_tensor<"ij", double, 2, 2> x = { 1, 2, 3, 4 }; 
+    cy::tensor_at(x, 0, 0) = 0;
 }
 
 int main()
