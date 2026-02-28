@@ -20,8 +20,7 @@ template <typename T, typename U>
 concept decays_to = std::same_as<std::decay_t<T>, U>;
 
 template <typename T>
-concept tensor = requires(const T &t, const size_t *index) {
-    numeric<typename config::tensor<T>::value_type>;
+concept tensor = numeric<typename config::tensor<T>::value_type> && requires(const T &t, const size_t *index) {
     { config::tensor<T>::rank() } -> std::same_as<size_t>;
 };
 
