@@ -31,10 +31,6 @@ static_assert(cy::fixed_string_count<"", "bc"> == 0);
 void output()
 {
     cy::check_equal(cy::print_str(cy::fixed_string("abc")), "abc");
-
-
-    cy::print(cy::fixed_string_count<"abc", "x">);
-
 }
 
 // Some einsum testing
@@ -53,10 +49,33 @@ static_assert (einsum_rhs<"a->b"> == "b");
 
 static_assert (einsum_lhs_parts<"a->ab"> == 1);
 static_assert (einsum_lhs_parts<"a,b->ab"> == 2);
-
 static_assert (einsum_lhs_parts<"->ab"> == 1);
+
+template<cy::fixed_string Prefix> struct Logger
+{
+    static_assert(Prefix.front() == '[', "prefix must start with '['");
+    static_assert(Prefix.back() == ']', "prefix must end with ']'");
+    static constexpr bool is_warning = Prefix.contains(cy::fixed_string("WARNING"));
+};
+
+using Warning = Logger<"[WARNING]">;
+
+static_assert(Warning::is_warning);
+
+Warning w;
+
+static_assert(std::ranges::random_access_range<cy::fixed_string<1>>, "strings are ranges");
+static_assert(std::ranges::bidirectional_range<cy::fixed_string<1>>, "strings are ranges");
+
+void ranges()
+{
+    for(char &ch : cy::fixed_string("abc"))
+    {
+        ch = ' ';
+    }
+}
 
 int main()
 {
-    return cy::test({output});
+    return cy::test({output, ranges});
 }

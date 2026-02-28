@@ -6,11 +6,12 @@ C++ utility library. A collection of fun, interesting and useful C++ gadgets, wi
 
 Types:
 * [Dynamic](docs/dynamic.md) - full `dynamic` type available in C++
+* [Fixed string](doc/fixed_string.md) - a compile-time string for templates
 * [Mixins](doc/mixins.md) - general framework to add extension methods to existing types
 * [Sequence](doc/sequence.md) - universal sequences
 * [Tags](doc/tags.md) - lightweight wrapped types
 * [Units](doc/units.md) - units library built on tags
-* [With](doc/with.md) - a more principled approach to singletons and global variables
+* [With](doc/with.md) - a principled approach to singletons and global variables
 
 Testing:
 * [Approx](doc/approx.md) - perform approximate comparisons

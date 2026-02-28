@@ -1,6 +1,5 @@
 #pragma once
 
-// #include <cstddef>
 #include <ostream>
 
 namespace cutty
@@ -12,6 +11,8 @@ template <std::size_t N> struct fixed_string
 {
     using size_type = std::size_t;
     using value_type = char;
+    using iterator = char*;
+    using const_iterator = const char*;
 
     value_type value[N];
 
@@ -44,6 +45,36 @@ template <std::size_t N> struct fixed_string
         return N - 1;
     }
 
+    constexpr iterator begin()
+    {
+        return value;
+    }
+
+    constexpr const_iterator begin() const
+    {
+        return value;
+    }
+
+    constexpr const_iterator cbegin() const
+    {
+        return value;
+    }
+
+    constexpr iterator end()
+    {
+        return value + size();
+    }
+
+    constexpr const_iterator end() const
+    {
+        return value + size();
+    }
+
+    constexpr const_iterator cend() const
+    {
+        return value + size();
+    }
+
     constexpr int index_of(char ch) const
     {
         for (int i = 0; i < N; ++i)
@@ -54,7 +85,7 @@ template <std::size_t N> struct fixed_string
         return -1;
     }
 
-    template <size_type M> consteval int index_of(fixed_string<M> str, size_type start = 0) const
+    template <size_type M> constexpr int index_of(fixed_string<M> str, size_type start = 0) const
     {
         for (int i = start; i < N; ++i)
         {
@@ -68,6 +99,11 @@ template <std::size_t N> struct fixed_string
                 return i;
         }
         return -1;
+    }
+
+    template <size_type M> constexpr bool contains(fixed_string<M> str, size_type start = 0) const
+    {
+        return index_of(str, start) >=0;
     }
 
     template <size_type N2> constexpr bool operator==(fixed_string<N2> rhs) const
@@ -86,6 +122,9 @@ template <std::size_t N> struct fixed_string
     {
         return *this == fixed_string<M>(rhs);
     }
+
+    constexpr char front() const { return value[0]; }
+    constexpr char back() const { return value[N-2]; }
 };
 
 template <std::size_t N> std::ostream &operator<<(std::ostream &os, fixed_string<N> str)
@@ -95,7 +134,7 @@ template <std::size_t N> std::ostream &operator<<(std::ostream &os, fixed_string
 
 template <fixed_string Haystack, fixed_string Needle, size_t Index = 0> constexpr int fixed_string_index_of = Haystack.index_of(Needle, Index);
 
-template <fixed_string Haystack, fixed_string Needle, size_t Offset>
+template <fixed_string Haystack, fixed_string Needle, size_t Offset=0>
 constexpr bool fixed_string_contains = fixed_string_index_of<Haystack, Needle, Offset> >= 0;
 
 template<fixed_string str, size_t from, size_t to> constexpr auto fixed_string_substr =
@@ -129,10 +168,26 @@ template <fixed_string Haystack, fixed_string Needle, size_t Index> constexpr si
         return 0;
     }
 }
+
+template <fixed_string Haystack, char Needle> constexpr size_t count_matches_ch()
+{
+    size_t count = 0;
+    for(size_t i=0; i<Haystack.size(); ++i)
+    {
+        count += Haystack[i] == Needle;
+    }
+    return count;
+}
+
+
 } // namespace detail
 
 template <fixed_string Haystack, fixed_string Needle>
 constexpr size_t fixed_string_count = detail::count_matches<Haystack, Needle, 0>();
+
+template <fixed_string Haystack, char Needle>
+constexpr size_t fixed_string_count_ch = detail::count_matches_ch<Haystack, Needle>();
+
 
 // Split a fixed string
 
