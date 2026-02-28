@@ -5,8 +5,9 @@ Sample: [separator.cpp](../samples/separator.cpp)
 Solves the annoyance of writing comma-separated lists.
 
 ```c++
-cy::separator sep;
-for(auto i : items)
+// Outputs 1; 2; 3
+sep = cy::separator("; ");
+for (auto i : {1, 2, 3})
 {
     std::cout << sep << i;
 }
