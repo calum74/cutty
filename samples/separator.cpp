@@ -14,7 +14,8 @@ int main()
     }
     std::cout << std::endl;
 
-    sep = cy::separator(";");
+    // Outputs 1; 2; 3
+    sep = cy::separator("; ");
     for (auto i : {1, 2, 3})
     {
         std::cout << sep << i;
