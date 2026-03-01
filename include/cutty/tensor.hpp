@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 namespace cutty
 {
 namespace config
@@ -36,7 +38,7 @@ concept output_tensor = input_tensor<T> && requires(T &t, const size_t *index) {
 
 template <typename T>
 concept proper_tensor = tensor<T> && config::tensor<T>::rank() > 0 && requires(const T &t) {
-    { config::tensor<T>::size<0>(t) } -> std::same_as<size_t>;
+    { config::tensor<T>::template size<0>(t) } -> std::same_as<size_t>;
 };
 
 template <typename T>
