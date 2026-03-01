@@ -23,7 +23,7 @@ template <std::size_t N> struct fixed_string
     }
 
     template<size_type M>
-    constexpr fixed_string(fixed_string<M> str, size_type offset)
+    constexpr fixed_string(fixed_string<M> str, size_type offset = 0)
     {
         for (size_t i = 0; i < N - 1; ++i)
             value[i] = str[i+offset];
@@ -140,16 +140,20 @@ constexpr bool fixed_string_contains = fixed_string_index_of<Haystack, Needle, O
 template<fixed_string str, size_t from, size_t to> constexpr auto fixed_string_substr =
     fixed_string<to-from+1>{str, from};
 
-template <fixed_string Haystack, fixed_string Needle, size_t Index = 0>
-    requires(fixed_string_contains<Haystack, Needle, Index>)
-constexpr auto fixed_string_before =
-    fixed_string<Haystack.index_of(Needle, Index) + 1>(Haystack, 0);
+template <fixed_string Str, int pos>
+constexpr auto fixed_string_after_pos = fixed_string<Str.size() - pos + 1>{Str, pos};
+
+template <fixed_string Str, int pos>
+constexpr auto fixed_string_before_pos = fixed_string<pos>{Str};
 
 template <fixed_string Haystack, fixed_string Needle, size_t Index = 0>
     requires(fixed_string_contains<Haystack, Needle, Index>)
-constexpr fixed_string<Haystack.size() - Haystack.index_of(Needle, Index) + 1 - Needle.size()> fixed_string_after =
-    fixed_string<Haystack.size() - Haystack.index_of(Needle, Index) + 1 - Needle.size()>(
-        Haystack, Haystack.index_of(Needle, Index) + Needle.size());
+constexpr auto fixed_string_before =
+    fixed_string<Haystack.index_of(Needle, Index) + 1>(Haystack);
+
+template <fixed_string Haystack, fixed_string Needle, size_t Index = 0>
+    requires(fixed_string_contains<Haystack, Needle, Index>)
+constexpr auto fixed_string_after = fixed_string_after_pos<Haystack, Haystack.index_of(Needle, Index) + Needle.size()>;
 
 namespace detail
 {
