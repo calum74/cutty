@@ -15,8 +15,8 @@ assert(person.Adult);
 ```
 It achieves this by defining the `Age` and `Adult` properties as follows:
 ```c++
-#include <Property.hpp>
-	
+#include <cutty/property.hpp>
+
 class Person
 {
 public:
