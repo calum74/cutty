@@ -57,6 +57,7 @@ include_directories(include)
 
 add_library(cutty
     include/cutty/check.hpp
+    src/ansi.cpp
     src/check.cpp
     src/cutty.cpp
     src/persist.cpp
@@ -73,6 +74,8 @@ add_library(cutty
 
 link_libraries(cutty)
 
+add_executable(ansi_test test/ansi.cpp)
+add_executable(ansi samples/ansi.cpp)
 add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
 add_executable(with samples/with.cpp)
@@ -118,6 +121,7 @@ add_executable(unit_sample samples/units.cpp)
 add_executable(test_sample samples/test.cpp)
 add_executable(test_test test/test.cpp)
 
+add_test(ansi_test ansi_test)
 add_test(approx approx_sample)
 add_test(mixins mixins)
 add_test(with with)

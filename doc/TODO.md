@@ -1,3 +1,96 @@
+# ANSI library
+
+Split into:
+ansi/raw.h/.cpp
+ansi/writer.h/.cpp
+ansi/widgets.h/.cpp
+ansi/event_loop
+
+
+
+- Working in a reduced colour space
+- Working in different default style
+
+- Widgets
+    - Layout
+- Viewports as abstract base class
+
+- Full screen support, and alt-screen
+- Screen width and height
+- mouse and keyboard input support
+  - event loop and timer
+
+- Bitmap graphics using half chars
+- How to render a bitmap?
+  (a) with default background
+  (b) using background colour as well
+
+Bitmap drawing
+1. Gather:
+    - The proportion of the cell that a Braille pixel uses
+    - The default background colour if using it
+2. identify the pixel with the max luminosity
+3. identify the pixel with the minimum luminosity
+4. Classify all pixels as "on" or "off" depending on their proximity to
+   the min and max.
+5. Identify the average "off" colour. This is your background.
+6. Identify the average "on" colour.
+7. Set the fg colour to cancel out the bg colour as much as possible.
+
+Render a mandelbrot set
+Render images generally
+
+What about a generic map 4x4 to a character? Then we could make use of a variety of different characters?
+
+- Write and flush to ostream, not via strings
+
+- How to map bitmaps to Braille using fg and bg colours?
+- To stop bleeding, the top row uses the bottom half
+    - the bottom row uses the top half
+    - Doesn't really fix anything
+
+fansi graphics...
+
+Widgets
+    Charts...
+        Progress bars
+        Build progress
+    Box drawing
+    Lines
+    Pixels
+    Mapped viewport & regions
+    Clipping
+
+## Build progress
+
+Progress:    ██████████▌        95%
+Remaining:   12s
+Done:        ⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹ ⣻⣽⣹⣻⣽⣹⣻⣽ ⣹⣻⣽
+In progress: ⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹ ⣻⣽⣹⣻⣽⣹⣻⣽ ⣹⣻⣽
+Ready:      ⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹ ⣻⣽⣹⣻⣽⣹⣻⣽ ⣹⣻⣽
+Waiting umnet:
+
+C++:       ⣹⣻⣽⣹⣻⣽⣹⣻⣽⣹
+Linker:    ⣹⣻
+CPU:       ⣼⣼
+Graph:     checkmark foo.lib  ⣽⣹⣻
+Drawn as layers. Each target is either green (done), grey (not done) or red (working)
+
+Progress: Only a progress bar
+Ultra-compact:  Drawn on one line with three groups in Braille
+Compact: Drawn on three lines, still
+Labelled layers: Grouped text on each layer. Use dots where too much text. Use first letter of target
+
+Process-based. Shows list of all running targets, and a graph showing what they generate
+
+
+
+Profile output:
+- Which targets are the slowest
+
+
+
+
 # Dynamic
 - Mixins?
 - i++ not implemented

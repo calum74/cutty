@@ -8,11 +8,11 @@
 #define CY_UNIT(X)                                                                                                     \
     namespace literals                                                                                                 \
     {                                                                                                                  \
-    inline tagged<long double, X> operator"" _##X(long double d)                                                       \
+    inline tagged<long double, X> operator""_##X(long double d)                                                       \
     {                                                                                                                  \
         return tag<X>(d);                                                                                              \
     };                                                                                                                 \
-    inline tagged<unsigned long long, X> operator"" _##X(unsigned long long i)                                         \
+    inline tagged<unsigned long long, X> operator""_##X(unsigned long long i)                                         \
     {                                                                                                                  \
         return tag<X>(i);                                                                                              \
     };                                                                                                                 \
