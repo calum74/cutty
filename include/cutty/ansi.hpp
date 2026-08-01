@@ -168,10 +168,10 @@ class ascii_writer : public writer
     std::ostream &m_os;
 };
 
-class unbuffered_writer : public writer
+class raw_writer : public writer
 {
   public:
-    unbuffered_writer(std::ostream &os);
+    explicit raw_writer(std::ostream &os = std::cout);
 
     void reset() override;
 
@@ -212,10 +212,10 @@ class unbuffered_writer : public writer
     position m_position;
 };
 
-class buffered_writer : public writer
+class window : public writer
 {
   public:
-    buffered_writer(writer &underlying, size s);
+    explicit window(size s, std::ostream &os = std::cout);
 
     void put(const character &ch, position p) override;
 
@@ -238,7 +238,7 @@ class buffered_writer : public writer
     size dimensions() const override;
 
   private:
-    writer &m_underlying;
+    raw_writer m_underlying;
     position m_position;
     style m_style;
     size m_dimensions;
@@ -248,15 +248,6 @@ class buffered_writer : public writer
     };
     std::vector<viewport_character> m_data;
     std::vector<int> m_dirty_list;
-};
-
-class window : public writer
-{
-public:
-    window(std::ostream &os = std::cout);
-private:
-    unbuffered_writer m_unbuffered;
-    buffered_writer m_buffered;
 };
 
 enum class line_style

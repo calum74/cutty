@@ -7,31 +7,31 @@
 
 namespace cy = cutty;
 
-cy::ansi::unbuffered_writer::unbuffered_writer(std::ostream &os) : os(os), m_position(0,0)
+cy::ansi::raw_writer::raw_writer(std::ostream &os) : os(os), m_position(0,0)
 {
 }
 
-void cy::ansi::unbuffered_writer::text(std::string_view sv)
+void cy::ansi::raw_writer::text(std::string_view sv)
 {
     // TODO: Check SV for special characters
     os << sv;
     m_position.x += sv.size();
 }
 
-void cy::ansi::unbuffered_writer::endl()
+void cy::ansi::raw_writer::endl()
 {
     os << '\n';
     m_position.x = 0;
     m_position.y++;
 }
 
-void cy::ansi::unbuffered_writer::reset()
+void cy::ansi::raw_writer::reset()
 {
     current_style = {};
     ansi::reset(os);
 }
 
-void cy::ansi::unbuffered_writer::go_to(position new_position)
+void cy::ansi::raw_writer::go_to(position new_position)
 {
     if (new_position.x < m_position.x)
     {
@@ -52,7 +52,7 @@ void cy::ansi::unbuffered_writer::go_to(position new_position)
     m_position = new_position;
 }
 
-void cy::ansi::unbuffered_writer::apply(const ansi::style &new_style)
+void cy::ansi::raw_writer::apply(const ansi::style &new_style)
 {
     change_style(current_style, new_style, cs, os);
     current_style = new_style;
@@ -284,8 +284,8 @@ void cy::ansi::alternate_screen_off(std::ostream &os)
     os << "\x1b[?1049l";
 }
 
-cy::ansi::buffered_writer::buffered_writer(writer &underlying, size s) :
-    m_underlying(underlying), m_dimensions(s), m_data(s.w * s.h)
+cy::ansi::window::window(size s, std::ostream &os) :
+    m_underlying(os), m_dimensions(s), m_data(s.w * s.h)
 {
     m_dirty_list.reserve(m_data.size());
     for(int i=0; i<s.h; i++)
@@ -294,7 +294,7 @@ cy::ansi::buffered_writer::buffered_writer(writer &underlying, size s) :
     }
 }
 
-void cy::ansi::buffered_writer::flush()
+void cy::ansi::window::flush()
 {
     std::sort(m_dirty_list.begin(), m_dirty_list.end());
     for(auto index : m_dirty_list)
@@ -353,7 +353,7 @@ std::string utf8_encode(char32_t codepoint)
 }
 }
 
-void cy::ansi::unbuffered_writer::put(const character &ch)
+void cy::ansi::raw_writer::put(const character &ch)
 {
     m_position.x++;
     apply(ch.style);
@@ -392,7 +392,7 @@ void cy::ansi::draw_box(writer &vp, const style &s, line_style, int x, int y, in
     }
 }
 
-void cy::ansi::buffered_writer::put(const character &ch, position p)
+void cy::ansi::window::put(const character &ch, position p)
 {
     if(p.x<0 || p.x>=m_dimensions.w || p.y<0 || p.y >= m_dimensions.h)
     {
@@ -565,29 +565,29 @@ cy::ansi::size cy::ansi::get_terminal_size()
     };
 }
 
-cy::ansi::size cy::ansi::buffered_writer::dimensions() const
+cy::ansi::size cy::ansi::window::dimensions() const
 {
     return m_dimensions;
 }
 
-void cy::ansi::buffered_writer::put(const character &c)
+void cy::ansi::window::put(const character &c)
 {
     put(c, m_position);
     ++m_position.x;
 }
 
-void cy::ansi::buffered_writer::endl()
+void cy::ansi::window::endl()
 {
     m_position.y++;
     m_position.x=0;
 }
 
-void cy::ansi::buffered_writer::text(std::string_view sv)
+void cy::ansi::window::text(std::string_view sv)
 {
     text(m_style, sv);
 }
 
-void cy::ansi::buffered_writer::text(const style &s, std::string_view sv)
+void cy::ansi::window::text(const style &s, std::string_view sv)
 {
     character ch {.style=s};
     for(auto c : sv)
@@ -597,40 +597,40 @@ void cy::ansi::buffered_writer::text(const style &s, std::string_view sv)
     }
 }
 
-void cy::ansi::buffered_writer::apply(const style &s)
+void cy::ansi::window::apply(const style &s)
 {
     m_style = s;
 }
 
-void cy::ansi::buffered_writer::go_to(position p)
+void cy::ansi::window::go_to(position p)
 {
     m_position = p;
     m_underlying.go_to(p);
 }
 
-void cy::ansi::buffered_writer::reset()
+void cy::ansi::window::reset()
 {
     m_style = {};
 }
 
-void cy::ansi::unbuffered_writer::put(const character &ch, position p)
+void cy::ansi::raw_writer::put(const character &ch, position p)
 {
     go_to(p);
     put(ch);
 }
 
-void cy::ansi::unbuffered_writer::text(const style &s, std::string_view str)
+void cy::ansi::raw_writer::text(const style &s, std::string_view str)
 {
     apply(s);
     text(str);
 }
 
-void cy::ansi::unbuffered_writer::flush()
+void cy::ansi::raw_writer::flush()
 {
     os.flush();
 }
 
-cy::ansi::size cy::ansi::unbuffered_writer::dimensions() const
+cy::ansi::size cy::ansi::raw_writer::dimensions() const
 {
     return get_terminal_size();
 }

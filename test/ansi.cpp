@@ -32,7 +32,7 @@ void test_direct()
 void test_unbuffered()
 {
     std::cout << std::endl;
-    cy::ansi::unbuffered_writer w(std::cout);
+    cy::ansi::raw_writer w(std::cout);
 
     cy::ansi::style s1, s2;
     s1.bold = true;
@@ -60,8 +60,7 @@ void test_buffered()
 
 
     std::cout << std::endl;
-    cy::ansi::unbuffered_writer raw(std::cout);
-    cy::ansi::buffered_writer vp(raw, {40, 5});
+    cy::ansi::window vp({40, 5});
 
     vp.put({.ch='x'}, {3,0});
     vp.put({.ch='y'}, {4,1});
@@ -84,8 +83,7 @@ void test_buffered()
 void test_progress_bar()
 {
     std::cout << std::endl;
-    cy::ansi::unbuffered_writer raw(std::cout);
-    cy::ansi::buffered_writer vp(raw, {40, 10});
+    cy::ansi::window vp({40, 10});
 
     cy::ansi::style s1;
     s1.fg = cy::ansi::red;
@@ -114,8 +112,7 @@ void test_progress_bar()
 void test_graphics()
 {
     std::cout << std::endl;
-    cy::ansi::unbuffered_writer raw(std::cout);
-    cy::ansi::buffered_writer vp(raw, {40, 10});
+    cy::ansi::window vp({40, 10});
     cy::ansi::bitmap b1({5, 5});
 
     b1[{0,0}] = cy::ansi::colour{128, 255, 0};

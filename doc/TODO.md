@@ -6,7 +6,8 @@ ansi/writer.h/.cpp
 ansi/widgets.h/.cpp
 ansi/event_loop
 
-
+Rename unbuffered into raw_
+Wrap 
 
 - Working in a reduced colour space
 - Working in different default style
