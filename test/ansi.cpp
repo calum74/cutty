@@ -104,7 +104,7 @@ void test_progress_bar()
         draw_progress(vp, s1, 0, 9, 40, i, 1000);
         draw_progress(vp, s2, 15, 7, 20, i, 1000);
         vp.flush();
-        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
 }
@@ -136,7 +136,30 @@ void test_graphics()
     cy::ansi::draw_bitmap(vp, {22,0}, b1, cy::ansi::terminal_default, cy::ansi::c_w2x1);
 }
 
+void test_event_loop()
+{
+    std::cout << std::endl;
+    cy::ansi::window vp({40, 10});
+    cy::ansi::style s1 {.bg = cy::ansi::blue1 };
+    cy::ansi::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
+
+    vp.flush();
+
+    cy::ansi::run([&](const cy::ansi::event &event)
+    {
+        if(cy::ansi::key_press e{event})
+        {
+            std::cout << "Key press: " << e.key() << "\r\n" << std::flush;
+        }
+        else if(cy::ansi::mouse_click e{event})
+        {
+            std::cout << "Click: " << e.pos().x << "," << e.pos().y << "\r\n" << std::flush;
+        }
+        return cy::ansi::event_return::continue_loop;
+    }); 
+}
+
 int main()
 {
-    return cy::test({test_direct, test_unbuffered, test_buffered, test_progress_bar, test_graphics});
+    return cy::test({test_direct, test_unbuffered, test_buffered, test_progress_bar, test_graphics, test_event_loop});
 }

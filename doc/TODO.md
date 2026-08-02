@@ -1,20 +1,36 @@
 # ANSI library
 
+Next steps:
+1. Full screen alt mode
+2. Mouse and keyboard input
+3. Raw terminal mode
+
+Widgets:
+- coutdown
+- timer
+- time of day
+
+
+
+class alt_screen
+{
+};
+
+class raw_mode
+{
+};
+
 Split into:
 ansi/raw.h/.cpp
 ansi/writer.h/.cpp
 ansi/widgets.h/.cpp
 ansi/event_loop
 
-Rename unbuffered into raw_
-Wrap 
-
 - Working in a reduced colour space
 - Working in different default style
 
 - Widgets
     - Layout
-- Viewports as abstract base class
 
 - Full screen support, and alt-screen
 - Screen width and height
@@ -42,15 +58,6 @@ Render a mandelbrot set
 Render images generally
 
 What about a generic map 4x4 to a character? Then we could make use of a variety of different characters?
-
-- Write and flush to ostream, not via strings
-
-- How to map bitmaps to Braille using fg and bg colours?
-- To stop bleeding, the top row uses the bottom half
-    - the bottom row uses the top half
-    - Doesn't really fix anything
-
-fansi graphics...
 
 Widgets
     Charts...

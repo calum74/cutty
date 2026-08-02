@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <vector>
 
@@ -217,6 +218,8 @@ class window : public writer
   public:
     explicit window(size s, std::ostream &os = std::cout);
 
+    ~window();
+
     void put(const character &ch, position p) override;
 
     void flush() override;
@@ -329,15 +332,18 @@ class widget
     {
         virtual void visit(widget &) = 0;
     };
+
     position m_pos;
     size m_size;
     virtual void draw(writer &vp);
-    virtual void key_event();
-    virtual void mouse_event();
+    virtual void key_event(char k, writer &w);
+    virtual void mouse_event(position p, writer &w);
+
     virtual void visit(visitor &);
 
     virtual size min_size();
     virtual size size_hint(size max);
+
 };
 class text : public widget
 {
@@ -376,20 +382,88 @@ void draw_bitmap(writer &vp, position p, const bitmap &, colour bg, bitmap_style
 // abstraction for drawing a progress bar on:
 // std::ostream, viewport, widget, string
 
+void fill_rect(writer &w, const character &c, position p, size s);
 
 character pixel(colour c);
 character pixel(colour c1, colour c2);
 character pixel(colour c[8]);
 
-// Application layer
+// Events
 
-enum events
+enum class event_type
 {
-    key_events=1,
-    mouse_move_events=2,
-    mouse_click_events=4,
-    all = key_events | mouse_move_events | mouse_click_events
+    key_press,
+    mouse_move,
+    mouse_click,
+    mouse_release
 };
+
+struct event
+{
+    event_type type;
+    int key, x, y;
+
+    bool is_key_press() const;
+    bool is_mouse() const;
+    bool is_mouse_move() const;
+    bool is_mouse_click() const;
+    bool is_mouse_release() const;
+
+    bool shift_key() const;
+    bool ctrl_key() const;
+    bool option_key() const;
+};
+
+class key_press
+{
+public:
+    key_press(const event &e);
+    explicit operator bool() const;
+    int key() const;
+private:
+    int m_key;
+};
+
+class mouse_click
+{
+public:
+    mouse_click(const event &e);
+    explicit operator bool() const;
+
+    bool shift();
+    bool ctrl() const;
+    bool option() const;
+
+    position pos() const;
+
+private:
+    position m_pos;
+    int flags;
+};
+
+class mouse_release
+{
+};
+
+class mouse_move
+{
+public:
+    int x() const;
+    int y() const;
+};
+
+enum key
+{
+    TAB = 9,
+    RET = 13,
+    ESC = 27,
+    UP = 201,
+    DOWN = 202,
+    RIGHT = 203,
+    LEFT = 204
+
+};
+
 
 enum event_return
 {
@@ -397,15 +471,6 @@ enum event_return
     exit_loop
 };
 
-class event_listener
-{
-    public:
-        virtual ~event_listener() = 0;
-        virtual event_return key(char c) = 0;
-        virtual event_return mouse_drag(position, position) = 0;
-        virtual event_return mouse_move(position) = 0;
-};
-
-void console_event_loop(std::istream &is, event_listener&);
+void run(const std::function<event_return(event)>&fn);
 
 } // namespace cutty::ansi
