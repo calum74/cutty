@@ -739,8 +739,8 @@ void cy::ansi::run(const std::function<event_return(event)> &fn)
     // This lets us know where the cursor is so we can calculate mouse moves relative to
     // our window.
 
-    auto pos = read_position();
-    std::cout << "Cursor X=" << pos.x << " Y=" << pos.y << "\r\n" << std::flush;
+    // auto pos = read_position();
+    // std::cout << "Cursor X=" << pos.x << " Y=" << pos.y << "\r\n" << std::flush;
 
     int n;
     int num_params = 0;
@@ -774,6 +774,11 @@ void cy::ansi::run(const std::function<event_return(event)> &fn)
             if (c == '[')
             {
                 state = 2;
+            }
+            else if( c == 27)
+            {
+                // Force exit double escape
+                return;
             }
             else
             {
@@ -921,6 +926,30 @@ cy::ansi::mouse_click::operator bool() const
 }
 
 cy::ansi::position cy::ansi::mouse_click::pos() const
+{
+    return m_pos;
+}
+
+cy::ansi::mouse_move::mouse_move(const event &e)
+{
+    if(e.type == event_type::mouse_move)
+    {
+        flags = e.key;
+        m_pos.x = e.x;
+        m_pos.y = e.y;
+    }
+    else
+    {
+        m_pos.x = m_pos.y = -1;
+    }
+}
+
+cy::ansi::mouse_move::operator bool() const
+{
+    return m_pos.x>=0 && m_pos.y >=0;
+}
+
+cy::ansi::position cy::ansi::mouse_move::pos() const
 {
     return m_pos;
 }

@@ -149,11 +149,22 @@ void test_event_loop()
     {
         if(cy::ansi::key_press e{event})
         {
-            std::cout << "Key press: " << e.key() << "\r\n" << std::flush;
+            if (e.key() == 'x')
+            {
+                return cy::ansi::event_return::exit_loop;
+            }
         }
         else if(cy::ansi::mouse_click e{event})
         {
-            std::cout << "Click: " << e.pos().x << "," << e.pos().y << "\r\n" << std::flush;
+            vp.go_to({3,6});
+            vp.text("Mouse click " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
+            vp.flush();
+        }
+        else if(cy::ansi::mouse_move e{event})
+        {
+            vp.go_to({3,5});
+            vp.text("Mouse moved " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y)+ "  ");
+            vp.flush();
         }
         return cy::ansi::event_return::continue_loop;
     }); 

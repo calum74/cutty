@@ -448,8 +448,20 @@ class mouse_release
 class mouse_move
 {
 public:
-    int x() const;
-    int y() const;
+    // Unfortunate duplication of mouse_click TODO
+
+    mouse_move(const event &e);
+    explicit operator bool() const;
+
+    bool shift();
+    bool ctrl() const;
+    bool option() const;
+
+    position pos() const;
+
+private:
+    position m_pos;
+    int flags;
 };
 
 enum key

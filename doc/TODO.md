@@ -1,5 +1,11 @@
 # ANSI library
 
+Next:
+- Text widget that prints the x and y cursor positions
+- A button that can be clicked on
+- A button that changes colour when hovered
+- A button that has a shortcut key?
+
 Next steps:
 1. Full screen alt mode
 2. Mouse and keyboard input
