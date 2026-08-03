@@ -5,6 +5,7 @@
 #include <chrono>
 
 namespace cy = cutty;
+namespace ancy = cy::ansi;
 
 void test_direct()
 {
@@ -170,7 +171,21 @@ void test_event_loop()
     }); 
 }
 
+void test_widgets()
+{
+    std::cout << std::endl;
+
+    ancy::window vp({40, 10});
+    ancy::style s1 {.bg = cy::ansi::blue1 };
+    ancy::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
+
+    vp.flush();
+
+    ancy::text_box t1(vp, {5,3}, {10,1}, s1, "Welcome to widgets");
+}
+
 int main()
 {
-    return cy::test({test_direct, test_unbuffered, test_buffered, test_progress_bar, test_graphics, test_event_loop});
+    return cy::test({test_direct, test_unbuffered, test_buffered, test_progress_bar, test_graphics, 
+        test_event_loop, test_widgets});
 }

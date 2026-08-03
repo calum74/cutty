@@ -1,5 +1,17 @@
 # ANSI library
 
+Next: Widgets and parent
+- intrusive list
+
+```
+template<typename T>
+class SelfTree
+{
+pub
+};
+```
+
+
 Next:
 - Text widget that prints the x and y cursor positions
 - A button that can be clicked on
