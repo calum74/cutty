@@ -7,7 +7,7 @@
 namespace cy = cutty;
 namespace ancy = cy::ansi;
 
-void test_direct()
+void test_raw()
 {
     // Tests the low level ANSI commands
 
@@ -30,7 +30,7 @@ void test_direct()
 
 }
 
-void test_unbuffered()
+void test_raw_writer()
 {
     std::cout << std::endl;
     cy::ansi::raw_writer w(std::cout);
@@ -55,10 +55,9 @@ void test_unbuffered()
     w.text("Y");
 }
 
-void test_buffered()
+void test_window_writer()
 {
     // Writing outside of the region clips the output
-
 
     std::cout << std::endl;
     cy::ansi::window vp({40, 5});
@@ -186,6 +185,6 @@ void test_widgets()
 
 int main()
 {
-    return cy::test({test_direct, test_unbuffered, test_buffered, test_progress_bar, test_graphics, 
+    return cy::test({test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
         test_event_loop, test_widgets});
 }

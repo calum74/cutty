@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+
 namespace ancy = cutty::ansi;
 
 void ancy::change_style(const style &old_style, const style &new_style, colour_space cs, std::ostream &os)
@@ -230,3 +234,12 @@ void ancy::alternate_screen_off(std::ostream &os)
     os << "\x1b[?1049l";
 }
 
+ancy::size ancy::get_terminal_size()
+{
+    winsize ws{};
+
+    if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1)
+        throw std::runtime_error("Failed to get terminal size");
+
+    return {static_cast<int>(ws.ws_col), static_cast<int>(ws.ws_row)};
+}
