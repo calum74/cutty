@@ -178,13 +178,24 @@ void test_widgets()
     ancy::style s1 {.bg = cy::ansi::blue1 };
     ancy::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
 
-    vp.flush();
+    int count = 0;
+    ancy::text_box t1(vp, {10,1}, {10,1}, s1, "Welcome to widgets");
+    ancy::text_box t2(vp, {10,3}, {10,1}, s1, "Press SPACE to count");
+    ancy::text_box t2a(vp, {10,4}, {10,1}, s1, "Q to quit");
+    ancy::text_box t2b(vp, {10,5}, {10,1}, s1, "R to reset");
+    ancy::text_box t3(vp, {2,7}, {10,1}, s1, "");
 
-    ancy::text_box t1(vp, {5,3}, {10,1}, s1, "Welcome to widgets");
+    auto redraw = [&] { t3.set_text(std::format("You have pressed {} times", count)); };
+
+    ancy::key_command cmd1(vp, ' ', [&] { ++count; redraw(); });
+    ancy::key_command cmd1a(vp, 'r', [&] { count=0; redraw(); });
+    ancy::key_command cmd2(vp, 'q', vp.quit_action());
+    
+    vp.run();
 }
 
-int main()
+int main(int argc, const char *argv[])
 {
-    return cy::test({test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
+    return cy::test(argc, argv, {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
         test_event_loop, test_widgets});
 }

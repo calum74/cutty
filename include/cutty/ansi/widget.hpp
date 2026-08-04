@@ -9,7 +9,9 @@ class widget
 {
   public:
     widget();
-    widget(widget &parent);
+    widget(const widget&) = delete;
+    widget(widget *parent);
+    widget(widget &parent, position p, size s);
     virtual ~widget();
     virtual void draw(writer &vp);
     virtual void key_press(char32_t k);
@@ -19,10 +21,11 @@ class widget
 
     virtual void add_child(widget &child);
     virtual void remove_child(widget &child);
+    virtual writer &get_writer();
     protected:
     widget * m_parent;
+    position m_position;
+    size m_size;
 };
-
-
 
 }

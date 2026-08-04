@@ -125,7 +125,10 @@ void ancy::run(const std::function<event_return(event)> &fn)
                 e.key = c;
                 if (send_event())
                     return;
-                if (c == 'q')
+                // Early exit if you press 'q':
+                // if (c == 'q')
+                //    return;
+                if (c == 3)  // Ctrl+C
                     return;
                 state = 0;
             }

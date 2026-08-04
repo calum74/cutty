@@ -1,4 +1,6 @@
 #include <cutty/ansi/window.hpp>
+#include <cutty/ansi/events.hpp>
+
 
 #include <algorithm>
 
@@ -103,3 +105,63 @@ void ancy::window::reset()
     m_style = {};
 }
 
+ancy::writer &ancy::window::get_writer()
+{
+    return *this;
+}
+
+void ancy::window::add_child(widget&w)
+{
+    m_children.push_back(&w);
+}
+
+void ancy::window::remove_child(widget&w)
+{
+    for(auto it=m_children.begin(); it!=m_children.end(); ++it)
+    {
+        if(*it == &w)
+        {
+            m_children.erase(it);
+            return;
+        }
+    }
+    // Silently ignore?
+}
+
+void ancy::window::run()
+{
+    m_quit = false;
+    flush();
+    ansi::run([this](const event &e)
+    {
+        if(ansi::key_press p{e})
+        {
+            key_press(p.key());
+        }
+        if(ansi::mouse_click c{e})
+        {
+
+        }
+        flush();
+        return m_quit ? event_return::exit_loop : event_return::continue_loop;
+    });
+}
+
+void ancy::window::key_press(char32_t ch)
+{
+    for(auto *child : m_children)
+    {
+        child->key_press(ch);
+    }
+}
+
+
+void ancy::window::quit()
+{
+    m_quit = true;
+}
+
+std::function<void()> ancy::window::quit_action()
+{
+    return [this] { quit(); };
+}

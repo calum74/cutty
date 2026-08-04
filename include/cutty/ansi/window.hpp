@@ -36,6 +36,20 @@ class window : public writer, public widget
 
     size dimensions() const override;
 
+    writer &get_writer() override;
+
+    void run();
+
+    void add_child(widget&w) override;
+
+    void remove_child(widget&w) override;
+
+    void key_press(char32_t ch) override;
+
+    void quit();
+
+    std::function<void()> quit_action();
+
   private:
     raw_writer m_underlying;
     position m_position;
@@ -47,5 +61,7 @@ class window : public writer, public widget
     };
     std::vector<viewport_character> m_data;
     std::vector<int> m_dirty_list;
+    std::vector<widget*> m_children;
+    bool m_quit;
 };
 }

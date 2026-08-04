@@ -3,6 +3,7 @@
 #include "widget.hpp"
 
 #include <string>
+#include <functional>
 
 namespace cutty::ansi
 {
@@ -63,7 +64,18 @@ class text_box : public widget
     void draw(writer &w) override;
 
   private:
-    std::string m_value;
+    style m_style;
+    std::string m_text;
+};
+
+class key_command : public widget
+{
+public:
+  key_command(widget &parent, char32_t key, std::function<void()> cmd);
+  void key_press(char32_t key) override;
+private:
+  char32_t m_key;
+  std::function<void()> m_function;
 };
 
 class progress : public widget

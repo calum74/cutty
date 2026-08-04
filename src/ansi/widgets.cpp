@@ -57,7 +57,6 @@ void ancy::draw_progress(writer &vp, const style &s, int x, int y, int w, int va
     }
 }
 
-
 void ancy::fill_rect(writer &w, const character &c, position p, size s)
 {
     for (int y = p.y; y < p.y + s.h; ++y)
@@ -85,21 +84,28 @@ void ancy::widget::mouse_release(position)
 {
 }
 
-void ancy::widget::draw(writer&)
+void ancy::widget::draw(writer &)
 {
 }
 
 ancy::widget::widget() : m_parent{}
-{}
+{
+}
 
-ancy::widget::widget(widget &parent) : m_parent(&parent)
+ancy::widget::widget(widget *parent) : m_parent{parent}
+{
+    m_parent->add_child(*this);
+}
+
+
+ancy::widget::widget(widget &parent, position p, size s) : m_parent(&parent), m_position(p), m_size(s)
 {
     m_parent->add_child(*this);
 }
 
 ancy::widget::~widget()
 {
-    if(m_parent)
+    if (m_parent)
     {
         m_parent->remove_child(*this);
     }
@@ -113,10 +119,44 @@ void ancy::widget::remove_child(widget &w)
 {
 }
 
-ancy::text_box::text_box(widget &parent, position p, size s, const style& sl, std::string_view text) : widget(parent)
+ancy::writer &ancy::widget::get_writer()
+{
+    if (m_parent)
+    {
+        return m_parent->get_writer();
+    }
+    else
+    {
+        throw std::runtime_error("No writer!");
+    }
+}
+
+ancy::text_box::text_box(widget &parent, position p, size s, const style &sl, std::string_view text)
+    : widget(parent, p, s), m_style(sl), m_text(text)
+{
+    draw(get_writer());
+}
+
+void ancy::text_box::draw(writer &w)
+{
+    w.go_to(m_position);
+    w.text(m_style, m_text);
+}
+
+void ancy::text_box::set_text(std::string_view s)
+{
+    m_text = s;
+    draw(get_writer());
+}
+
+ancy::key_command::key_command(widget &parent, char32_t key, std::function<void()> fn) : widget(&parent), m_key(key), m_function(fn)
 {
 }
 
-void ancy::text_box::draw(writer &)
+void ancy::key_command::key_press(char32_t key)
 {
+    if (key == m_key)
+    {
+        m_function ();
+    }
 }
