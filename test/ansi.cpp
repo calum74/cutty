@@ -185,7 +185,7 @@ void test_widgets()
     ancy::text_box t2b(vp, {10,5}, {10,1}, s1, "R to reset");
     ancy::text_box t3(vp, {2,7}, {10,1}, s1, "");
 
-    auto redraw = [&] { t3.set_text(std::format("You have pressed {} times", count)); };
+    auto redraw = [&] { t3.set_text(std::format("You have pressed {} times ", count)); };
 
     ancy::key_command cmd1(vp, ' ', [&] { ++count; redraw(); });
     ancy::key_command cmd1a(vp, 'r', [&] { count=0; redraw(); });
@@ -194,8 +194,24 @@ void test_widgets()
     vp.run();
 }
 
+void test_alt_screen()
+{
+    std::cout << std::endl; // !! temporary
+    ancy::window vp;
+    ancy::style s1 {.bg = cy::ansi::blue1 };
+    // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+
+    ancy::text_box t(vp, {5,2}, {10,1}, s1, "Testing alt screen");
+    ancy::text_box t2(vp, {5,7}, {10,1}, s1, "Press x");
+
+    ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
+
+    vp.run();
+}
+
 int main(int argc, const char *argv[])
 {
     return cy::test(argc, argv, {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
-        test_event_loop, test_widgets});
+        test_event_loop, test_widgets, test_alt_screen});
 }

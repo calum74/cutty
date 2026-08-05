@@ -1,6 +1,13 @@
 # ANSI library
 
-Next: Widgets and parent
+Mouse events in the raw loop.
+- Anchor the mouse into the window
+
+Tidy up alt mode
+- ostream
+- cursor positioning
+
+
 
 Next:
 - Text widget that prints the x and y cursor positions

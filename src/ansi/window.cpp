@@ -1,12 +1,13 @@
-#include <cutty/ansi/window.hpp>
 #include <cutty/ansi/events.hpp>
-
+#include <cutty/ansi/raw.hpp>
+#include <cutty/ansi/window.hpp>
 
 #include <algorithm>
 
 namespace ancy = cutty::ansi;
 
-ancy::window::window(size s, std::ostream &os) : m_underlying(os), m_dimensions(s), m_data(s.w * s.h)
+ancy::window::window(size s, std::ostream &os)
+    : m_underlying(os), m_dimensions(s), m_data(s.w * s.h), m_alt_screen(false)
 {
     m_dirty_list.reserve(m_data.size());
     for (int i = 0; i < s.h; i++)
@@ -15,8 +16,28 @@ ancy::window::window(size s, std::ostream &os) : m_underlying(os), m_dimensions(
     }
 }
 
+ancy::window::window()
+    : m_underlying(std::cout), m_dimensions(get_terminal_size()), m_data(m_dimensions.w * m_dimensions.h),
+      m_alt_screen(true)
+{
+    // TODO: Tidy up ostream and the rest
+    alternate_screen_on(std::cout);
+    wrap_off(std::cout);
+
+    // m_underlying.go_to({0,0});
+    // m_underlying.text("X");
+    // m_underlying.go_to({1,1});
+    // m_underlying.text("Y");
+    flush();
+}
+
 ancy::window::~window()
 {
+    if (m_alt_screen)
+    {
+        wrap_on(std::cout);
+        alternate_screen_off(std::cout);
+    }
     flush();
 }
 
@@ -31,7 +52,12 @@ void ancy::window::flush()
         c.dirty = false;
     }
     m_underlying.reset();
-    m_underlying.go_to({0, m_dimensions.h});
+    if (!m_alt_screen)
+    {
+        // TODO: Need a location for the cursor...
+        // TODO: Need a cursor style...
+        m_underlying.go_to({0, m_dimensions.h});
+    }
     m_underlying.flush();
     m_dirty_list.clear();
 }
@@ -110,16 +136,16 @@ ancy::writer &ancy::window::get_writer()
     return *this;
 }
 
-void ancy::window::add_child(widget&w)
+void ancy::window::add_child(widget &w)
 {
     m_children.push_back(&w);
 }
 
-void ancy::window::remove_child(widget&w)
+void ancy::window::remove_child(widget &w)
 {
-    for(auto it=m_children.begin(); it!=m_children.end(); ++it)
+    for (auto it = m_children.begin(); it != m_children.end(); ++it)
     {
-        if(*it == &w)
+        if (*it == &w)
         {
             m_children.erase(it);
             return;
@@ -132,15 +158,26 @@ void ancy::window::run()
 {
     m_quit = false;
     flush();
-    ansi::run([this](const event &e)
-    {
-        if(ansi::key_press p{e})
+    ansi::run([this](const event &e) {
+        if (ansi::key_press p{e})
         {
             key_press(p.key());
         }
-        if(ansi::mouse_click c{e})
+        else if (ansi::mouse_click c{e})
         {
-
+            mouse_move(c.pos(), c.flags());
+        }
+        else if (ansi::mouse_release c{e})
+        {
+            mouse_release(c.pos(), c.flags());
+        }
+        else if (ansi::mouse_move m{e})
+        {
+            mouse_move(m.pos(), m.flags());
+        }
+        else if (ansi::mouse_scroll s{e})
+        {
+            mouse_scroll(s.pos(), s.flags());
         }
         flush();
         return m_quit ? event_return::exit_loop : event_return::continue_loop;
@@ -149,12 +186,43 @@ void ancy::window::run()
 
 void ancy::window::key_press(char32_t ch)
 {
-    for(auto *child : m_children)
+    for (auto *child : m_children)
     {
         child->key_press(ch);
     }
 }
 
+void ancy::window::mouse_click(position p, mouse_flags f)
+{
+    for (auto *child : m_children)
+    {
+        child->mouse_click(p, f);
+    }
+}
+
+void ancy::window::mouse_release(position p, mouse_flags f)
+{
+    for (auto *child : m_children)
+    {
+        child->mouse_release(p, f);
+    }
+}
+
+void ancy::window::mouse_move(position p, mouse_flags f)
+{
+    for (auto *child : m_children)
+    {
+        child->mouse_move(p, f);
+    }
+}
+
+void ancy::window::mouse_scroll(position p, mouse_flags f)
+{
+    for (auto *child : m_children)
+    {
+        child->mouse_scroll(p, f);
+    }
+}
 
 void ancy::window::quit()
 {

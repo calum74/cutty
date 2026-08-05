@@ -11,7 +11,8 @@ enum class event_type
     key_press,
     mouse_move,
     mouse_click,
-    mouse_release
+    mouse_release,
+    mouse_scroll
 };
 
 struct event
@@ -30,6 +31,15 @@ struct event
     bool option_key() const;
 };
 
+struct mouse_flags
+{
+    bool valid : 1 = false;
+    bool click : 1 = false;
+    bool scroll : 1 = false;
+    bool move : 1 = false;
+    bool release : 1 = false;
+};
+
 class key_press
 {
 public:
@@ -40,45 +50,49 @@ private:
     int m_key;
 };
 
-class mouse_click
+class mouse_event
+{
+public:
+    mouse_event(mouse_flags flags, position p);
+
+    position pos() const;
+    bool shift();
+    bool ctrl() const;
+    bool option() const;
+
+    explicit operator bool() const;
+
+    mouse_flags flags() const;
+
+protected:
+    mouse_flags m_flags;
+    position m_position;
+};
+
+class mouse_click : public mouse_event
 {
 public:
     mouse_click(const event &e);
-    explicit operator bool() const;
-
-    bool shift();
-    bool ctrl() const;
-    bool option() const;
-
-    position pos() const;
-
-private:
-    position m_pos;
-    int flags;
 };
 
-class mouse_release
-{
-};
-
-class mouse_move
+class mouse_release : public mouse_event
 {
 public:
-    // Unfortunate duplication of mouse_click TODO
-
-    mouse_move(const event &e);
-    explicit operator bool() const;
-
-    bool shift();
-    bool ctrl() const;
-    bool option() const;
-
-    position pos() const;
-
-private:
-    position m_pos;
-    int flags;
+    mouse_release(const event&e);
 };
+
+class mouse_move : public mouse_event
+{
+public:
+    mouse_move(const event &e);
+};
+
+class mouse_scroll : public mouse_event
+{
+public:
+    mouse_scroll(const event &e);
+};
+
 
 enum key
 {
@@ -89,8 +103,8 @@ enum key
     DOWN = 202,
     RIGHT = 203,
     LEFT = 204
-
 };
+
 
 
 enum event_return

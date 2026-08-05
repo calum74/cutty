@@ -1,6 +1,7 @@
 #pragma once
 
 #include "writer.hpp"
+#include "events.hpp"
 
 namespace cutty::ansi
 {
@@ -15,9 +16,10 @@ class widget
     virtual ~widget();
     virtual void draw(writer &vp);
     virtual void key_press(char32_t k);
-    virtual void mouse_click(position p);
-    virtual void mouse_release(position p);
-    virtual void mouse_move(position p);
+    virtual void mouse_click(position p, mouse_flags);
+    virtual void mouse_release(position p, mouse_flags);
+    virtual void mouse_move(position p, mouse_flags);
+    virtual void mouse_scroll(position p, mouse_flags);
 
     virtual void add_child(widget &child);
     virtual void remove_child(widget &child);

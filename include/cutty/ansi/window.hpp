@@ -12,6 +12,8 @@ namespace cutty::ansi
 class window : public writer, public widget
 {
   public:
+    window();  // Alt-screen mode
+
     explicit window(size s, std::ostream &os = std::cout);
 
     ~window();
@@ -45,6 +47,10 @@ class window : public writer, public widget
     void remove_child(widget&w) override;
 
     void key_press(char32_t ch) override;
+    void mouse_click(position p, mouse_flags) override;
+    void mouse_release(position p, mouse_flags) override;
+    void mouse_move(position p, mouse_flags) override;
+    void mouse_scroll(position p, mouse_flags) override;
 
     void quit();
 
@@ -63,5 +69,6 @@ class window : public writer, public widget
     std::vector<int> m_dirty_list;
     std::vector<widget*> m_children;
     bool m_quit;
+    bool m_alt_screen;
 };
 }

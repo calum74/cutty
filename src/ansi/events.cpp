@@ -223,6 +223,8 @@ void ancy::run(const std::function<event_return(event)> &fn)
                     // +4 = shift key
                     // +8 = option key
                     // +16 = CTRL key
+                    // +64 = scroll up
+                    // +65 = scroll down
                     e.key = params[0];
                     e.type = params[0] & 32 ? event_type::mouse_move : event_type::mouse_click;
                     e.x = params[1];
@@ -242,6 +244,12 @@ void ancy::run(const std::function<event_return(event)> &fn)
                 }
                 else
                 {
+                    // std::cout << "Unknown: ";
+                    // for (int i = 0; i < num_params; ++i)
+                    // {
+                    //     std::cout << params[i] << ';';
+                    // }
+                    // std::cout << n << char(c) << "\r\n" << std::flush;
                     // Unknown: drop
                 }
                 state = 0;
@@ -269,50 +277,39 @@ int ancy::key_press::key() const
 }
 
 
-ancy::mouse_click::mouse_click(const event &e)
+ancy::mouse_click::mouse_click(const event &e) : mouse_event(e.type == event_type::mouse_click ? mouse_flags{.valid=true, .click=true} : mouse_flags{.valid=false}, {e.x, e.y})
 {
-    if(e.type == event_type::mouse_click)
-    {
-        flags = e.key;
-        m_pos.x = e.x;
-        m_pos.y = e.y;
-    }
-    else
-    {
-        m_pos.x = m_pos.y = -1;
-    }
 }
 
-ancy::mouse_click::operator bool() const
+ancy::mouse_scroll::mouse_scroll(const event &e) : mouse_event(e.type == event_type::mouse_scroll ? mouse_flags{.valid=true, .scroll=true} : mouse_flags{.valid=false}, {e.x, e.y})
 {
-    return m_pos.x>=0 && m_pos.y >=0;
 }
 
-ancy::position ancy::mouse_click::pos() const
+
+ancy::mouse_event::operator bool() const
 {
-    return m_pos;
+    return m_flags.valid;
 }
 
-ancy::mouse_move::mouse_move(const event &e)
+ancy::position ancy::mouse_event::pos() const
 {
-    if(e.type == event_type::mouse_move)
-    {
-        flags = e.key;
-        m_pos.x = e.x;
-        m_pos.y = e.y;
-    }
-    else
-    {
-        m_pos.x = m_pos.y = -1;
-    }
+    return m_position;
 }
 
-ancy::mouse_move::operator bool() const
+ancy::mouse_move::mouse_move(const event &e) : mouse_event(e.type == event_type::mouse_move ? mouse_flags{.valid=true, .move=true} : mouse_flags{.valid=false}, {e.x, e.y})
 {
-    return m_pos.x>=0 && m_pos.y >=0;
 }
 
-ancy::position ancy::mouse_move::pos() const
+ancy::mouse_release::mouse_release(const event &e) : mouse_event(e.type == event_type::mouse_release ? mouse_flags{.valid=true, .release=true} : mouse_flags{.valid=false}, {e.x, e.y})
 {
-    return m_pos;
+}
+
+
+ancy::mouse_event::mouse_event(mouse_flags f, position p) : m_flags(f), m_position(p)
+{
+}
+
+ancy::mouse_flags ancy::mouse_event::flags() const
+{
+    return m_flags;
 }

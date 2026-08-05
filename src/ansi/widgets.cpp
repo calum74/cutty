@@ -72,17 +72,22 @@ void ancy::widget::key_press(char32_t)
 {
 }
 
-void ancy::widget::mouse_click(position)
+void ancy::widget::mouse_click(position, mouse_flags)
 {
 }
 
-void ancy::widget::mouse_move(position)
+void ancy::widget::mouse_move(position, mouse_flags)
 {
 }
 
-void ancy::widget::mouse_release(position)
+void ancy::widget::mouse_release(position, mouse_flags)
 {
 }
+
+void ancy::widget::mouse_scroll(position, mouse_flags)
+{
+}
+
 
 void ancy::widget::draw(writer &)
 {
