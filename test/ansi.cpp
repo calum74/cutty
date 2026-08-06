@@ -196,7 +196,6 @@ void test_widgets()
 
 void test_alt_screen()
 {
-    std::cout << std::endl; // !! temporary
     ancy::window vp;
     ancy::style s1 {.bg = cy::ansi::blue1 };
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
@@ -206,6 +205,23 @@ void test_alt_screen()
     ancy::text_box t2(vp, {5,7}, {10,1}, s1, "Press x");
 
     ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
+    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
+
+    vp.run();
+}
+
+void test_mouse_coords()
+{
+    ancy::window vp({40,5});
+    ancy::style s1 {.bg = cy::ansi::blue1, .bold=true };
+    // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+
+    ancy::text_box t(vp, {5,1}, {10,1}, s1, "Testing mouse_coords");
+    ancy::text_box t2(vp, {5,3}, {10,1}, s1, "Press x");
+
+    ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
+    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
 
     vp.run();
 }
@@ -213,5 +229,5 @@ void test_alt_screen()
 int main(int argc, const char *argv[])
 {
     return cy::test(argc, argv, {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
-        test_event_loop, test_widgets, test_alt_screen});
+        test_event_loop, test_widgets, test_alt_screen, test_mouse_coords});
 }

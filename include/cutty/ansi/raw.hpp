@@ -7,6 +7,7 @@
 namespace cutty::ansi
 {
 size get_terminal_size();
+position read_position(std::ostream &os, std::istream &is);
 
 // Basic control sequences
 void start_of_line(std::ostream &);

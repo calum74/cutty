@@ -41,6 +41,9 @@ class writer
 
     // Gets the size of the terminal, or the size of the viewport
     virtual size dimensions() const = 0;
+
+    // Gets the current position of the cursor on the screen
+    virtual position current_position() const = 0;
 };
 
 // Ignores all ANSI colouring and just outputs plain text
@@ -85,6 +88,8 @@ class raw_writer : public writer
 
     // Gets the size of the terminal, or the size of the viewport
     size dimensions() const override;
+
+    position current_position() const override;
 
   private:
     std::ostream &os;

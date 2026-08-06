@@ -37,6 +37,7 @@ class window : public writer, public widget
     void put(const character&) override;
 
     size dimensions() const override;
+    position current_position() const override;
 
     writer &get_writer() override;
 

@@ -128,7 +128,6 @@ add_executable(unit_sample samples/units.cpp)
 add_executable(test_sample samples/test.cpp)
 add_executable(test_test test/test.cpp)
 
-add_test(ansi_test ansi_test)
 add_test(approx approx_sample)
 add_test(mixins mixins)
 add_test(with with)

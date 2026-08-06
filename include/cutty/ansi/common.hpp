@@ -12,6 +12,9 @@ struct size
     int w = 0, h = 0;
 };
 
+position operator+(position p1, position p2);
+position operator-(position p1, position p2);
+
 struct rectangle
 {
     ansi::position position;

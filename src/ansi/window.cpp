@@ -58,6 +58,10 @@ void ancy::window::flush()
         // TODO: Need a cursor style...
         m_underlying.go_to({0, m_dimensions.h});
     }
+    else
+    {
+        m_underlying.go_to({0, 0});
+    }
     m_underlying.flush();
     m_dirty_list.clear();
 }
@@ -158,26 +162,27 @@ void ancy::window::run()
 {
     m_quit = false;
     flush();
-    ansi::run([this](const event &e) {
+    auto mouse_offset = current_position();
+    ansi::run([this, mouse_offset](const event &e) {
         if (ansi::key_press p{e})
         {
             key_press(p.key());
         }
         else if (ansi::mouse_click c{e})
         {
-            mouse_move(c.pos(), c.flags());
+            mouse_move(c.pos() + mouse_offset, c.flags());
         }
         else if (ansi::mouse_release c{e})
         {
-            mouse_release(c.pos(), c.flags());
+            mouse_release(c.pos() + mouse_offset, c.flags());
         }
         else if (ansi::mouse_move m{e})
         {
-            mouse_move(m.pos(), m.flags());
+            mouse_move(m.pos() + mouse_offset, m.flags());
         }
         else if (ansi::mouse_scroll s{e})
         {
-            mouse_scroll(s.pos(), s.flags());
+            mouse_scroll(s.pos() + mouse_offset, s.flags());
         }
         flush();
         return m_quit ? event_return::exit_loop : event_return::continue_loop;
@@ -232,4 +237,9 @@ void ancy::window::quit()
 std::function<void()> ancy::window::quit_action()
 {
     return [this] { quit(); };
+}
+
+ancy::position ancy::window::current_position() const
+{
+    return m_underlying.current_position();
 }

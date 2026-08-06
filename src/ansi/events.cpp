@@ -1,4 +1,5 @@
 #include <cutty/ansi/events.hpp>
+#include <cutty/ansi/raw.hpp>
 
 #include <sys/ioctl.h>
 #include <termios.h>
@@ -37,46 +38,6 @@ class RawEventsSetup
 };
 } // namespace
 
-namespace
-{
-ancy::position read_position()
-{
-    std::cout << "\x1b[6n" << std::flush;
-    // Response:
-    // ESC [ row ; column R
-
-    char c;
-    int n = 0;
-    int row = 0;
-    while (read(STDIN_FILENO, &c, 1) == 1)
-    {
-        if (std::isdigit(c))
-        {
-            n = n * 10 + c - '0';
-        }
-        else if (c == ';')
-        {
-            row = n;
-            n = 0;
-        }
-        else if (c == 'R')
-        {
-            return {row, n};
-        }
-        else if (c == 27 || c == '[')
-        {
-            // ok
-        }
-        else
-        {
-            // Failure
-            return {0, 0};
-        }
-    }
-    return {0, 0};
-}
-} // namespace
-
 void ancy::run(const std::function<event_return(event)> &fn)
 {
     RawEventsSetup setup(std::cout);
@@ -99,8 +60,8 @@ void ancy::run(const std::function<event_return(event)> &fn)
     // This lets us know where the cursor is so we can calculate mouse moves relative to
     // our window.
 
-    // auto pos = read_position();
-    // std::cout << "Cursor X=" << pos.x << " Y=" << pos.y << "\r\n" << std::flush;
+    auto initial_position = read_position(std::cout, std::cin);
+    // std::cout << "Cursor X=" << initial_position.x << " Y=" << initial_position.y << "\r\n" << std::flush;
 
     int n;
     int num_params = 0;
@@ -227,8 +188,8 @@ void ancy::run(const std::function<event_return(event)> &fn)
                     // +65 = scroll down
                     e.key = params[0];
                     e.type = params[0] & 32 ? event_type::mouse_move : event_type::mouse_click;
-                    e.x = params[1];
-                    e.y = n;
+                    e.x = params[1] - initial_position.x;
+                    e.y = n - initial_position.y;
                     if (send_event())
                         return;
                 }
@@ -237,8 +198,8 @@ void ancy::run(const std::function<event_return(event)> &fn)
                     // Mouse release
                     e.type = event_type::mouse_release;
                     e.key = params[0];
-                    e.x = params[1];
-                    e.y = n;
+                    e.x = params[1] - initial_position.x;
+                    e.y = n - initial_position.y;
                     if (send_event())
                         return;
                 }

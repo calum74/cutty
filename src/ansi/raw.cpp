@@ -243,3 +243,52 @@ ancy::size ancy::get_terminal_size()
 
     return {static_cast<int>(ws.ws_col), static_cast<int>(ws.ws_row)};
 }
+
+ancy::position ancy::read_position(std::ostream &os, std::istream &is)
+{
+    std::cout << std::flush << "\x1b[6n" << std::flush;
+    // Response:
+    // ESC [ row ; column R
+
+    char c;
+    int n = 0;
+    int row = 0;
+    std::string debug;
+    while (read(STDIN_FILENO, &c, 1) == 1)  // TODO: Use `is`
+    {
+        debug += c;
+        if (std::isdigit(c))
+        {
+            n = n * 10 + c - '0';
+        }
+        else if (c == ';')
+        {
+            row = n;
+            n = 0;
+        }
+        else if (c == 'R')
+        {
+            return {n, row};
+        }
+        else if (c == 27 || c == '[')
+        {
+            // ok
+        }
+        else
+        {
+            // Failure
+            return {0, 0};
+        }
+    }
+    return {0, 0};
+}
+
+ancy::position ancy::operator-(position lhs, position rhs)
+{
+    return {lhs.x-rhs.x, lhs.y-rhs.y};
+}
+
+ancy::position ancy::operator+(position lhs, position rhs)
+{
+    return {lhs.x+rhs.x, lhs.y+rhs.y};
+}

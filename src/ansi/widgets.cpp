@@ -165,3 +165,13 @@ void ancy::key_command::key_press(char32_t key)
         m_function ();
     }
 }
+
+ancy::move_command::move_command(widget &parent, std::function<void(position,mouse_flags)> fn) :
+    widget(&parent), m_function(fn)
+{
+}
+
+void ancy::move_command::mouse_move(position p, mouse_flags f)
+{
+    m_function(p, f);
+}

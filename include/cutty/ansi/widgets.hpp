@@ -2,8 +2,8 @@
 
 #include "widget.hpp"
 
-#include <string>
 #include <functional>
+#include <string>
 
 namespace cutty::ansi
 {
@@ -70,12 +70,23 @@ class text_box : public widget
 
 class key_command : public widget
 {
-public:
-  key_command(widget &parent, char32_t key, std::function<void()> cmd);
-  void key_press(char32_t key) override;
-private:
-  char32_t m_key;
-  std::function<void()> m_function;
+  public:
+    key_command(widget &parent, char32_t key, std::function<void()> cmd);
+    void key_press(char32_t key) override;
+
+  private:
+    char32_t m_key;
+    std::function<void()> m_function;
+};
+
+class move_command : public widget
+{
+  public:
+    move_command(widget &parent, std::function<void(position, mouse_flags)>);
+    void mouse_move(position, mouse_flags) override;
+
+  private:
+    std::function<void(position, mouse_flags)> m_function;
 };
 
 class progress : public widget

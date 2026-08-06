@@ -85,3 +85,7 @@ void ancy::raw_writer::text(const style &s, std::string_view str)
     text(str);
 }
 
+ancy::position ancy::raw_writer::current_position() const
+{
+    return m_position;
+}
