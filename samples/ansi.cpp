@@ -8,14 +8,14 @@ int main()
     cy::ansi::reset(std::cout);
     cy::ansi::bold_on(std::cout);
     std::cout << "Hello, world!\n";
-    cy::ansi::fg_colour(cy::ansi::colour{0,128,255}, cy::ansi::colour_space::cs_256, std::cout);
+    cy::ansi::fg_colour(cy::ansi::colour{0,128,255, cy::ansi::colour_space::cs_256}, std::cout);
     std::cout << "Hello, in burple!\n";
     cy::ansi::reset(std::cout);
 
     cy::ansi::style red {.fg = cy::ansi::red};
     cy::ansi::style bright_green {.fg = cy::ansi::green, .bold=true};
 
-    cy::ansi::change_style({}, bright_green, cy::ansi::colour_space::cs_256, std::cout);
+    cy::ansi::change_style({}, bright_green, std::cout);
     std::cout << "Bright green";
     cy::ansi::reset(std::cout);
     std::cout << std::endl;

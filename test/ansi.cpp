@@ -23,7 +23,7 @@ void test_raw()
     s1.fg = cy::ansi::red;
     s1.bg = cy::ansi::blue1;
 
-    cy::ansi::change_style({}, s1, {}, std::cout);
+    cy::ansi::change_style({}, s1, std::cout);
     std::cout << "Bold in red";
     cy::ansi::reset(std::cout);
     std::cout << std::endl;
@@ -235,7 +235,11 @@ void test_button()
     ancy::style button_normal { .fg = ancy::red, .bg = ancy::white };
     ancy::style button_highlight { .fg = ancy::red, .bg = ancy::yellow };
 
+    ancy::style x_normal { .fg = ancy::white, .bg = ancy::red };
+    ancy::style x_highlight { .fg = ancy::white, .bg = ancy::red, .bold=true };
+
     ancy::button b1(vp, {3,2},{10,1}, 'q', "Quit", button_normal, button_highlight, vp.quit_action());
+    ancy::button b2(vp, {39,0},{1,1}, 'x', "X", x_normal, x_highlight, vp.quit_action());
     vp.run();
 }
 

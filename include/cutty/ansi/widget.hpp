@@ -1,7 +1,8 @@
 #pragma once
 
-#include "writer.hpp"
 #include "events.hpp"
+#include "theme.hpp"
+#include "writer.hpp"
 
 namespace cutty::ansi
 {

@@ -1,9 +1,16 @@
 # ANSI library
 
-Button
-- Move to highlight
+Top-right X button (white on red)
 
-Exit button
+Each test should be a separate sample
+
+Themes
+- ascii/ansi
+- Colours should encode their colourspace
+- background colour
+- Button fg/background
+- Text box colour
+- Line style
 
 
 

@@ -8,7 +8,7 @@
 
 namespace ancy = cutty::ansi;
 
-void ancy::change_style(const style &old_style, const style &new_style, colour_space cs, std::ostream &os)
+void ancy::change_style(const style &old_style, const style &new_style, std::ostream &os)
 {
     if (new_style == old_style)
     {
@@ -45,13 +45,13 @@ void ancy::change_style(const style &old_style, const style &new_style, colour_s
     if (new_style.fg != old_style.fg)
     {
         next();
-        sgr_fg(new_style.fg, cs, os);
+        sgr_fg(new_style.fg, os);
     }
 
     if (new_style.bg != old_style.bg)
     {
         next();
-        sgr_bg(new_style.bg, cs, os);
+        sgr_bg(new_style.bg, os);
     }
 
     if(new_style.underline != old_style.underline)
@@ -149,17 +149,17 @@ void ancy::reset(std::ostream &os)
     os << "\x1b[0m";
 }
 
-void ancy::fg_colour(colour c, colour_space cs, std::ostream &os)
+void ancy::fg_colour(colour c, std::ostream &os)
 {
     sgr_start(os);
-    sgr_fg(c, cs, os);
+    sgr_fg(c, os);
     sgr_finish(os);
 }
 
-void ancy::bg_colour(colour c, colour_space cs, std::ostream &os)
+void ancy::bg_colour(colour c, std::ostream &os)
 {
     sgr_start(os);
-    sgr_bg(c, cs, os);
+    sgr_bg(c, os);
     sgr_finish(os);
 }
 
@@ -173,7 +173,7 @@ void ancy::sgr_finish(std::ostream &os)
     os << 'm';
 }
 
-void ancy::sgr_fg(colour c, colour_space cs, std::ostream &os)
+void ancy::sgr_fg(colour c, std::ostream &os)
 {
     if (c == terminal_default)
     {
@@ -185,7 +185,7 @@ void ancy::sgr_fg(colour c, colour_space cs, std::ostream &os)
     }
 }
 
-void ancy::sgr_bg(colour c, colour_space cs, std::ostream &os)
+void ancy::sgr_bg(colour c, std::ostream &os)
 {
     if (c == terminal_default)
     {

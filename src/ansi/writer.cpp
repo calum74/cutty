@@ -51,7 +51,7 @@ void ancy::raw_writer::go_to(position new_position)
 
 void ancy::raw_writer::apply(const ansi::style &new_style)
 {
-    change_style(current_style, new_style, cs, os);
+    change_style(current_style, new_style, os);
     current_style = new_style;
 }
 
