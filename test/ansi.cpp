@@ -179,11 +179,12 @@ void test_widgets()
     ancy::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
 
     int count = 0;
-    ancy::text_box t1(vp, {10,1}, {10,1}, s1, "Welcome to widgets");
-    ancy::text_box t2(vp, {10,3}, {10,1}, s1, "Press SPACE to count");
-    ancy::text_box t2a(vp, {10,4}, {10,1}, s1, "Q to quit");
-    ancy::text_box t2b(vp, {10,5}, {10,1}, s1, "R to reset");
-    ancy::text_box t3(vp, {2,7}, {10,1}, s1, "");
+    ancy::theme th;
+    ancy::text_box t1(vp, {10,1}, {10,1}, s1, th, "Welcome to widgets");
+    ancy::text_box t2(vp, {10,3}, {10,1}, s1, th, "Press SPACE to count");
+    ancy::text_box t2a(vp, {10,4}, {10,1}, s1, th,  "Q to quit");
+    ancy::text_box t2b(vp, {10,5}, {10,1}, s1, th, "R to reset");
+    ancy::text_box t3(vp, {2,7}, {10,1}, s1, th, "");
 
     auto redraw = [&] { t3.set_text(std::format("You have pressed {} times ", count)); };
 
@@ -201,8 +202,9 @@ void test_alt_screen()
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
     ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
 
-    ancy::text_box t(vp, {5,2}, {10,1}, s1, "Testing alt screen");
-    ancy::text_box t2(vp, {5,7}, {10,1}, s1, "Press x");
+    ancy::theme th;
+    ancy::text_box t(vp, {5,2}, {10,1}, th.text, th, "Testing alt screen");
+    ancy::text_box t2(vp, {5,7}, {10,1}, th.text, th, "Press x");
 
     ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
     ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
@@ -217,8 +219,9 @@ void test_mouse_coords()
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
     ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
 
-    ancy::text_box t(vp, {5,1}, {10,1}, s1, "Testing mouse_coords");
-    ancy::text_box t2(vp, {5,3}, {10,1}, s1, "Press x");
+    ancy::theme th;
+    ancy::text_box t(vp, {5,1}, {10,1}, th.text, th, "Testing mouse_coords");
+    ancy::text_box t2(vp, {5,3}, {10,1}, th.text, th, "Press x");
 
     ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
     ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
@@ -228,6 +231,7 @@ void test_mouse_coords()
 
 void test_button()
 {
+    ancy::theme th;
     ancy::window vp({40,5});
     ancy::style s1 {.bg = cy::ansi::blue1, .bold=true };
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
@@ -238,8 +242,15 @@ void test_button()
     ancy::style x_normal { .fg = ancy::white, .bg = ancy::red };
     ancy::style x_highlight { .fg = ancy::white, .bg = ancy::red, .bold=true };
 
-    ancy::button b1(vp, {3,2},{10,1}, 'q', "Quit", button_normal, button_highlight, vp.quit_action());
+    ancy::style text_normal { .fg = ancy::yellow };
+
     ancy::button b2(vp, {39,0},{1,1}, 'x', "X", x_normal, x_highlight, vp.quit_action());
+
+    ancy::text_box t1(vp, {20,2}, {10,1}, th.data_text, th, "The sly fox jumps over the lazy dog");
+    std::string value = "";
+    char c = 'a';
+    ancy::button b1(vp, {3,1},{10,1}, 'c', "Clear", button_normal, button_highlight, [&] { value = ""; t1.set_text(value); });
+    ancy::button b3(vp, {3,3},{10,1}, 'u', "Update", button_normal, button_highlight, [&] { value += c; c++; if(c>'z') c = 'a'; t1.set_text(value); });
     vp.run();
 }
 

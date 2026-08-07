@@ -69,13 +69,20 @@ class button : public widget
 class text_box : public widget
 {
   public:
-    text_box(widget &parent, position p, size s, const style &sl, std::string_view str);
+    text_box(widget &parent, position p, size s, const style &st, const theme &t, std::string_view str);
     void set_text(std::string_view value);
     void draw(writer &w) override;
 
+    void mouse_click(position p, mouse_flags) override;
+    void mouse_move(position p, mouse_flags) override;
+
   private:
-    style m_style;
+    style m_style, m_button_normal, m_button_focus;
     std::string m_text;
+    int m_hidden;
+    bool m_on_left_anchor = false, m_on_right_anchor = false;
+    bool has_left_anchor() const;
+    bool has_right_anchor() const;
 };
 
 class key_command : public widget

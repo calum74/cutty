@@ -243,3 +243,4 @@ ancy::position ancy::window::current_position() const
 {
     return m_underlying.current_position();
 }
+

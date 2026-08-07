@@ -5,6 +5,7 @@ namespace cutty::ansi
 struct position
 {
     int x = 0, y = 0;
+    friend bool operator==(position, position) = default;
 };
 
 struct size
