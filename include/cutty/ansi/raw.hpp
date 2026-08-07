@@ -44,6 +44,8 @@ void sgr_end(std::ostream &);
 void sgr_reset(std::ostream &);
 void sgr_bold_on(std::ostream &os);
 void sgr_bold_off(std::ostream &os);
+void sgr_underline_on(std::ostream &os);
+void sgr_underline_off(std::ostream &os);
 void sgr_fg(colour, colour_space, std::ostream &);
 void sgr_bg(colour, colour_space, std::ostream &);
 void sgr_finish(std::ostream &os);

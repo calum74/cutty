@@ -24,6 +24,7 @@ class widget
     virtual void add_child(widget &child);
     virtual void remove_child(widget &child);
     virtual writer &get_writer();
+    bool mouse_hit(position) const;
     protected:
     widget * m_parent;
     position m_position;

@@ -22,6 +22,7 @@ static constexpr colour black{0, 0, 0};
 static constexpr colour red{255, 0, 0};
 static constexpr colour green{0, 255, 0};
 static constexpr colour blue1{0, 64, 255};
+static constexpr colour yellow{255,255, 0};
 
 using color = colour; // Ye haw!
 }

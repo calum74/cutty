@@ -226,8 +226,22 @@ void test_mouse_coords()
     vp.run();
 }
 
+void test_button()
+{
+    ancy::window vp({40,5});
+    ancy::style s1 {.bg = cy::ansi::blue1, .bold=true };
+    // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::style button_normal { .fg = ancy::red, .bg = ancy::white };
+    ancy::style button_highlight { .fg = ancy::red, .bg = ancy::yellow };
+
+    ancy::button b1(vp, {3,2},{10,1}, 'q', "Quit", button_normal, button_highlight, vp.quit_action());
+    vp.run();
+}
+
 int main(int argc, const char *argv[])
 {
     return cy::test(argc, argv, {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
-        test_event_loop, test_widgets, test_alt_screen, test_mouse_coords});
+        test_event_loop, test_widgets, test_alt_screen, test_mouse_coords,
+        test_button});
 }

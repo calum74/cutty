@@ -48,12 +48,22 @@ void fill_rect(writer &w, const character &c, position p, size s);
 class button : public widget
 {
   public:
-    button(position p, size s, std::string text);
+    button(widget &parent, position p, size s, char32_t hotkey, std::string text, const style &normal, const style &highlight, std::function<void()> action);
 
-    virtual void on_focus(writer &w);
-    // virtual void on_mouse_move(writer &w, mouse_move m);
+    void set_text(std::string str);
+    void key_press(char32_t) override;
+    void mouse_move(position p, mouse_flags m) override;
+    void mouse_click(position p, mouse_flags m) override;
+    virtual void draw(writer&) override;
 
-    virtual void on_click() = 0;
+  private:
+    void set_focus(bool);
+
+    char32_t m_key;
+    style m_normal, m_selected;
+    std::string m_text;
+    std::function<void()> m_action;
+    bool m_focus = false;
 };
 
 class text_box : public widget

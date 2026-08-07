@@ -54,6 +54,19 @@ void ancy::change_style(const style &old_style, const style &new_style, colour_s
         sgr_bg(new_style.bg, cs, os);
     }
 
+    if(new_style.underline != old_style.underline)
+    {
+        next();
+        if(new_style.underline)
+        {
+            sgr_underline_on(os);
+        }
+        else
+        {
+            sgr_underline_off(os);
+        }
+    }
+
     sgr_finish(os);
 }
 
@@ -192,6 +205,16 @@ void ancy::sgr_bold_on(std::ostream &os)
 void ancy::sgr_bold_off(std::ostream &os)
 {
     os << "22";
+}
+
+void ancy::sgr_underline_on(std::ostream &os)
+{
+    os << '4';
+}
+
+void ancy::sgr_underline_off(std::ostream &os)
+{
+    os << "24";
 }
 
 void ancy::sgr_start(std::ostream &os)

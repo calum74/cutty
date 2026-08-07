@@ -170,7 +170,7 @@ void ancy::window::run()
         }
         else if (ansi::mouse_click c{e})
         {
-            mouse_move(c.pos() + mouse_offset, c.flags());
+            mouse_click(c.pos() + mouse_offset, c.flags());
         }
         else if (ansi::mouse_release c{e})
         {

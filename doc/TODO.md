@@ -1,5 +1,19 @@
 # ANSI library
 
+Button
+- Move to highlight
+
+Exit button
+
+
+
+Text box
+- erase the old contents
+- white on red style?
+- 
+
+Text input box
+
 Mouse events in the raw loop.
 - Anchor the mouse into the window
 
