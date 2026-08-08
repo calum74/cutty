@@ -7,7 +7,7 @@
 namespace ancy = cutty::ansi;
 
 ancy::window::window(size s, std::ostream &os)
-    : m_underlying(os), m_dimensions(s), m_data(s.w * s.h), m_alt_screen(false)
+    : m_underlying(os), m_dimensions(s), m_data(s.w * s.h), m_alt_screen(false), m_show_cursor(false)
 {
     m_dirty_list.reserve(m_data.size());
     for (int i = 0; i < s.h; i++)
@@ -38,6 +38,10 @@ ancy::window::~window()
         wrap_on(std::cout);
         alternate_screen_off(std::cout);
     }
+    else if(!m_show_cursor)
+    {
+        m_underlying.show_cursor({0,m_dimensions.h});
+    }
     flush();
 }
 
@@ -62,6 +66,12 @@ void ancy::window::flush()
     {
         m_underlying.go_to({0, 0});
     }
+
+    if(m_show_cursor)
+    {
+        m_underlying.show_cursor(m_cursor_position);
+    }
+
     m_underlying.flush();
     m_dirty_list.clear();
 }
@@ -244,3 +254,21 @@ ancy::position ancy::window::current_position() const
     return m_underlying.current_position();
 }
 
+void ancy::window::show_cursor(position p)
+{
+    if(!m_show_cursor)
+    {
+        m_underlying.show_cursor(p);
+        m_show_cursor = true;
+    }
+    m_cursor_position = p;
+}
+
+void ancy::window::hide_cursor()
+{
+    if(m_show_cursor)
+    {
+        m_underlying.hide_cursor();
+        m_show_cursor = false;
+    }
+}

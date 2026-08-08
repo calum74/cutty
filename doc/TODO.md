@@ -2,6 +2,7 @@
 
 Input box:
 - Position the mouse cursor (writer.show_cursor(position)/writer.hide_cursor())
+
 - Capture the keyboard and don't send 'x' to output (widget.set_focus(child))
 - Change focus using arrow and tab keys (parent.next_focus()/prev_focus())/widget.set_focus(true/false))
 bool widget.takes_focus()

@@ -52,7 +52,10 @@ class window : public writer, public widget
     void mouse_release(position p, mouse_flags) override;
     void mouse_move(position p, mouse_flags) override;
     void mouse_scroll(position p, mouse_flags) override;
+    void hide_cursor() override;
+    void show_cursor(position p) override;
 
+    // Signal to the event loop to exit
     void quit();
 
     std::function<void()> quit_action();
@@ -71,5 +74,8 @@ class window : public writer, public widget
     std::vector<widget*> m_children;
     bool m_quit;
     bool m_alt_screen;
+
+    bool m_show_cursor;
+    position m_cursor_position;
 };
 }

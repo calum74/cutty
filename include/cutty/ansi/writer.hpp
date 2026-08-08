@@ -44,16 +44,12 @@ class writer
 
     // Gets the current position of the cursor on the screen
     virtual position current_position() const = 0;
-};
 
-// Ignores all ANSI colouring and just outputs plain text
-class ascii_writer : public writer
-{
-  public:
-    ascii_writer(std::ostream &os);
+    // Hide the cursor
+    virtual void hide_cursor() = 0;
 
-  private:
-    std::ostream &m_os;
+    // Shows the cursor at the specified position
+    virtual void show_cursor(position) = 0;
 };
 
 class raw_writer : public writer
@@ -91,9 +87,12 @@ class raw_writer : public writer
 
     position current_position() const override;
 
+    void hide_cursor() override;
+
+    void show_cursor(position p) override;
+
   private:
     std::ostream &os;
-    colour_space cs = cs_256;
 
     // The current state of the terminal
     ansi::style current_style;

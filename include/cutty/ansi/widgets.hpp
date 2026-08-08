@@ -139,6 +139,7 @@ class text_input : public widget
     std::string m_prompt;
     std::function<void()> m_change_action;
     std::function<void()> m_enter_action;
+    bool m_has_focus = false;
 };
 
 } // namespace cutty::ansi

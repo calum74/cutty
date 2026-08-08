@@ -363,8 +363,8 @@ void ancy::text_input::draw(writer&w)
 
     character ch { .style = style };
 
-    bool overflow = m_text.size() > m_size.w;
-    int offset = overflow ? m_text.size() - m_size.w : 0;
+    bool overflow = m_text.size() > (m_size.w-1);
+    int offset = overflow ? m_text.size() - (m_size.w - 1) : 0;
 
     for(int i=0; i<m_size.w; ++i)
     {
@@ -383,6 +383,10 @@ void ancy::text_input::draw(writer&w)
             ch.ch = ' ';
         }
         w.put(ch, {m_position.x + i, m_position.y});
+    }
+    // if(m_has_focus)
+    {
+        w.show_cursor({m_position.x + int(m_text.size()) - offset, m_position.y});
     }
 }
 
