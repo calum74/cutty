@@ -48,13 +48,14 @@ void fill_rect(writer &w, const character &c, position p, size s);
 class button : public widget
 {
   public:
-    button(widget &parent, position p, size s, char32_t hotkey, std::string text, const style &normal, const style &highlight, std::function<void()> action);
+    button(widget &parent, position p, size s, char32_t hotkey, std::string text, const style &normal,
+           const style &highlight, std::function<void()> action);
 
     void set_text(std::string str);
     void key_press(char32_t) override;
     void mouse_move(position p, mouse_flags m) override;
     void mouse_click(position p, mouse_flags m) override;
-    virtual void draw(writer&) override;
+    virtual void draw(writer &) override;
 
   private:
     void set_focus(bool);
@@ -112,6 +113,32 @@ class progress : public widget
 
 class layout
 {
+};
+
+class text_input : public widget
+{
+  public:
+    text_input(widget &parent, position p, size s, const style &text_style, const style &button_normal_style,
+               const style &button_focus_style, const style &disabled_style, std::string initial_text,
+               std::string prompt_text, std::function<void()> change_action, std::function<void()> enter_action);
+
+  void set_text(std::string new_text);
+  void draw(writer&) override;
+
+  void mouse_move(position, mouse_flags) override;
+
+  void mouse_click(position, mouse_flags) override;
+
+  void key_press(char32_t key) override;
+
+  const std::string &get_text() const;
+
+  private:
+    style m_text_style, m_button_normal_style, m_button_focus_style, m_disabled_style;
+    std::string m_text;
+    std::string m_prompt;
+    std::function<void()> m_change_action;
+    std::function<void()> m_enter_action;
 };
 
 } // namespace cutty::ansi

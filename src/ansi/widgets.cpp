@@ -317,3 +317,112 @@ void ancy::button::set_focus(bool f)
         draw(get_writer());
     }
 }
+
+const ancy::theme &ancy::default_theme()
+{
+    static theme t{
+        .window{.bg = blue1},
+        .title{.bg = blue1},
+        .text{.fg = white, .bg = blue1},
+        .data_text{.fg = yellow, .bg = black},
+        .text_input{.fg = white, .bg = black},
+        .button_normal{.fg = red, .bg = white},
+        .button_focus{.fg = red, .bg = yellow, .bold = true},
+        .status{.fg = blue1, .bg = white},
+        .x_normal{.fg = ancy::white, .bg = ancy::red},
+        .x_highlight{.fg = ancy::white, .bg = ancy::red, .bold = true},
+    };
+    return t;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+ancy::text_input::text_input(widget &parent, position p, size s, const style &text_style,
+                             const style &button_normal_style, const style &button_focus_style,
+                             const style &disabled_style, std::string initial_text, std::string prompt_text,
+                             std::function<void()> change_action,
+                             std::function<void()> enter_action)
+    : widget(parent, p, s), m_text_style(text_style), m_button_normal_style(button_normal_style),
+      m_button_focus_style(button_focus_style), m_disabled_style(disabled_style), m_prompt(std::move(prompt_text)),
+      m_change_action(std::move(change_action)),
+      m_enter_action(std::move(enter_action))
+{
+    set_text(std::move(initial_text));
+}
+
+void ancy::text_input::set_text(std::string text)
+{
+    m_text = text;
+    draw(get_writer());
+}
+
+void ancy::text_input::draw(writer&w)
+{
+    const auto & str = m_text.empty() ? m_prompt: m_text;
+    const auto & style = m_text.empty() ? m_disabled_style : m_text_style;
+
+    character ch { .style = style };
+
+    bool overflow = m_text.size() > m_size.w;
+    int offset = overflow ? m_text.size() - m_size.w : 0;
+
+    for(int i=0; i<m_size.w; ++i)
+    {
+        int j=i + offset;
+
+        if(overflow && i==0)
+        {
+            ch.ch = '<';
+        }
+        else if(j>=0 && j < str.size())
+        {
+            ch.ch = str[j];
+        }
+        else
+        {
+            ch.ch = ' ';
+        }
+        w.put(ch, {m_position.x + i, m_position.y});
+    }
+}
+
+void ancy::text_input::mouse_move(position, mouse_flags)
+{
+}
+
+void ancy::text_input::mouse_click(position, mouse_flags)
+{
+}
+
+void ancy::text_input::key_press(char32_t key)
+{
+    if(key == 127)
+    {
+        if(!m_text.empty())
+        {
+            m_text.pop_back();
+            m_change_action();
+        }
+    }
+    else if(key==13)
+    {
+        // Enter key: perform action
+        m_enter_action();
+    }
+    else if(key <127)
+    {
+        m_text += key;
+        m_change_action();
+    }
+    else
+    {
+        // Ignore?
+        return;
+    }
+    draw(get_writer());
+}
+
+const std::string &ancy::text_input::get_text() const
+{
+    return m_text;
+}

@@ -1,8 +1,8 @@
 #include <cutty/ansi.hpp>
 #include <cutty/test.hpp>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 namespace cy = cutty;
 namespace ancy = cy::ansi;
@@ -27,7 +27,6 @@ void test_raw()
     std::cout << "Bold in red";
     cy::ansi::reset(std::cout);
     std::cout << std::endl;
-
 }
 
 void test_raw_writer()
@@ -62,8 +61,8 @@ void test_window_writer()
     std::cout << std::endl;
     cy::ansi::window vp({40, 5});
 
-    vp.put({.ch='x'}, {3,0});
-    vp.put({.ch='y'}, {4,1});
+    vp.put({.ch = 'x'}, {3, 0});
+    vp.put({.ch = 'y'}, {4, 1});
     vp.flush();
 
     cy::ansi::style s1, s2;
@@ -71,9 +70,9 @@ void test_window_writer()
     s1.fg = cy::ansi::red;
     s1.bg = cy::ansi::blue1;
 
-    vp.put({s1, 'X'}, {.x=0, .y=0});
+    vp.put({s1, 'X'}, {.x = 0, .y = 0});
     vp.put({s2, ' '}, {0, 0});
-    vp.put({.ch='+'}, {39, 0});
+    vp.put({.ch = '+'}, {39, 0});
 
     s2.fg = cy::ansi::green;
 
@@ -99,14 +98,13 @@ void test_progress_bar()
 
     cy::ansi::style s2;
 
-    for(int i=0; i<=1000; ++i)
+    for (int i = 0; i <= 1000; ++i)
     {
         draw_progress(vp, s1, 0, 9, 40, i, 1000);
         draw_progress(vp, s2, 15, 7, 20, i, 1000);
         vp.flush();
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-
 }
 
 void test_graphics()
@@ -115,59 +113,58 @@ void test_graphics()
     cy::ansi::window vp({40, 10});
     cy::ansi::bitmap b1({5, 5});
 
-    b1[{0,0}] = cy::ansi::colour{128, 255, 0};
-    b1[{0,1}] = cy::ansi::colour{255,0,0};
-    b1[{1,0}] = cy::ansi::colour{0, 127, 255};
-    b1[{1,1}] = cy::ansi::colour{255,0,0};
+    b1[{0, 0}] = cy::ansi::colour{128, 255, 0};
+    b1[{0, 1}] = cy::ansi::colour{255, 0, 0};
+    b1[{1, 0}] = cy::ansi::colour{0, 127, 255};
+    b1[{1, 1}] = cy::ansi::colour{255, 0, 0};
 
-    b1[{0,2}] = cy::ansi::colour{128, 255, 0};
-    b1[{0,3}] = cy::ansi::colour{255,0,0};
-    b1[{1,2}] = cy::ansi::colour{0, 127, 255};
-    b1[{1,3}] = cy::ansi::colour{255,0,0};
+    b1[{0, 2}] = cy::ansi::colour{128, 255, 0};
+    b1[{0, 3}] = cy::ansi::colour{255, 0, 0};
+    b1[{1, 2}] = cy::ansi::colour{0, 127, 255};
+    b1[{1, 3}] = cy::ansi::colour{255, 0, 0};
 
-    b1[{4,4}] = cy::ansi::colour{255,0,0};
+    b1[{4, 4}] = cy::ansi::colour{255, 0, 0};
 
-    cy::ansi::draw_bitmap(vp, {1,1}, b1, cy::ansi::terminal_default, cy::ansi::c_1x2);
+    cy::ansi::draw_bitmap(vp, {1, 1}, b1, cy::ansi::terminal_default, cy::ansi::c_1x2);
 
-    cy::ansi::draw_bitmap(vp, {10,1}, b1, cy::ansi::terminal_default, cy::ansi::c_2x4);
+    cy::ansi::draw_bitmap(vp, {10, 1}, b1, cy::ansi::terminal_default, cy::ansi::c_2x4);
 
-    cy::ansi::draw_bitmap(vp, {16,0}, b1, cy::ansi::terminal_default, cy::ansi::c_1x1);
+    cy::ansi::draw_bitmap(vp, {16, 0}, b1, cy::ansi::terminal_default, cy::ansi::c_1x1);
 
-    cy::ansi::draw_bitmap(vp, {22,0}, b1, cy::ansi::terminal_default, cy::ansi::c_w2x1);
+    cy::ansi::draw_bitmap(vp, {22, 0}, b1, cy::ansi::terminal_default, cy::ansi::c_w2x1);
 }
 
 void test_event_loop()
 {
     std::cout << std::endl;
     cy::ansi::window vp({40, 10});
-    cy::ansi::style s1 {.bg = cy::ansi::blue1 };
-    cy::ansi::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
+    cy::ansi::style s1{.bg = cy::ansi::blue1};
+    cy::ansi::fill_rect(vp, {s1, ' '}, {0, 0}, {40, 10});
 
     vp.flush();
 
-    cy::ansi::run([&](const cy::ansi::event &event)
-    {
-        if(cy::ansi::key_press e{event})
+    cy::ansi::run([&](const cy::ansi::event &event) {
+        if (cy::ansi::key_press e{event})
         {
             if (e.key() == 'x')
             {
                 return cy::ansi::event_return::exit_loop;
             }
         }
-        else if(cy::ansi::mouse_click e{event})
+        else if (cy::ansi::mouse_click e{event})
         {
-            vp.go_to({3,6});
+            vp.go_to({3, 6});
             vp.text("Mouse click " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
             vp.flush();
         }
-        else if(cy::ansi::mouse_move e{event})
+        else if (cy::ansi::mouse_move e{event})
         {
-            vp.go_to({3,5});
-            vp.text("Mouse moved " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y)+ "  ");
+            vp.go_to({3, 5});
+            vp.text("Mouse moved " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
             vp.flush();
         }
         return cy::ansi::event_return::continue_loop;
-    }); 
+    });
 }
 
 void test_widgets()
@@ -175,56 +172,66 @@ void test_widgets()
     std::cout << std::endl;
 
     ancy::window vp({40, 10});
-    ancy::style s1 {.bg = cy::ansi::blue1 };
-    ancy::fill_rect(vp, {s1, ' '}, {0,0}, {40,10});
+    ancy::style s1{.bg = cy::ansi::blue1};
+    ancy::fill_rect(vp, {s1, ' '}, {0, 0}, {40, 10});
 
     int count = 0;
     ancy::theme th;
-    ancy::text_box t1(vp, {10,1}, {10,1}, s1, th, "Welcome to widgets");
-    ancy::text_box t2(vp, {10,3}, {10,1}, s1, th, "Press SPACE to count");
-    ancy::text_box t2a(vp, {10,4}, {10,1}, s1, th,  "Q to quit");
-    ancy::text_box t2b(vp, {10,5}, {10,1}, s1, th, "R to reset");
-    ancy::text_box t3(vp, {2,7}, {10,1}, s1, th, "");
+    ancy::text_box t1(vp, {10, 1}, {10, 1}, s1, th, "Welcome to widgets");
+    ancy::text_box t2(vp, {10, 3}, {10, 1}, s1, th, "Press SPACE to count");
+    ancy::text_box t2a(vp, {10, 4}, {10, 1}, s1, th, "Q to quit");
+    ancy::text_box t2b(vp, {10, 5}, {10, 1}, s1, th, "R to reset");
+    ancy::text_box t3(vp, {2, 7}, {10, 1}, s1, th, "");
 
     auto redraw = [&] { t3.set_text(std::format("You have pressed {} times ", count)); };
 
-    ancy::key_command cmd1(vp, ' ', [&] { ++count; redraw(); });
-    ancy::key_command cmd1a(vp, 'r', [&] { count=0; redraw(); });
+    ancy::key_command cmd1(vp, ' ', [&] {
+        ++count;
+        redraw();
+    });
+    ancy::key_command cmd1a(vp, 'r', [&] {
+        count = 0;
+        redraw();
+    });
     ancy::key_command cmd2(vp, 'q', vp.quit_action());
-    
+
     vp.run();
 }
 
 void test_alt_screen()
 {
     ancy::window vp;
-    ancy::style s1 {.bg = cy::ansi::blue1 };
+    ancy::style s1{.bg = cy::ansi::blue1};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
-    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
 
     ancy::theme th;
-    ancy::text_box t(vp, {5,2}, {10,1}, th.text, th, "Testing alt screen");
-    ancy::text_box t2(vp, {5,7}, {10,1}, th.text, th, "Press x");
+    ancy::text_box t(vp, {5, 2}, {10, 1}, th.text, th, "Testing alt screen");
+    ancy::text_box t2(vp, {5, 7}, {10, 1}, th.text, th, "Press x");
 
     ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
-    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
+    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) {
+        t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y));
+    });
 
     vp.run();
 }
 
 void test_mouse_coords()
 {
-    ancy::window vp({40,5});
-    ancy::style s1 {.bg = cy::ansi::blue1, .bold=true };
+    ancy::window vp({40, 5});
+    ancy::style s1{.bg = cy::ansi::blue1, .bold = true};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
-    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
+    ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
 
     ancy::theme th;
-    ancy::text_box t(vp, {5,1}, {10,1}, th.text, th, "Testing mouse_coords");
-    ancy::text_box t2(vp, {5,3}, {10,1}, th.text, th, "Press x");
+    ancy::text_box t(vp, {5, 1}, {10, 1}, th.text, th, "Testing mouse_coords");
+    ancy::text_box t2(vp, {5, 3}, {10, 1}, th.text, th, "Press x");
 
     ancy::key_command cmd1(vp, 'x', [&] { t2.set_text("You pressed x"); });
-    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) { t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y)); });
+    ancy::move_command m(vp, [&](ancy::position p, ancy::mouse_flags f) {
+        t2.set_text(std::format("Mouse moved to {},{}  ", p.x, p.y));
+    });
 
     vp.run();
 }
@@ -232,31 +239,57 @@ void test_mouse_coords()
 void test_button()
 {
     ancy::theme th;
-    ancy::window vp({40,5});
-    ancy::style s1 {.bg = cy::ansi::blue1, .bold=true };
+    ancy::window vp({40, 5});
+    ancy::style s1{.bg = cy::ansi::blue1, .bold = true};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
-    ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
-    ancy::style button_normal { .fg = ancy::red, .bg = ancy::white };
-    ancy::style button_highlight { .fg = ancy::red, .bg = ancy::yellow };
+    ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
+    ancy::style button_normal{.fg = ancy::red, .bg = ancy::white};
+    ancy::style button_highlight{.fg = ancy::red, .bg = ancy::yellow};
 
-    ancy::style x_normal { .fg = ancy::white, .bg = ancy::red };
-    ancy::style x_highlight { .fg = ancy::white, .bg = ancy::red, .bold=true };
+    ancy::style x_normal{.fg = ancy::white, .bg = ancy::red};
+    ancy::style x_highlight{.fg = ancy::white, .bg = ancy::red, .bold = true};
 
-    ancy::style text_normal { .fg = ancy::yellow };
+    ancy::style text_normal{.fg = ancy::yellow};
 
-    ancy::button b2(vp, {39,0},{1,1}, 'x', "X", x_normal, x_highlight, vp.quit_action());
+    ancy::button b2(vp, {39, 0}, {1, 1}, 'x', "X", x_normal, x_highlight, vp.quit_action());
 
-    ancy::text_box t1(vp, {20,2}, {10,1}, th.data_text, th, "The sly fox jumps over the lazy dog");
+    ancy::text_box t1(vp, {20, 1}, {10, 1}, th.data_text, th, "The sly fox jumps over the lazy dog");
+    ancy::text_box t2(vp, {20, 3}, {10, 1}, th.data_text, th, "The sly fox jumps over the lazy dog");
     std::string value = "";
     char c = 'a';
-    ancy::button b1(vp, {3,1},{10,1}, 'c', "Clear", button_normal, button_highlight, [&] { value = ""; t1.set_text(value); });
-    ancy::button b3(vp, {3,3},{10,1}, 'u', "Update", button_normal, button_highlight, [&] { value += c; c++; if(c>'z') c = 'a'; t1.set_text(value); });
+    ancy::button b1(vp, {3, 1}, {10, 1}, 'c', "Clear", button_normal, button_highlight, [&] {
+        value = "";
+        t1.set_text(value);
+    });
+    ancy::button b3(vp, {3, 3}, {10, 1}, 'u', "Update", button_normal, button_highlight, [&] {
+        value += c;
+        c++;
+        if (c > 'z')
+            c = 'a';
+        t1.set_text(value);
+    });
     vp.run();
+}
+
+void test_input_box()
+{
+    const auto &th = ancy::default_theme();
+    ancy::window w({40, 5});
+    ancy::fill_rect(w, {th.text}, {0, 0}, w.dimensions());
+
+    ancy::button X(w, {39, 0}, {1, 1}, 'x', "X", th.x_normal, th.x_highlight, w.quit_action());
+
+    ancy::text_box t1(w, {1,3}, {20,1}, th.text, th, "");
+    ancy::text_input i1(w, {1, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
+                        "Enter name", 
+                        [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
+
+    w.run();
 }
 
 int main(int argc, const char *argv[])
 {
-    return cy::test(argc, argv, {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, 
-        test_event_loop, test_widgets, test_alt_screen, test_mouse_coords,
-        test_button});
+    return cy::test(argc, argv,
+                    {test_raw, test_raw_writer, test_window_writer, test_progress_bar, test_graphics, test_event_loop,
+                     test_widgets, test_alt_screen, test_mouse_coords, test_button, test_input_box});
 }

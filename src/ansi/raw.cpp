@@ -29,16 +29,20 @@ void ancy::change_style(const style &old_style, const style &new_style, std::ost
         }
     };
 
-    if (new_style.bold != old_style.bold)
+    if (new_style.bold != old_style.bold || new_style.faint != old_style.faint)
     {
         next();
         if (new_style.bold)
         {
             sgr_bold_on(os);
         }
+        else if (new_style.faint)
+        {
+            sgr_faint_on(os);
+        }
         else
         {
-            sgr_bold_off(os);
+            sgr_bold_off(os);  // Normal weight
         }
     }
 
@@ -206,6 +210,17 @@ void ancy::sgr_bold_off(std::ostream &os)
 {
     os << "22";
 }
+
+void ancy::sgr_faint_on(std::ostream &os)
+{
+    os << '2';
+}
+
+void ancy::sgr_faint_off(std::ostream &os)
+{
+    os << "22";
+}
+
 
 void ancy::sgr_underline_on(std::ostream &os)
 {

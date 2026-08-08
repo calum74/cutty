@@ -1,6 +1,17 @@
 # ANSI library
 
-Top-right X button (white on red)
+Input box:
+- Position the mouse cursor (writer.show_cursor(position)/writer.hide_cursor())
+- Capture the keyboard and don't send 'x' to output (widget.set_focus(child))
+- Change focus using arrow and tab keys (parent.next_focus()/prev_focus())/widget.set_focus(true/false))
+bool widget.takes_focus()
+
+- widget.draw()
+
+Text input box
+Multiple input boxes
+
+Focus
 
 Each test should be a separate sample
 
@@ -12,23 +23,11 @@ Themes
 - Text box colour
 - Line style
 
-
-
-Text box
-- erase the old contents
-- white on red style?
-- 
-
 Text input box
-
-Mouse events in the raw loop.
-- Anchor the mouse into the window
 
 Tidy up alt mode
 - ostream
 - cursor positioning
-
-
 
 Next:
 - Text widget that prints the x and y cursor positions
