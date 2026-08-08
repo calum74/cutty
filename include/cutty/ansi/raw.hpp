@@ -30,6 +30,19 @@ void cursor_show(std::ostream &);
 void alternate_screen_on(std::ostream &);
 void alternate_screen_off(std::ostream &);
 
+enum cursor_style
+{
+    default_cursor,
+    blinking_block,
+    steady_block,
+    blinking_underline,
+    steady_underline,
+    blinking_bar,
+    steady_bar
+};
+
+void set_cursor(cursor_style);
+
 // SGR - complete codes
 void reset(std::ostream &);
 void bold_on(std::ostream &);

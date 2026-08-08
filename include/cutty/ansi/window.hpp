@@ -54,6 +54,7 @@ class window : public writer, public widget
     void mouse_scroll(position p, mouse_flags) override;
     void hide_cursor() override;
     void show_cursor(position p) override;
+    void show_cursor() override;
 
     // Signal to the event loop to exit
     void quit();

@@ -363,8 +363,8 @@ void ancy::text_input::draw(writer&w)
 
     character ch { .style = style };
 
-    bool overflow = m_text.size() > (m_size.w-1);
-    int offset = overflow ? m_text.size() - (m_size.w - 1) : 0;
+    bool overflow = m_text.size() > (m_size.w);
+    int offset = overflow ? m_text.size() - (m_size.w) : 0;
 
     for(int i=0; i<m_size.w; ++i)
     {

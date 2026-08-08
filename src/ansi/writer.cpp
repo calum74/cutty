@@ -95,6 +95,11 @@ void ancy::raw_writer::hide_cursor()
     ancy::cursor_hide(os);
 }
 
+void ancy::raw_writer::show_cursor()
+{
+    ancy::cursor_show(os);
+}
+
 void ancy::raw_writer::show_cursor(position p)
 {
     go_to(p);

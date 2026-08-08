@@ -50,6 +50,8 @@ class writer
 
     // Shows the cursor at the specified position
     virtual void show_cursor(position) = 0;
+
+    virtual void show_cursor() = 0;
 };
 
 class raw_writer : public writer
@@ -90,6 +92,8 @@ class raw_writer : public writer
     void hide_cursor() override;
 
     void show_cursor(position p) override;
+
+    void show_cursor() override;
 
   private:
     std::ostream &os;

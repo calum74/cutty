@@ -33,16 +33,21 @@ ancy::window::window()
 
 ancy::window::~window()
 {
+    if(!m_show_cursor)
+    {
+        m_underlying.show_cursor();
+    }
+
     if (m_alt_screen)
     {
         wrap_on(std::cout);
         alternate_screen_off(std::cout);
     }
-    else if(!m_show_cursor)
+    else
     {
-        m_underlying.show_cursor({0,m_dimensions.h});
+        m_underlying.go_to({0,m_dimensions.h});
     }
-    flush();
+    m_underlying.flush();
 }
 
 void ancy::window::flush()
@@ -64,12 +69,11 @@ void ancy::window::flush()
     }
     else
     {
-        m_underlying.go_to({0, 0});
     }
 
     if(m_show_cursor)
     {
-        m_underlying.show_cursor(m_cursor_position);
+        m_underlying.go_to(m_cursor_position);
     }
 
     m_underlying.flush();
@@ -252,6 +256,15 @@ std::function<void()> ancy::window::quit_action()
 ancy::position ancy::window::current_position() const
 {
     return m_underlying.current_position();
+}
+
+void ancy::window::show_cursor()
+{
+    if(!m_show_cursor)
+    {
+        m_underlying.show_cursor();
+        m_show_cursor = true;
+    }
 }
 
 void ancy::window::show_cursor(position p)
