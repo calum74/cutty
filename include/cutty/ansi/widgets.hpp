@@ -55,7 +55,10 @@ class button : public widget
     void key_press(char32_t) override;
     void mouse_move(position p, mouse_flags m) override;
     void mouse_click(position p, mouse_flags m) override;
-    virtual void draw(writer &) override;
+    void draw(writer &) override;
+
+    bool can_take_focus() override;
+    void grant_focus(bool) override;
 
   private:
     void set_focus(bool);
@@ -65,6 +68,7 @@ class button : public widget
     std::string m_text;
     std::function<void()> m_action;
     bool m_focus = false;
+    bool m_key_focus = false;
 };
 
 class text_box : public widget
@@ -122,16 +126,19 @@ class text_input : public widget
                const style &button_focus_style, const style &disabled_style, std::string initial_text,
                std::string prompt_text, std::function<void()> change_action, std::function<void()> enter_action);
 
-  void set_text(std::string new_text);
-  void draw(writer&) override;
+    void set_text(std::string new_text);
+    void draw(writer &) override;
 
-  void mouse_move(position, mouse_flags) override;
+    void mouse_move(position, mouse_flags) override;
 
-  void mouse_click(position, mouse_flags) override;
+    void mouse_click(position, mouse_flags) override;
 
-  void key_press(char32_t key) override;
+    void key_press(char32_t key) override;
 
-  const std::string &get_text() const;
+    bool can_take_focus() override;
+    void grant_focus(bool has_focus) override;
+
+    const std::string &get_text() const;
 
   private:
     style m_text_style, m_button_normal_style, m_button_focus_style, m_disabled_style;

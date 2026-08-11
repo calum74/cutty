@@ -1,12 +1,23 @@
 # ANSI library
 
+Put the cursor in the right place.
+Up/down/TAB to focus
+Mouse to focus
+
+
+
+
+Focus
+- input.focus()
+
+
 Input box:
-- Position the mouse cursor (writer.show_cursor(position)/writer.hide_cursor())
-
+- Vertical bar cursor and cursor styles
+- Consider left/right and insert mode
+- Position the text cursor (writer.show_cursor(position)/writer.hide_cursor())
 - Capture the keyboard and don't send 'x' to output (widget.set_focus(child))
-- Change focus using arrow and tab keys (parent.next_focus()/prev_focus())/widget.set_focus(true/false))
+- Change focus using arrow and tab keys (parent.next_focus()/prev_focus()/widget.set_focus(true/false))
 bool widget.takes_focus()
-
 - widget.draw()
 
 Text input box

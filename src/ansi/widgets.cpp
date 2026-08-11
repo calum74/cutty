@@ -92,6 +92,27 @@ void ancy::widget::draw(writer &)
 {
 }
 
+void ancy::widget::grant_focus(bool)
+{
+}
+
+void ancy::widget::next_focus()
+{
+}
+
+void ancy::widget::prev_focus()
+{
+}
+
+void ancy::widget::set_focus(widget &)
+{
+}
+
+bool ancy::widget::can_take_focus()
+{
+    return false;
+}
+
 ancy::widget::widget() : m_parent{}
 {
 }
@@ -134,103 +155,6 @@ ancy::writer &ancy::widget::get_writer()
     }
 }
 
-ancy::text_box::text_box(widget &parent, position p, size s, const style &st, const theme &t, std::string_view text)
-    : widget(parent, p, s), m_style(st), m_button_normal(t.button_normal), m_button_focus(t.button_focus)
-{
-    set_text(text);
-}
-
-bool ancy::text_box::has_left_anchor() const
-{
-    return m_hidden > 0;
-}
-
-bool ancy::text_box::has_right_anchor() const
-{
-    return m_text.size() > m_size.w + m_hidden;
-}
-
-void ancy::text_box::draw(writer &w)
-{
-    character ch{.style = m_style};
-    for (int i = 0; i < m_size.w; ++i)
-    {
-        int j = i + m_hidden;
-        if (i == 0 && has_left_anchor())
-        {
-            ch.style = m_on_left_anchor ? m_button_focus : m_button_normal;
-            ch.ch = '<';
-        }
-        else if (i == m_size.w - 1 && has_right_anchor())
-        {
-            ch.style = m_on_right_anchor ? m_button_focus : m_button_normal;
-            ch.ch = '>';
-        }
-        else if (j >= 0 && j < m_text.size())
-        {
-            ch.style = m_style;
-            ch.ch = m_text[j];
-        }
-        else
-        {
-            ch.style = m_style;
-            ch.ch = ' ';
-        }
-        w.put(ch, {m_position.x + i, m_position.y});
-    }
-}
-
-void ancy::text_box::mouse_click(position p, mouse_flags)
-{
-    auto right = m_position;
-    right.x += m_size.w - 1;
-
-    if (p == right && has_right_anchor())
-    {
-        // set_text("abc");
-        // return;
-        m_hidden += m_size.w - 2;
-        draw(get_writer());
-    }
-    else if (p == m_position && has_left_anchor())
-    {
-        m_hidden -= m_size.w - 2;
-        if (m_hidden < 0)
-            m_hidden = 0; // ???
-        draw(get_writer());
-    }
-}
-
-void ancy::text_box::mouse_move(position p, mouse_flags)
-{
-    auto right = m_position;
-    right.x += m_size.w - 1;
-
-    if ((p == m_position) != m_on_left_anchor)
-    {
-        m_on_left_anchor = p == m_position;
-        if (has_left_anchor())
-        {
-            draw(get_writer()); // !!! Need a "redraw" method
-        }
-    }
-    if ((p == right) != m_on_right_anchor)
-    {
-        m_on_right_anchor = p == right;
-        if (has_right_anchor())
-        {
-            draw(get_writer()); // !!! Need a "redraw" method
-        }
-    }
-}
-
-void ancy::text_box::set_text(std::string_view s)
-{
-    m_text = s;
-    m_hidden = 0;
-    draw(get_writer());
-}
-
 ancy::key_command::key_command(widget &parent, char32_t key, std::function<void()> fn)
     : widget(&parent), m_key(key), m_function(fn)
 {
@@ -254,69 +178,6 @@ void ancy::move_command::mouse_move(position p, mouse_flags f)
     m_function(p, f);
 }
 
-ancy::button::button(widget &parent, position p, size s, char32_t key, std::string text, const style &normal,
-                     const style &selected, std::function<void()> action)
-    : widget(parent, p, s), m_key(key), m_normal(normal), m_selected(selected), m_action(action)
-{
-    set_text(text);
-}
-
-void ancy::button::set_text(std::string text)
-{
-    m_text = std::move(text);
-    draw(get_writer());
-}
-
-void ancy::button::draw(writer &w)
-{
-    int left_padding = (m_size.w - m_text.size()) / 2;
-    character c{.style = m_focus ? m_selected : m_normal};
-    for (int j = 0; j < m_size.h; ++j)
-    {
-        for (int i = 0; i < m_size.w; ++i)
-        {
-            int k = i - left_padding;
-            c.ch = k >= 0 && k < m_text.size() ? m_text[k] : ' ';
-            c.style.underline = std::tolower(c.ch) == m_key;
-            w.put(c, {m_position.x + i, m_position.y + j});
-        }
-    }
-}
-
-void ancy::button::key_press(char32_t k)
-{
-    if (k == m_key)
-    {
-        m_action();
-    }
-}
-
-void ancy::button::mouse_move(position p, mouse_flags m)
-{
-    set_focus(mouse_hit(p));
-}
-
-bool ancy::widget::mouse_hit(position p) const
-{
-    return p.x >= m_position.x && p.x < m_position.x + m_size.w && p.y >= m_position.y && p.y < m_position.y + m_size.h;
-}
-
-void ancy::button::mouse_click(position p, mouse_flags m)
-{
-    if (mouse_hit(p))
-    {
-        m_action();
-    }
-}
-
-void ancy::button::set_focus(bool f)
-{
-    if (f != m_focus)
-    {
-        m_focus = f;
-        draw(get_writer());
-    }
-}
 
 const ancy::theme &ancy::default_theme()
 {
@@ -337,96 +198,3 @@ const ancy::theme &ancy::default_theme()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
-ancy::text_input::text_input(widget &parent, position p, size s, const style &text_style,
-                             const style &button_normal_style, const style &button_focus_style,
-                             const style &disabled_style, std::string initial_text, std::string prompt_text,
-                             std::function<void()> change_action,
-                             std::function<void()> enter_action)
-    : widget(parent, p, s), m_text_style(text_style), m_button_normal_style(button_normal_style),
-      m_button_focus_style(button_focus_style), m_disabled_style(disabled_style), m_prompt(std::move(prompt_text)),
-      m_change_action(std::move(change_action)),
-      m_enter_action(std::move(enter_action))
-{
-    set_text(std::move(initial_text));
-}
-
-void ancy::text_input::set_text(std::string text)
-{
-    m_text = text;
-    draw(get_writer());
-}
-
-void ancy::text_input::draw(writer&w)
-{
-    const auto & str = m_text.empty() ? m_prompt: m_text;
-    const auto & style = m_text.empty() ? m_disabled_style : m_text_style;
-
-    character ch { .style = style };
-
-    bool overflow = m_text.size() > (m_size.w);
-    int offset = overflow ? m_text.size() - (m_size.w) : 0;
-
-    for(int i=0; i<m_size.w; ++i)
-    {
-        int j=i + offset;
-
-        if(overflow && i==0)
-        {
-            ch.ch = '<';
-        }
-        else if(j>=0 && j < str.size())
-        {
-            ch.ch = str[j];
-        }
-        else
-        {
-            ch.ch = ' ';
-        }
-        w.put(ch, {m_position.x + i, m_position.y});
-    }
-    // if(m_has_focus)
-    {
-        w.show_cursor({m_position.x + int(m_text.size()) - offset, m_position.y});
-    }
-}
-
-void ancy::text_input::mouse_move(position, mouse_flags)
-{
-}
-
-void ancy::text_input::mouse_click(position, mouse_flags)
-{
-}
-
-void ancy::text_input::key_press(char32_t key)
-{
-    if(key == 127)
-    {
-        if(!m_text.empty())
-        {
-            m_text.pop_back();
-            m_change_action();
-        }
-    }
-    else if(key==13)
-    {
-        // Enter key: perform action
-        m_enter_action();
-    }
-    else if(key <127)
-    {
-        m_text += key;
-        m_change_action();
-    }
-    else
-    {
-        // Ignore?
-        return;
-    }
-    draw(get_writer());
-}
-
-const std::string &ancy::text_input::get_text() const
-{
-    return m_text;
-}

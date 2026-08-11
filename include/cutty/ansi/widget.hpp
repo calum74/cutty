@@ -11,7 +11,7 @@ class widget
 {
   public:
     widget();
-    widget(const widget&) = delete;
+    widget(const widget &) = delete;
     widget(widget *parent);
     widget(widget &parent, position p, size s);
     virtual ~widget();
@@ -26,10 +26,20 @@ class widget
     virtual void remove_child(widget &child);
     virtual writer &get_writer();
     bool mouse_hit(position) const;
-    protected:
-    widget * m_parent;
+
+    // Window methods
+    virtual void set_focus(widget &child);
+    virtual void next_focus();
+    virtual void prev_focus();
+
+    // Input methods
+    virtual bool can_take_focus();
+    virtual void grant_focus(bool has_focus);
+
+  protected:
+    widget *m_parent;
     position m_position;
     size m_size;
 };
 
-}
+} // namespace cutty::ansi

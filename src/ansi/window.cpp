@@ -33,7 +33,7 @@ ancy::window::window()
 
 ancy::window::~window()
 {
-    if(!m_show_cursor)
+    if (!m_show_cursor)
     {
         m_underlying.show_cursor();
     }
@@ -45,7 +45,7 @@ ancy::window::~window()
     }
     else
     {
-        m_underlying.go_to({0,m_dimensions.h});
+        m_underlying.go_to({0, m_dimensions.h});
     }
     m_underlying.flush();
 }
@@ -71,7 +71,7 @@ void ancy::window::flush()
     {
     }
 
-    if(m_show_cursor)
+    if (m_show_cursor)
     {
         m_underlying.go_to(m_cursor_position);
     }
@@ -157,10 +157,22 @@ ancy::writer &ancy::window::get_writer()
 void ancy::window::add_child(widget &w)
 {
     m_children.push_back(&w);
+
+    // !! This does not work as add_child is called from the constructor
+    if (w.can_take_focus() && !m_focus)
+    {
+        m_focus = &w;
+        m_focus->grant_focus(true);
+    }
 }
 
 void ancy::window::remove_child(widget &w)
 {
+    if (m_focus == &w)
+    {
+        m_focus = nullptr;
+    }
+
     for (auto it = m_children.begin(); it != m_children.end(); ++it)
     {
         if (*it == &w)
@@ -174,6 +186,20 @@ void ancy::window::remove_child(widget &w)
 
 void ancy::window::run()
 {
+    // TODO: Grant focus
+    if(!m_focus)
+    {
+        for(auto i : m_children)
+        {
+            if(i->can_take_focus())
+            {
+                set_focus(*i);
+                break;
+            }
+        }
+    }
+
+
     m_quit = false;
     flush();
     auto mouse_offset = current_position();
@@ -205,9 +231,27 @@ void ancy::window::run()
 
 void ancy::window::key_press(char32_t ch)
 {
-    for (auto *child : m_children)
+    if (m_focus)
     {
-        child->key_press(ch);
+        if(ch == UP)
+        {
+            prev_focus();
+        }
+        else if(ch == '\t' || ch == DOWN)
+        {
+            next_focus();
+        }
+        else
+        {
+            m_focus->key_press(ch);
+        }
+    }
+    else
+    {
+        for (auto *child : m_children)
+        {
+            child->key_press(ch);
+        }
     }
 }
 
@@ -260,7 +304,7 @@ ancy::position ancy::window::current_position() const
 
 void ancy::window::show_cursor()
 {
-    if(!m_show_cursor)
+    if (!m_show_cursor)
     {
         m_underlying.show_cursor();
         m_show_cursor = true;
@@ -269,7 +313,7 @@ void ancy::window::show_cursor()
 
 void ancy::window::show_cursor(position p)
 {
-    if(!m_show_cursor)
+    if (!m_show_cursor)
     {
         m_underlying.show_cursor(p);
         m_show_cursor = true;
@@ -279,9 +323,52 @@ void ancy::window::show_cursor(position p)
 
 void ancy::window::hide_cursor()
 {
-    if(m_show_cursor)
+    if (m_show_cursor)
     {
         m_underlying.hide_cursor();
         m_show_cursor = false;
     }
+}
+
+void ancy::window::set_focus(widget &child)
+{
+    if (m_focus == &child)
+    {
+        return;
+    }
+    else if (m_focus)
+    {
+        m_focus->grant_focus(false);
+    }
+    m_focus = &child;
+    m_focus->grant_focus(true);
+}
+
+void ancy::window::next_focus()
+{
+    for(auto c : m_children)
+    {
+        if(m_focus ==c)
+        {
+            c->grant_focus(false);
+            m_focus = nullptr;
+        }
+        else if(!m_focus && c->can_take_focus())
+        {
+            set_focus(*c);
+            return;
+        }
+    }
+    for(auto c : m_children)
+    {
+        if(c->can_take_focus())
+        {
+            set_focus(*c);
+            return;
+        }
+    }
+}
+
+void ancy::window::prev_focus()
+{
 }

@@ -12,7 +12,7 @@ namespace cutty::ansi
 class window : public writer, public widget
 {
   public:
-    window();  // Alt-screen mode
+    window(); // Alt-screen mode
 
     explicit window(size s, std::ostream &os = std::cout);
 
@@ -26,15 +26,15 @@ class window : public writer, public widget
 
     void text(std::string_view) override;
 
-    void text(const style&, std::string_view) override;
+    void text(const style &, std::string_view) override;
 
-    void apply(const style&) override;
+    void apply(const style &) override;
 
     void go_to(position) override;
 
     void endl() override;
 
-    void put(const character&) override;
+    void put(const character &) override;
 
     size dimensions() const override;
     position current_position() const override;
@@ -43,9 +43,9 @@ class window : public writer, public widget
 
     void run();
 
-    void add_child(widget&w) override;
+    void add_child(widget &w) override;
 
-    void remove_child(widget&w) override;
+    void remove_child(widget &w) override;
 
     void key_press(char32_t ch) override;
     void mouse_click(position p, mouse_flags) override;
@@ -55,6 +55,10 @@ class window : public writer, public widget
     void hide_cursor() override;
     void show_cursor(position p) override;
     void show_cursor() override;
+
+    void set_focus(widget &child) override;
+    void next_focus() override;
+    void prev_focus() override;
 
     // Signal to the event loop to exit
     void quit();
@@ -72,11 +76,12 @@ class window : public writer, public widget
     };
     std::vector<viewport_character> m_data;
     std::vector<int> m_dirty_list;
-    std::vector<widget*> m_children;
+    std::vector<widget *> m_children;
     bool m_quit;
     bool m_alt_screen;
 
     bool m_show_cursor;
     position m_cursor_position;
+    widget *m_focus = 0;
 };
-}
+} // namespace cutty::ansi

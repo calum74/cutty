@@ -277,12 +277,15 @@ void test_input_box()
     ancy::window w({40, 5});
     ancy::fill_rect(w, {th.text}, {0, 0}, w.dimensions());
 
-    ancy::button X(w, {39, 0}, {1, 1}, 'x', "X", th.x_normal, th.x_highlight, w.quit_action());
-
     ancy::text_box t1(w, {1,3}, {20,1}, th.text, th, "");
     ancy::text_input i1(w, {1, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
-                        "Enter name", 
+                        "First name", 
                         [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
+
+    ancy::text_input i2(w, {20, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
+                        "Surname", 
+                        [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
+    ancy::button X(w, {39, 0}, {1, 1}, 'x', "X", th.x_normal, th.x_highlight, w.quit_action());
 
     w.run();
 }

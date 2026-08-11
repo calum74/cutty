@@ -58,8 +58,11 @@ include_directories(include)
 add_library(cutty
     include/cutty/check.hpp
     src/ansi/bitmap.cpp
+    src/ansi/button.cpp
     src/ansi/events.cpp
     src/ansi/raw.cpp
+    src/ansi/text_box.cpp
+    src/ansi/text_input.cpp
     src/ansi/unicode.cpp
     src/ansi/widgets.cpp
     src/ansi/window.cpp
