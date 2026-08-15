@@ -76,8 +76,12 @@ void ancy::widget::mouse_click(position, mouse_flags)
 {
 }
 
-void ancy::widget::mouse_move(position, mouse_flags)
+void ancy::widget::mouse_move(position p, mouse_flags)
 {
+    if (mouse_hit(p) && can_take_focus())
+    {
+        m_parent->set_focus(*this);
+    }
 }
 
 void ancy::widget::mouse_release(position, mouse_flags)

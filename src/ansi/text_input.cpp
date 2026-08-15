@@ -53,10 +53,6 @@ void ancy::text_input::draw(writer &w)
     }
 }
 
-void ancy::text_input::mouse_move(position, mouse_flags)
-{
-}
-
 void ancy::text_input::mouse_click(position, mouse_flags)
 {
 }

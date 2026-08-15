@@ -53,7 +53,6 @@ class button : public widget
 
     void set_text(std::string str);
     void key_press(char32_t) override;
-    void mouse_move(position p, mouse_flags m) override;
     void mouse_click(position p, mouse_flags m) override;
     void draw(writer &) override;
 
@@ -126,8 +125,6 @@ class text_input : public widget
 
     void set_text(std::string new_text);
     void draw(writer &) override;
-
-    void mouse_move(position, mouse_flags) override;
 
     void mouse_click(position, mouse_flags) override;
 

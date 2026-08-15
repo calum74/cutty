@@ -50,11 +50,6 @@ bool ancy::button::can_take_focus()
     return true;
 }
 
-void ancy::button::mouse_move(position p, mouse_flags m)
-{
-    grant_focus(mouse_hit(p));
-}
-
 bool ancy::widget::mouse_hit(position p) const
 {
     return p.x >= m_position.x && p.x < m_position.x + m_size.w && p.y >= m_position.y && p.y < m_position.y + m_size.h;
