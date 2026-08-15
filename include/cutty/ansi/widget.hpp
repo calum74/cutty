@@ -40,6 +40,8 @@ class widget
     widget *m_parent;
     position m_position;
     size m_size;
+
+    void redraw();
 };
 
 } // namespace cutty::ansi

@@ -61,14 +61,12 @@ class button : public widget
     void grant_focus(bool) override;
 
   private:
-    void set_focus(bool);
 
     char32_t m_key;
     style m_normal, m_selected;
     std::string m_text;
     std::function<void()> m_action;
     bool m_focus = false;
-    bool m_key_focus = false;
 };
 
 class text_box : public widget

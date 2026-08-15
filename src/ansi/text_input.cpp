@@ -98,8 +98,10 @@ const std::string &ancy::text_input::get_text() const
     return m_text;
 }
 
-void ancy::text_input::grant_focus(bool)
+void ancy::text_input::grant_focus(bool b)
 {
+    m_has_focus = b;
+    redraw();
 }
 
 bool ancy::text_input::can_take_focus()

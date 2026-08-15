@@ -18,7 +18,7 @@ void ancy::button::set_text(std::string text)
 void ancy::button::draw(writer &w)
 {
     int left_padding = (m_size.w - m_text.size()) / 2;
-    character c{.style = (m_focus || m_key_focus )? m_selected : m_normal};
+    character c{.style = (m_focus)? m_selected : m_normal};
     for (int j = 0; j < m_size.h; ++j)
     {
         for (int i = 0; i < m_size.w; ++i)
@@ -29,11 +29,17 @@ void ancy::button::draw(writer &w)
             w.put(c, {m_position.x + i, m_position.y + j});
         }
     }
+
+    if(m_focus)
+    {
+        w.show_cursor(m_position);
+//         w.hide_cursor();
+    }
 }
 
 void ancy::button::key_press(char32_t k)
 {
-    if (k == m_key || (k == '\n' && m_key_focus))
+    if (k == m_key || (k == ENTER && m_focus))
     {
         m_action();
     }
@@ -43,15 +49,10 @@ bool ancy::button::can_take_focus()
 {
     return true;
 }
-void ancy::button::grant_focus(bool f)
-{
-    m_key_focus = f;
-    draw(get_writer());
-}
 
 void ancy::button::mouse_move(position p, mouse_flags m)
 {
-    set_focus(mouse_hit(p));
+    grant_focus(mouse_hit(p));
 }
 
 bool ancy::widget::mouse_hit(position p) const
@@ -67,7 +68,7 @@ void ancy::button::mouse_click(position p, mouse_flags m)
     }
 }
 
-void ancy::button::set_focus(bool f)
+void ancy::button::grant_focus(bool f)
 {
     if (f != m_focus)
     {

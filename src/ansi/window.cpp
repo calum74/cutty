@@ -371,4 +371,37 @@ void ancy::window::next_focus()
 
 void ancy::window::prev_focus()
 {
+    widget * last_widget = nullptr;
+    for(auto *w : m_children)
+    {
+        if(w->can_take_focus())
+        {
+            last_widget = w;
+        }
+    }
+
+    if(!last_widget)
+    {
+        return;
+    }
+
+    if(!m_focus)
+    {
+        set_focus(*last_widget);
+        return;
+    }
+
+    for(auto *w : m_children)
+    {
+        if(w == m_focus)
+        {
+            set_focus(*last_widget);
+            return;
+        }
+
+        if(w->can_take_focus())
+        {
+            last_widget = w;
+        }
+    }
 }

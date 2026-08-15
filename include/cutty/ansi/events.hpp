@@ -96,8 +96,9 @@ public:
 
 enum key
 {
-    TAB = 9,
-    RET = 13,
+    TAB = '\t',
+    // RET = 13,
+    ENTER = '\r',
     ESC = 27,
     UP = 201,
     DOWN = 202,
