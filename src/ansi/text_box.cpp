@@ -48,6 +48,31 @@ void ancy::text_box::draw(writer &w)
     }
 }
 
+void ancy::text_box::key_press(char32_t key)
+{
+    if (key == LEFT || key == '<')
+    {
+        scroll_left();
+    }
+    else if (key == RIGHT || key == '>')
+    {
+        scroll_right();
+    }
+}
+
+void ancy::text_box::scroll_left()
+{
+    m_hidden -= m_size.w - 2;
+    if (m_hidden < 0)
+        m_hidden = 0; // ???
+    draw(get_writer());
+}
+void ancy::text_box::scroll_right()
+{
+    m_hidden += m_size.w - 2;
+    draw(get_writer());
+}
+
 void ancy::text_box::mouse_click(position p, mouse_flags)
 {
     auto right = m_position;
@@ -57,15 +82,11 @@ void ancy::text_box::mouse_click(position p, mouse_flags)
     {
         // set_text("abc");
         // return;
-        m_hidden += m_size.w - 2;
-        draw(get_writer());
+        scroll_right();
     }
     else if (p == m_position && has_left_anchor())
     {
-        m_hidden -= m_size.w - 2;
-        if (m_hidden < 0)
-            m_hidden = 0; // ???
-        draw(get_writer());
+        scroll_left();
     }
 }
 
@@ -99,3 +120,12 @@ void ancy::text_box::set_text(std::string_view s)
     draw(get_writer());
 }
 
+bool ancy::text_box::can_take_focus()
+{
+    return has_left_anchor() || has_right_anchor();
+}
+
+void ancy::text_box::grant_focus(bool b)
+{
+    m_has_focus = b;
+}

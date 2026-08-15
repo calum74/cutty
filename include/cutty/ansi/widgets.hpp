@@ -77,12 +77,18 @@ class text_box : public widget
 
     void mouse_click(position p, mouse_flags) override;
     void mouse_move(position p, mouse_flags) override;
+    bool can_take_focus() override;
+    void grant_focus(bool) override;
+    void key_press(char32_t key) override;
+    void scroll_left();
+    void scroll_right();
 
   private:
     style m_style, m_button_normal, m_button_focus;
     std::string m_text;
     int m_hidden;
     bool m_on_left_anchor = false, m_on_right_anchor = false;
+    bool m_has_focus = false;
     bool has_left_anchor() const;
     bool has_right_anchor() const;
 };

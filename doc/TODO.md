@@ -1,14 +1,6 @@
 # ANSI library
 
-Put the cursor in the right place.
-Up/down/TAB to focus
-Mouse to focus
-
-
-
-
-Focus
-- input.focus()
+Text boxes should capture the focus if needed
 
 
 Input box:

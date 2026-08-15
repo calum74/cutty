@@ -285,6 +285,8 @@ void test_input_box()
     ancy::text_input i2(w, {20, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
                         "Surname", 
                         [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
+    ancy::button ok(w, {30, 3}, {6,1}, 'O', "Ok", th.x_normal, th.x_highlight, w.quit_action());
+
     ancy::button X(w, {39, 0}, {1, 1}, 'x', "X", th.x_normal, th.x_highlight, w.quit_action());
 
     w.run();
