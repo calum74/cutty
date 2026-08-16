@@ -46,6 +46,11 @@ void ancy::text_box::draw(writer &w)
         }
         w.put(ch, {m_position.x + i, m_position.y});
     }
+
+    if(m_has_focus)
+    {
+        w.show_cursor({m_position.x + m_size.w-1, m_position.y});
+    }
 }
 
 void ancy::text_box::key_press(char32_t key)
@@ -65,12 +70,15 @@ void ancy::text_box::scroll_left()
     m_hidden -= m_size.w - 2;
     if (m_hidden < 0)
         m_hidden = 0; // ???
-    draw(get_writer());
+    redraw();
 }
 void ancy::text_box::scroll_right()
 {
-    m_hidden += m_size.w - 2;
-    draw(get_writer());
+    if(m_hidden + m_size.w - 2 < m_text.size())
+    {
+        m_hidden += m_size.w - 2;
+        redraw();
+    }
 }
 
 void ancy::text_box::mouse_click(position p, mouse_flags)
@@ -90,6 +98,7 @@ void ancy::text_box::mouse_click(position p, mouse_flags)
     }
 }
 
+#if 0 
 void ancy::text_box::mouse_move(position p, mouse_flags)
 {
     auto right = m_position;
@@ -100,7 +109,7 @@ void ancy::text_box::mouse_move(position p, mouse_flags)
         m_on_left_anchor = p == m_position;
         if (has_left_anchor())
         {
-            draw(get_writer()); // !!! Need a "redraw" method
+            redraw();
         }
     }
     if ((p == right) != m_on_right_anchor)
@@ -108,10 +117,11 @@ void ancy::text_box::mouse_move(position p, mouse_flags)
         m_on_right_anchor = p == right;
         if (has_right_anchor())
         {
-            draw(get_writer()); // !!! Need a "redraw" method
+            redraw();
         }
     }
 }
+#endif
 
 void ancy::text_box::set_text(std::string_view s)
 {
@@ -128,4 +138,8 @@ bool ancy::text_box::can_take_focus()
 void ancy::text_box::grant_focus(bool b)
 {
     m_has_focus = b;
+    if(m_has_focus)
+    {
+        redraw();
+    }
 }

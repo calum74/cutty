@@ -278,16 +278,32 @@ void test_input_box()
     ancy::fill_rect(w, {th.text}, {0, 0}, w.dimensions());
 
     ancy::text_box t1(w, {1,3}, {20,1}, th.text, th, "");
-    ancy::text_input i1(w, {1, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
+    ancy::text_input i1(w, {1, 1}, {11, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
                         "First name", 
                         [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
 
-    ancy::text_input i2(w, {20, 1}, {10, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
+    ancy::text_input i2(w, {15, 1}, {11, 1}, th.text_input, th.button_normal, th.button_focus, th.disabled_text, "",
                         "Surname", 
-                        [&] { }, [&] { t1.set_text("Your name is " + i1.get_text()); });
-    ancy::button ok(w, {30, 3}, {6,1}, 'O', "Ok", th.x_normal, th.x_highlight, w.quit_action());
+                        [&] { t1.set_text("Your surname is " + i2.get_text()); }, [&] { });
 
-    ancy::button X(w, {39, 0}, {1, 1}, 'x', "X", th.x_normal, th.x_highlight, w.quit_action());
+    auto update = [&]
+    {
+        t1.set_text(std::format("Name: {} {}", i1.get_text(), i2.get_text()));
+    };
+
+    auto check = [&]
+    {
+        t1.set_text("Check passed");
+    };
+
+    i1.on_changed = update;
+    i2.on_changed = update;
+    i1.on_enter = [&] { w.set_focus(i2); };
+
+    ancy::button check_button(w, {30, 1}, {7,1}, 'C', "Check", th.x_normal, th.x_highlight, check);
+    ancy::button ok(w, {30, 3}, {7,1}, 'O', "Ok", th.x_normal, th.x_highlight, w.quit_action());
+
+    i2.on_enter = [&] { w.set_focus(ok); };
 
     w.run();
 }

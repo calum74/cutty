@@ -8,7 +8,7 @@ ancy::text_input::text_input(widget &parent, position p, size s, const style &te
                              std::function<void()> change_action, std::function<void()> enter_action)
     : widget(parent, p, s), m_text_style(text_style), m_button_normal_style(button_normal_style),
       m_button_focus_style(button_focus_style), m_disabled_style(disabled_style), m_prompt(std::move(prompt_text)),
-      m_change_action(std::move(change_action)), m_enter_action(std::move(enter_action))
+      on_changed(std::move(change_action)), on_enter(std::move(enter_action))
 {
     set_text(std::move(initial_text));
 }
@@ -64,13 +64,13 @@ void ancy::text_input::key_press(char32_t key)
         if (!m_text.empty())
         {
             m_text.pop_back();
-            m_change_action();
+            on_changed();
         }
     }
     else if (key == 13)
     {
         // Enter key: perform action
-        m_enter_action();
+        on_enter();
     }
     else if (key == UP || key == '\t')
     {
@@ -79,7 +79,7 @@ void ancy::text_input::key_press(char32_t key)
     else if (key < 127)
     {
         m_text += key;
-        m_change_action();
+        on_changed();
     }
     else
     {
