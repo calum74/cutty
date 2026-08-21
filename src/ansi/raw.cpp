@@ -179,9 +179,9 @@ void ancy::sgr_finish(std::ostream &os)
 
 void ancy::sgr_fg(colour c, std::ostream &os)
 {
-    if (c == terminal_default)
+    if (c.cs == cs_basic)
     {
-        os << "39";
+        os << 3 << int(c.r);
     }
     else
     {
@@ -191,9 +191,9 @@ void ancy::sgr_fg(colour c, std::ostream &os)
 
 void ancy::sgr_bg(colour c, std::ostream &os)
 {
-    if (c == terminal_default)
+    if (c.cs == cs_basic)
     {
-        os << "49";
+        os << 4 << int(c.r);
     }
     else
     {

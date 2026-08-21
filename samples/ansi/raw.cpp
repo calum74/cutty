@@ -1,30 +1,35 @@
 #include <cutty/ansi/raw.hpp>
+#include <iostream>
 
 namespace ancy = cutty::ansi;
-
 
 int main()
 {
     // The raw API sends ANSI commands directly to a terminal, via an ostream.
 
     // Reset the terminal
-    ansy::reset(std::cout);
+    ancy::reset(std::cout);
+
+    // Colours
 
     // Set a colour
-    ancy::fg(ancy::red);
+    ancy::fg_colour(ancy::red, std::cout);
     std::cout << "This is in red!\n";
 
 
     // Back to default colour
-    ancy::fg(ancy::terminal_default);
+    ancy::fg_colour(ancy::terminal_default, std::cout);
 
     // Set a weight
-    ancy::set_weight(ansi::weight::bold);
+    ancy::bold_on(std::cout);
 
     // Set a custom colour
 
     // Set underline
 
+    // Styles
+    // A style combines forground colour, background colour, weight and underline
+
     // Reset the terminal
-    ansy::reset(std::cout);
+    ancy::reset(std::cout);
 }

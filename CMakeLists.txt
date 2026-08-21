@@ -85,6 +85,7 @@ add_library(cutty
 link_libraries(cutty)
 
 add_executable(ansi_test test/ansi.cpp)
+add_executable(ansi_raw samples/ansi/raw.cpp)
 add_executable(ansi samples/ansi.cpp)
 add_executable(approx_sample samples/approx.cpp)
 add_executable(mixins samples/mixins.cpp)
