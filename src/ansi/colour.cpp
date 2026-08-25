@@ -15,6 +15,14 @@ void ancy::colour::sgr_fg(std::ostream &os) const
     {
         os << int(30 + m_r);
     }
+    else if(m_cs == colour_space::bright)
+    {
+        os << int(90 + m_r);
+    }
+    else if(m_cs == colour_space::grey)
+    {
+        os << "38;5;" << int(232+m_r);
+    }
     else
     {
         os << "38;2;" << int(m_r) << ";" << int(m_g) << ";" << int(m_b);
@@ -27,6 +35,14 @@ void ancy::colour::sgr_bg(std::ostream &os) const
     {
         os << int(40 + m_r);
     }
+    else if(m_cs == colour_space::bright)
+    {
+        os << int(100 + m_r);
+    }
+    else if(m_cs == colour_space::grey)
+    {
+        os << "48;5;" << int(232+m_r);
+    }
     else
     {
         os << "48;2;" << int(m_r) << ";" << int(m_g) << ";" << int(m_b);
@@ -38,6 +54,11 @@ ancy::colour ancy::colour::normal(sgr_colour c)
     return { colour_space::normal, static_cast<std::uint8_t>(c), 0, 0 };
 }
 
+ancy::colour ancy::colour::grey(std::uint8_t g)
+{
+    return { colour_space::grey, static_cast<std::uint8_t>(g), 0, 0 };
+}
+
 ancy::colour::colour() : colour(normal(sgr_colour::terminal_default)) {}
 
 ancy::colour::colour(colour_space cs, std::uint8_t r, std::uint8_t g, std::uint8_t b) : m_cs(cs), m_r(r), m_g(g), m_b(b)
@@ -45,6 +66,15 @@ ancy::colour::colour(colour_space cs, std::uint8_t r, std::uint8_t g, std::uint8
 }
 
 bool ancy::colour::operator==(const colour &) const = default;
+
+ancy::colour ancy::colour::bright() const
+{
+    if(m_cs == colour_space::normal)
+    {
+        return { colour_space::bright, m_r, m_g, m_b };
+    }
+    return *this;
+}
 
 const ancy::colour ancy::colour::terminal_default;
 const ancy::colour ancy::colour::red  = ancy::colour::normal (ancy::colour::sgr_colour::red);

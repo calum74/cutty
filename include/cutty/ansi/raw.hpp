@@ -49,6 +49,7 @@ void bold_on(std::ostream &);
 void bold_off(std::ostream&);
 void fg_colour(colour c, std::ostream &os);
 void bg_colour(colour c, std::ostream &os);
+void invert(std::ostream &os);
 
 // SGR - assemblage
 void sgr_start(std::ostream &);
@@ -63,6 +64,7 @@ void sgr_underline_on(std::ostream &os);
 void sgr_underline_off(std::ostream &os);
 void sgr_fg(colour, std::ostream &);
 void sgr_bg(colour, std::ostream &);
+void sgr_invert(std::ostream &);
 void sgr_finish(std::ostream &os);
 
 void change_style(const style &old_style, const style &new_style, std::ostream &os);

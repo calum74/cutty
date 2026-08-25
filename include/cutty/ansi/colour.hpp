@@ -49,6 +49,7 @@ public:
 
     colour to_six_cube() const;
     colour to_greyscale() const;
+    colour bright() const;
 
     bool operator==(const colour &) const;
 

@@ -148,6 +148,14 @@ void ancy::bold_off(std::ostream &os)
     os << "\x1b[22m";
 }
 
+void ancy::invert(std::ostream &os)
+{
+    sgr_start(os);
+    sgr_invert(os);
+    sgr_finish(os);
+}
+
+
 void ancy::reset(std::ostream &os)
 {
     os << "\x1b[0m";
@@ -190,6 +198,11 @@ void ancy::sgr_bg(colour c, std::ostream &os)
 void ancy::sgr_bold_on(std::ostream &os)
 {
     os << '1';
+}
+
+void ancy::sgr_invert(std::ostream &os)
+{
+    os << 7;
 }
 
 void ancy::sgr_bold_off(std::ostream &os)
