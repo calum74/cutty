@@ -186,16 +186,16 @@ void ancy::move_command::mouse_move(position p, mouse_flags f)
 const ancy::theme &ancy::default_theme()
 {
     static theme t{
-        .window{.bg = blue1},
-        .title{.bg = blue1},
-        .text{.fg = white, .bg = blue1},
-        .data_text{.fg = yellow, .bg = black},
-        .text_input{.fg = white, .bg = black},
-        .button_normal{.fg = red, .bg = white},
-        .button_focus{.fg = red, .bg = yellow, .bold = true},
-        .status{.fg = blue1, .bg = white},
-        .x_normal{.fg = ancy::white, .bg = ancy::red},
-        .x_highlight{.fg = ancy::white, .bg = ancy::red, .bold = true},
+        .window{.bg = colour::blue},
+        .title{.bg = colour::blue},
+        .text{.fg = colour::white, .bg = colour::blue},
+        .data_text{.fg = colour::yellow, .bg = colour::black},
+        .text_input{.fg = colour::white, .bg = colour::black},
+        .button_normal{.fg = colour::red, .bg = colour::white},
+        .button_focus{.fg = colour::red, .bg = colour::yellow, .bold = true},
+        .status{.fg = colour::blue, .bg = colour::white},
+        .x_normal{.fg = colour::white, .bg = colour::red},
+        .x_highlight{.fg = colour::white, .bg = colour::red, .bold = true},
     };
     return t;
 }

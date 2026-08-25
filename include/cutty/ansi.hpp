@@ -24,7 +24,7 @@ struct terminal_type
     bool isatty;     // Allow cursor movement, otherwise it's a log
     bool ansi;       // Allow colours and emphasis
     bool alt_screen; // Go full screen
-    colour_space cs; // Colour options supported
+    colour::colour_space cs; // Colour options supported
     size dimensions;
 };
 

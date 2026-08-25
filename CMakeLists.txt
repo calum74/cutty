@@ -80,7 +80,8 @@ add_library(cutty
     src/dynamic/functions.cpp
     src/dynamic/reference.cpp
     src/dynamic/types.cpp
-    src/dynamic/types2.cpp)
+    src/dynamic/types2.cpp
+    src/ansi/colour.cpp)
 
 link_libraries(cutty)
 

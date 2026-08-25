@@ -179,26 +179,12 @@ void ancy::sgr_finish(std::ostream &os)
 
 void ancy::sgr_fg(colour c, std::ostream &os)
 {
-    if (c.cs == cs_basic)
-    {
-        os << 3 << int(c.r);
-    }
-    else
-    {
-        os << "38;2;" << int(c.r) << ";" << int(c.g) << ";" << int(c.b);
-    }
+    c.sgr_fg(os);
 }
 
 void ancy::sgr_bg(colour c, std::ostream &os)
 {
-    if (c.cs == cs_basic)
-    {
-        os << 4 << int(c.r);
-    }
-    else
-    {
-        os << "48;2;" << int(c.r) << ";" << int(c.g) << ";" << int(c.b);
-    }
+    c.sgr_bg(os);
 }
 
 void ancy::sgr_bold_on(std::ostream &os)

@@ -7,8 +7,8 @@ namespace cutty::ansi
 
 struct style
 {
-    colour fg = terminal_default;
-    colour bg = terminal_default;
+    colour fg = colour::terminal_default;
+    colour bg = colour::terminal_default;
     bool bold = false;
     bool faint = false;
     bool underline = false;

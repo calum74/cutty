@@ -5,7 +5,7 @@
 
 namespace ancy = cutty::ansi;
 
-ancy::bitmap::bitmap(size s) : m_pixels(s.w * s.h, colour{0, 0, 0}), m_size(s)
+ancy::bitmap::bitmap(size s) : m_pixels(s.w * s.h, colour::black), m_size(s)
 {
 }
 
