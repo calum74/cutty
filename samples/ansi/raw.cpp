@@ -149,8 +149,15 @@ int main()
     os << "E\n";
 
     // 5. Other
-    auto ts = ancy::get_terminal_size();
-    std::cout << "Your terminal is " << ts.w << " x " << ts.h << " characters\n";
+    try
+    {
+        auto ts = ancy::get_terminal_size();
+        std::cout << "Your terminal is " << ts.w << " x " << ts.h << " characters\n";
+    }
+    catch(std::runtime_error&)
+    {
+        std::cout << "Could not get terminal size - probably not running in a terminal\n";
+    }
 
     ancy::reset(std::cout);
 }
