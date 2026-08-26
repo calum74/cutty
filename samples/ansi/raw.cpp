@@ -7,6 +7,7 @@ namespace ancy = cutty::ansi;
 int main()
 {
     // The raw API sends ANSI commands directly to a terminal, via an ostream.
+    // We'll use `os` to avoid writing out `std::cout` all the time.
     auto &os = std::cout;
 
     // 1. Reset the terminal
@@ -111,10 +112,10 @@ int main()
     ancy::apply(ancy::sgr_style::conceal, os);
     std::cout << "Concealed, ";
     ancy::apply(ancy::sgr_style::no_conceal, os);
-    std::cout << "Not concealed\n";
+    std::cout << "not concealed\n";
 
     // 3. Styles
-    // Styles offer a more encapsulated way to output text.
+    // Styles offer a more encapsulated way to describe a 
 
     ancy::reset(os);
 
@@ -131,7 +132,21 @@ int main()
     std::cout << std::endl;
     std::cout << "Back to default style\n";
 
-    // 4. Output cursor movement
+    // 4. Cursor movement
+
+    os << "a\nb\nc\nd\n";
+    // Move up one line
+    ancy::up(os);
+    os << "D";
+    // Move up 3 lines, left 1 line
+    ancy::up(3, os);
+    ancy::left(os);
+    os << "A";
+
+    // Move down 4 and left 1
+    ancy::down(4, os);
+    ancy::left(os);
+    os << "E\n";
 
     // 5. Other
     auto ts = ancy::get_terminal_size();
