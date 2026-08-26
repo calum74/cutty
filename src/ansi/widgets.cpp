@@ -192,10 +192,10 @@ const ancy::theme &ancy::default_theme()
         .data_text{.fg = colour::yellow, .bg = colour::black},
         .text_input{.fg = colour::white, .bg = colour::black},
         .button_normal{.fg = colour::red, .bg = colour::white},
-        .button_focus{.fg = colour::red, .bg = colour::yellow, .bold = true},
+        .button_focus{.fg = colour::red, .bg = colour::yellow, .weight = weight::heavy},
         .status{.fg = colour::blue, .bg = colour::white},
         .x_normal{.fg = colour::white, .bg = colour::red},
-        .x_highlight{.fg = colour::white, .bg = colour::red, .bold = true},
+        .x_highlight{.fg = colour::white, .bg = colour::red, .weight = weight::heavy},
     };
     return t;
 }

@@ -11,33 +11,34 @@ void test_raw()
 {
     // Tests the low level ANSI commands
 
-    cy::ansi::reset(std::cout);
+    ancy::reset(std::cout);
     std::cout << std::endl;
-    cy::ansi::bold_on(std::cout);
+
+    ancy::apply(ancy::sgr_style::heavy_weight, std::cout);
     std::cout << "Bold\n";
-    cy::ansi::bold_off(std::cout);
+    ancy::apply(ancy::sgr_style::normal_weight, std::cout);
     std::cout << "Not bold\n";
 
-    cy::ansi::style s1, s2;
-    s1.bold = true;
-    s1.fg = cy::ansi::colour::red;
-    s1.bg = cy::ansi::colour::blue;
+    ancy::style s1, s2;
+    s1.weight = ancy::weight::heavy;
+    s1.fg = ancy::colour::red;
+    s1.bg = ancy::colour::blue;
 
-    cy::ansi::change_style({}, s1, std::cout);
+    ancy::change_style({}, s1, std::cout);
     std::cout << "Bold in red";
-    cy::ansi::reset(std::cout);
+    ancy::reset(std::cout);
     std::cout << std::endl;
 }
 
 void test_raw_writer()
 {
     std::cout << std::endl;
-    cy::ansi::raw_writer w(std::cout);
+    ancy::raw_writer w(std::cout);
 
-    cy::ansi::style s1, s2;
-    s1.bold = true;
-    s1.fg = cy::ansi::colour::red;
-    s1.bg = cy::ansi::colour::blue;
+    ancy::style s1, s2;
+    s1.weight = ancy::weight::heavy;
+    s1.fg = ancy::colour::red;
+    s1.bg = ancy::colour::blue;
 
     w.apply(s1);
     w.text("In red");
@@ -59,34 +60,34 @@ void test_window_writer()
     // Writing outside of the region clips the output
 
     std::cout << std::endl;
-    cy::ansi::window vp({40, 5});
+    ancy::window vp({40, 5});
 
     vp.put({.ch = 'x'}, {3, 0});
     vp.put({.ch = 'y'}, {4, 1});
     vp.flush();
 
-    cy::ansi::style s1, s2;
-    s1.bold = true;
-    s1.fg = cy::ansi::colour::red;
-    s1.bg = cy::ansi::colour::blue;
+    ancy::style s1, s2;
+    s1.weight = ancy::weight::heavy;
+    s1.fg = ancy::colour::red;
+    s1.bg = ancy::colour::blue;
 
     vp.put({s1, 'X'}, {.x = 0, .y = 0});
     vp.put({s2, ' '}, {0, 0});
     vp.put({.ch = '+'}, {39, 0});
 
-    s2.fg = cy::ansi::colour::green;
+    s2.fg = ancy::colour::green;
 
-    draw_box(vp, s2, cy::ansi::line_style::ascii, 10, 2, 10, 3);
+    draw_box(vp, s2, ancy::line_style::ascii, 10, 2, 10, 3);
 }
 
 void test_progress_bar()
 {
     std::cout << std::endl;
-    cy::ansi::window vp({40, 10});
+    ancy::window vp({40, 10});
 
-    cy::ansi::style s1;
-    s1.fg = cy::ansi::colour::red;
-    s1.bg = cy::ansi::colour::white;
+    ancy::style s1;
+    s1.fg = ancy::colour::red;
+    s1.bg = ancy::colour::white;
     draw_progress(vp, s1, 10, 0, 20, 0, 100);
     draw_progress(vp, s1, 10, 1, 20, 50, 100);
     draw_progress(vp, s1, 10, 2, 20, 205, 400);
@@ -96,7 +97,7 @@ void test_progress_bar()
     draw_progress(vp, s1, 10, 9, 20, 100, 100);
     vp.flush();
 
-    cy::ansi::style s2;
+    ancy::style s2;
 
     for (int i = 0; i <= 1000; ++i)
     {
@@ -110,60 +111,60 @@ void test_progress_bar()
 void test_graphics()
 {
     std::cout << std::endl;
-    cy::ansi::window vp({40, 10});
-    cy::ansi::bitmap b1({5, 5});
+    ancy::window vp({40, 10});
+    ancy::bitmap b1({5, 5});
 
-    b1[{0, 0}] = cy::ansi::colour::rgb(128, 255, 0);
-    b1[{0, 1}] = cy::ansi::colour::rgb(255, 0, 0);
-    b1[{1, 0}] = cy::ansi::colour::rgb(0, 127, 255);
-    b1[{1, 1}] = cy::ansi::colour::rgb(255, 0, 0);
+    b1[{0, 0}] = ancy::colour::rgb(128, 255, 0);
+    b1[{0, 1}] = ancy::colour::rgb(255, 0, 0);
+    b1[{1, 0}] = ancy::colour::rgb(0, 127, 255);
+    b1[{1, 1}] = ancy::colour::rgb(255, 0, 0);
 
-    b1[{0, 2}] = cy::ansi::colour::rgb(128, 255, 0);
-    b1[{0, 3}] = cy::ansi::colour::rgb(255, 0, 0);
-    b1[{1, 2}] = cy::ansi::colour::rgb(0, 127, 255);
-    b1[{1, 3}] = cy::ansi::colour::rgb(255, 0, 0);
+    b1[{0, 2}] = ancy::colour::rgb(128, 255, 0);
+    b1[{0, 3}] = ancy::colour::rgb(255, 0, 0);
+    b1[{1, 2}] = ancy::colour::rgb(0, 127, 255);
+    b1[{1, 3}] = ancy::colour::rgb(255, 0, 0);
 
-    b1[{4, 4}] = cy::ansi::colour::rgb(255, 0, 0);
+    b1[{4, 4}] = ancy::colour::rgb(255, 0, 0);
 
-    cy::ansi::draw_bitmap(vp, {1, 1}, b1, cy::ansi::colour::terminal_default, cy::ansi::c_1x2);
+    ancy::draw_bitmap(vp, {1, 1}, b1, ancy::colour::terminal_default, ancy::c_1x2);
 
-    cy::ansi::draw_bitmap(vp, {10, 1}, b1, cy::ansi::colour::terminal_default, cy::ansi::c_2x4);
+    ancy::draw_bitmap(vp, {10, 1}, b1, ancy::colour::terminal_default, ancy::c_2x4);
 
-    cy::ansi::draw_bitmap(vp, {16, 0}, b1, cy::ansi::colour::terminal_default, cy::ansi::c_1x1);
+    ancy::draw_bitmap(vp, {16, 0}, b1, ancy::colour::terminal_default, ancy::c_1x1);
 
-    cy::ansi::draw_bitmap(vp, {22, 0}, b1, cy::ansi::colour::terminal_default, cy::ansi::c_w2x1);
+    ancy::draw_bitmap(vp, {22, 0}, b1, ancy::colour::terminal_default, ancy::c_w2x1);
 }
 
 void test_event_loop()
 {
     std::cout << std::endl;
-    cy::ansi::window vp({40, 10});
-    cy::ansi::style s1{.bg = cy::ansi::colour::blue};
-    cy::ansi::fill_rect(vp, {s1, ' '}, {0, 0}, {40, 10});
+    ancy::window vp({40, 10});
+    ancy::style s1{.bg = ancy::colour::blue};
+    ancy::fill_rect(vp, {s1, ' '}, {0, 0}, {40, 10});
 
     vp.flush();
 
-    cy::ansi::run([&](const cy::ansi::event &event) {
-        if (cy::ansi::key_press e{event})
+    ancy::run([&](const ancy::event &event) {
+        if (ancy::key_press e{event})
         {
             if (e.key() == 'x')
             {
-                return cy::ansi::event_return::exit_loop;
+                return ancy::event_return::exit_loop;
             }
         }
-        else if (cy::ansi::mouse_click e{event})
+        else if (ancy::mouse_click e{event})
         {
             vp.go_to({3, 6});
             vp.text("Mouse click " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
             vp.flush();
         }
-        else if (cy::ansi::mouse_move e{event})
+        else if (ancy::mouse_move e{event})
         {
             vp.go_to({3, 5});
             vp.text("Mouse moved " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
             vp.flush();
         }
-        return cy::ansi::event_return::continue_loop;
+        return ancy::event_return::continue_loop;
     });
 }
 
@@ -172,7 +173,7 @@ void test_widgets()
     std::cout << std::endl;
 
     ancy::window vp({40, 10});
-    ancy::style s1{.bg = cy::ansi::colour::blue};
+    ancy::style s1{.bg = ancy::colour::blue};
     ancy::fill_rect(vp, {s1, ' '}, {0, 0}, {40, 10});
 
     int count = 0;
@@ -201,7 +202,7 @@ void test_widgets()
 void test_alt_screen()
 {
     ancy::window vp;
-    ancy::style s1{.bg = cy::ansi::colour::blue};
+    ancy::style s1{.bg = ancy::colour::blue};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
     ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
 
@@ -220,7 +221,7 @@ void test_alt_screen()
 void test_mouse_coords()
 {
     ancy::window vp({40, 5});
-    ancy::style s1{.bg = cy::ansi::colour::blue, .bold = true};
+    ancy::style s1{.bg = ancy::colour::blue, .weight = ancy::weight::heavy};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
     ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
 
@@ -240,14 +241,14 @@ void test_button()
 {
     ancy::theme th;
     ancy::window vp({40, 5});
-    ancy::style s1{.bg = cy::ansi::colour::blue, .bold = true};
+    ancy::style s1{.bg = ancy::colour::blue, .weight = ancy::weight::heavy};
     // ancy::fill_rect(vp, {s1, ' '}, {0,0}, vp.dimensions());
     ancy::fill_rect(vp, {s1, ' '}, {0, 0}, vp.dimensions());
     ancy::style button_normal{.fg = ancy::colour::red, .bg = ancy::colour::white};
     ancy::style button_highlight{.fg = ancy::colour::red, .bg = ancy::colour::yellow};
 
     ancy::style x_normal{.fg = ancy::colour::white, .bg = ancy::colour::red};
-    ancy::style x_highlight{.fg = ancy::colour::white, .bg = ancy::colour::red, .bold = true};
+    ancy::style x_highlight{.fg = ancy::colour::white, .bg = ancy::colour::red, .weight = ancy::weight::heavy};
 
     ancy::style text_normal{.fg = ancy::colour::yellow};
 

@@ -25,7 +25,7 @@ void ancy::button::draw(writer &w)
         {
             int k = i - left_padding;
             c.ch = k >= 0 && k < m_text.size() ? m_text[k] : ' ';
-            c.style.underline = std::tolower(c.ch) == m_key;
+            c.style.underline = std::tolower(c.ch) == m_key ? underline::single_line : underline::none;
             w.put(c, {m_position.x + i, m_position.y + j});
         }
     }

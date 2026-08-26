@@ -83,7 +83,7 @@ void ancy::draw_bitmap(writer &vp, position p, const bitmap &bm, colour bg, bitm
     {
         character ch;
         ch.ch = 0x28f8;
-        ch.style.bold = true;
+        ch.style.weight = weight::heavy;
 
         vp.put(ch, {p.x, p.y});
         for (int x = 0; x < w; x += 2)

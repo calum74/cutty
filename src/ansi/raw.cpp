@@ -29,20 +29,20 @@ void ancy::change_style(const style &old_style, const style &new_style, std::ost
         }
     };
 
-    if (new_style.bold != old_style.bold || new_style.faint != old_style.faint)
+    if (new_style.weight != old_style.weight)
     {
         next();
-        if (new_style.bold)
+        if (new_style.weight == weight::heavy)
         {
-            sgr_bold_on(os);
+            sgr_apply(sgr_style::heavy_weight, os);
         }
-        else if (new_style.faint)
+        else if (new_style.weight == weight::light)
         {
-            sgr_faint_on(os);
+            sgr_apply(sgr_style::light_weight, os);
         }
         else
         {
-            sgr_bold_off(os);  // Normal weight
+            sgr_apply(sgr_style::normal_weight, os);
         }
     }
 
@@ -61,13 +61,17 @@ void ancy::change_style(const style &old_style, const style &new_style, std::ost
     if(new_style.underline != old_style.underline)
     {
         next();
-        if(new_style.underline)
+        if(new_style.underline == underline::single_line)
         {
-            sgr_underline_on(os);
+            sgr_apply(sgr_style::underline, os);
+        }
+        else if(new_style.underline == underline::double_line)
+        {
+            sgr_apply(sgr_style::double_underline, os);
         }
         else
         {
-            sgr_underline_off(os);
+            sgr_apply(sgr_style::no_underline, os);
         }
     }
 
@@ -138,27 +142,17 @@ void ancy::home(std::ostream &os)
     os << "\x1b[H";
 }
 
-void ancy::bold_on(std::ostream &os)
-{
-    os << "\x1b[1m";
-}
 
-void ancy::bold_off(std::ostream &os)
-{
-    os << "\x1b[22m";
-}
-
-void ancy::invert(std::ostream &os)
+void ancy::apply(sgr_style s, std::ostream &os)
 {
     sgr_start(os);
-    sgr_invert(os);
+    sgr_apply(s, os);
     sgr_finish(os);
 }
 
-
 void ancy::reset(std::ostream &os)
 {
-    os << "\x1b[0m";
+    apply(sgr_style::reset, os);
 }
 
 void ancy::fg_colour(colour c, std::ostream &os)
@@ -195,40 +189,9 @@ void ancy::sgr_bg(colour c, std::ostream &os)
     c.sgr_bg(os);
 }
 
-void ancy::sgr_bold_on(std::ostream &os)
+void ancy::sgr_apply(sgr_style s, std::ostream &os)
 {
-    os << '1';
-}
-
-void ancy::sgr_invert(std::ostream &os)
-{
-    os << 7;
-}
-
-void ancy::sgr_bold_off(std::ostream &os)
-{
-    os << "22";
-}
-
-void ancy::sgr_faint_on(std::ostream &os)
-{
-    os << '2';
-}
-
-void ancy::sgr_faint_off(std::ostream &os)
-{
-    os << "22";
-}
-
-
-void ancy::sgr_underline_on(std::ostream &os)
-{
-    os << '4';
-}
-
-void ancy::sgr_underline_off(std::ostream &os)
-{
-    os << "24";
+    os << static_cast<int>(s);
 }
 
 void ancy::sgr_start(std::ostream &os)

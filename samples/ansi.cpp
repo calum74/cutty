@@ -7,14 +7,14 @@ int main()
 {
     // The low level library write specific ANSI properties directly to std::cout
     cy::ansi::reset(std::cout);
-    cy::ansi::bold_on(std::cout);
+    cy::ansi::apply(ancy::sgr_style::heavy_weight, std::cout);
     std::cout << "Hello, world!\n";
     cy::ansi::fg_colour(cy::ansi::colour::rgb(0,128,255), std::cout);
     std::cout << "Hello, in burple!\n";
     cy::ansi::reset(std::cout);
 
     cy::ansi::style red {.fg = ancy::colour::red};
-    cy::ansi::style bright_green {.fg = ancy::colour::green, .bold=true};
+    cy::ansi::style bright_green {.fg = ancy::colour::green, .weight = ancy::weight::heavy};
 
     cy::ansi::change_style({}, bright_green, std::cout);
     std::cout << "Bright green";
