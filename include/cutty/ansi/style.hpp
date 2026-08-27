@@ -41,6 +41,8 @@ struct style
 
     ansi::weight weight = ansi::weight::normal;
     ansi::underline underline = ansi::underline::none;
+
+    // The following attributes aren't supported by many terminals:
     ansi::blink blink = ansi::blink::none;
     ansi::frame frame = ansi::frame::none;
     bool strikethrough = false;

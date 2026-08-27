@@ -31,17 +31,31 @@ void ancy::change_style(const style &old_style, const style &new_style, std::ost
 
     if (new_style.weight != old_style.weight)
     {
-        next();
         if (new_style.weight == weight::heavy)
         {
+            if (old_style.weight != weight::normal)
+            {
+                // Strangely, you need to cancel "light weight"
+                next();
+                sgr_apply(sgr_style::normal_weight, os);
+            }
+            next();
             sgr_apply(sgr_style::heavy_weight, os);
         }
         else if (new_style.weight == weight::light)
         {
+            if (old_style.weight != weight::normal)
+            {
+                // Strangely, you need to cancel the previous weight
+                next();
+                sgr_apply(sgr_style::normal_weight, os);
+            }
+            next();
             sgr_apply(sgr_style::light_weight, os);
         }
         else
         {
+            next();
             sgr_apply(sgr_style::normal_weight, os);
         }
     }
