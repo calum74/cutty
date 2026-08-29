@@ -1,14 +1,32 @@
 # ANSI library
 
-Each test should be a separate sample
+Next sample:
+- Progress bar with worker thread and a cancel button
 
-Themes
-- ascii/ansi
-- Colours should encode their colourspace
-- background colour
-- Button fg/background
-- Text box colour
-- Line style
+
+
+- Progress bar
+- 
+
+- Themes
+- Colour space
+- Progress bar widget
+- Button sample
+- Text output sample
+- Full screen sample
+- Mouse move and click positioning
+- Tabular output with scroll bars and sorting
+
+Open question:
+- How to create a worker thread?
+- Cancellable event loops
+
+
+
+
+Each test should be a separate sample
+- Get rid of existing test/sample
+
 
 Text input box
 

@@ -63,6 +63,8 @@ class window : public writer, public widget
     // Signal to the event loop to exit
     void quit();
 
+    bool has_quit() const;
+
     std::function<void()> quit_action();
 
   private:
