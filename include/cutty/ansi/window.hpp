@@ -4,7 +4,7 @@
 #include "widget.hpp"
 #include "writer.hpp"
 
-#include <vector>
+#include <memory>
 
 namespace cutty::ansi
 {
@@ -68,22 +68,8 @@ class window : public writer, public widget
     std::function<void()> quit_action();
 
   private:
-    raw_writer m_underlying;
-    position m_position;
-    style m_style;
-    size m_dimensions;
-    struct viewport_character : character
-    {
-        bool dirty = false;
-    };
-    std::vector<viewport_character> m_data;
-    std::vector<int> m_dirty_list;
-    std::vector<widget *> m_children;
-    bool m_quit;
-    bool m_alt_screen;
+    class impl;
+    std::unique_ptr<impl> m_impl;
 
-    bool m_show_cursor;
-    position m_cursor_position;
-    widget *m_focus = 0;
 };
 } // namespace cutty::ansi

@@ -3,10 +3,40 @@
 #include <cutty/ansi/window.hpp>
 
 #include <algorithm>
+#include <vector>
 
 namespace ancy = cutty::ansi;
 
-ancy::window::window(size s, std::ostream &os)
+class ancy::window::impl
+{
+public:
+    impl();
+    impl(size s, std::ostream &os);
+
+    raw_writer m_underlying;
+    position m_position;
+    style m_style;
+    size m_dimensions;
+    struct viewport_character : character
+    {
+        bool dirty = false;
+    };
+    std::vector<viewport_character> m_data;
+    std::vector<int> m_dirty_list;
+    std::vector<widget *> m_children;
+    bool m_quit;
+    bool m_alt_screen;
+
+    bool m_show_cursor;
+    position m_cursor_position;
+    widget *m_focus = 0;
+};
+
+ancy::window::window(size s, std::ostream &os) : m_impl(std::make_unique<impl>(s, os))
+{
+}
+
+ancy::window::impl::impl(size s, std::ostream &os)
     : m_underlying(os), m_dimensions(s), m_data(s.w * s.h), m_alt_screen(false), m_show_cursor(false)
 {
     m_dirty_list.reserve(m_data.size());
@@ -16,7 +46,11 @@ ancy::window::window(size s, std::ostream &os)
     }
 }
 
-ancy::window::window()
+ancy::window::window() : m_impl(std::make_unique<impl>())
+{
+}
+
+ancy::window::impl::impl()
     : m_underlying(std::cout), m_dimensions(get_terminal_size()), m_data(m_dimensions.w * m_dimensions.h),
       m_alt_screen(true)
 {
@@ -28,74 +62,74 @@ ancy::window::window()
     // m_underlying.text("X");
     // m_underlying.go_to({1,1});
     // m_underlying.text("Y");
-    flush();
+    // flush();
 }
 
 ancy::window::~window()
 {
-    if (!m_show_cursor)
+    if (!m_impl->m_show_cursor)
     {
-        m_underlying.show_cursor();
+        m_impl->m_underlying.show_cursor();
     }
 
-    if (m_alt_screen)
+    if (m_impl->m_alt_screen)
     {
         wrap_on(std::cout);
         alternate_screen_off(std::cout);
     }
     else
     {
-        m_underlying.go_to({0, m_dimensions.h});
+        m_impl->m_underlying.go_to({0, m_impl->m_dimensions.h});
     }
-    m_underlying.flush();
+    m_impl->m_underlying.flush();
 }
 
 void ancy::window::flush()
 {
-    std::sort(m_dirty_list.begin(), m_dirty_list.end());
-    for (auto index : m_dirty_list)
+    std::sort(m_impl->m_dirty_list.begin(), m_impl->m_dirty_list.end());
+    for (auto index : m_impl->m_dirty_list)
     {
-        auto &c = m_data[index];
-        m_underlying.go_to({index % m_dimensions.w, index / m_dimensions.w});
-        m_underlying.put(c);
+        auto &c = m_impl->m_data[index];
+        m_impl->m_underlying.go_to({index % m_impl->m_dimensions.w, index / m_impl->m_dimensions.w});
+        m_impl->m_underlying.put(c);
         c.dirty = false;
     }
-    m_underlying.reset();
-    if (!m_alt_screen)
+    m_impl->m_underlying.reset();
+    if (!m_impl->m_alt_screen)
     {
         // TODO: Need a location for the cursor...
         // TODO: Need a cursor style...
-        m_underlying.go_to({0, m_dimensions.h});
+        m_impl->m_underlying.go_to({0, m_impl->m_dimensions.h});
     }
     else
     {
     }
 
-    if (m_show_cursor)
+    if (m_impl->m_show_cursor)
     {
-        m_underlying.go_to(m_cursor_position);
+        m_impl->m_underlying.go_to(m_impl->m_cursor_position);
     }
 
-    m_underlying.flush();
-    m_dirty_list.clear();
+    m_impl->m_underlying.flush();
+    m_impl->m_dirty_list.clear();
 }
 
 void ancy::window::put(const character &ch, position p)
 {
-    if (p.x < 0 || p.x >= m_dimensions.w || p.y < 0 || p.y >= m_dimensions.h)
+    if (p.x < 0 || p.x >= m_impl->m_dimensions.w || p.y < 0 || p.y >= m_impl->m_dimensions.h)
     {
         return;
     }
 
-    auto index = p.x + p.y * m_dimensions.w;
-    auto &my_char = m_data.at(index);
+    auto index = p.x + p.y * m_impl->m_dimensions.w;
+    auto &my_char = m_impl->m_data.at(index);
     if (ch.ch != my_char.ch || ch.style != my_char.style)
     {
         my_char.style = ch.style;
         my_char.ch = ch.ch;
         if (!my_char.dirty)
         {
-            m_dirty_list.push_back(index);
+            m_impl->m_dirty_list.push_back(index);
             my_char.dirty = true;
         }
     }
@@ -103,7 +137,7 @@ void ancy::window::put(const character &ch, position p)
 
 ancy::size ancy::window::dimensions() const
 {
-    return m_dimensions;
+    return m_impl->m_dimensions;
 }
 
 void ancy::window::put(const character &c)
@@ -120,7 +154,7 @@ void ancy::window::endl()
 
 void ancy::window::text(std::string_view sv)
 {
-    text(m_style, sv);
+    text(m_impl->m_style, sv);
 }
 
 void ancy::window::text(const style &s, std::string_view sv)
@@ -135,18 +169,18 @@ void ancy::window::text(const style &s, std::string_view sv)
 
 void ancy::window::apply(const style &s)
 {
-    m_style = s;
+   m_impl->m_style = s;
 }
 
 void ancy::window::go_to(position p)
 {
     m_position = p;
-    m_underlying.go_to(p);
+    m_impl->m_underlying.go_to(p);
 }
 
 void ancy::window::reset()
 {
-    m_style = {};
+    m_impl->m_style = {};
 }
 
 ancy::writer &ancy::window::get_writer()
@@ -156,28 +190,28 @@ ancy::writer &ancy::window::get_writer()
 
 void ancy::window::add_child(widget &w)
 {
-    m_children.push_back(&w);
+    m_impl->m_children.push_back(&w);
 
     // !! This does not work as add_child is called from the constructor
-    if (w.can_take_focus() && !m_focus)
+    if (w.can_take_focus() && !m_impl->m_focus)
     {
-        m_focus = &w;
-        m_focus->grant_focus(true);
+        m_impl->m_focus = &w;
+        m_impl->m_focus->grant_focus(true);
     }
 }
 
 void ancy::window::remove_child(widget &w)
 {
-    if (m_focus == &w)
+    if (m_impl->m_focus == &w)
     {
-        m_focus = nullptr;
+        m_impl->m_focus = nullptr;
     }
 
-    for (auto it = m_children.begin(); it != m_children.end(); ++it)
+    for (auto it = m_impl->m_children.begin(); it != m_impl->m_children.end(); ++it)
     {
         if (*it == &w)
         {
-            m_children.erase(it);
+           m_impl->m_children.erase(it);
             return;
         }
     }
@@ -187,9 +221,9 @@ void ancy::window::remove_child(widget &w)
 void ancy::window::run()
 {
     // TODO: Grant focus
-    if(!m_focus)
+    if(!m_impl->m_focus)
     {
-        for(auto i : m_children)
+        for(auto i : m_impl->m_children)
         {
             if(i->can_take_focus())
             {
@@ -200,7 +234,7 @@ void ancy::window::run()
     }
 
 
-    m_quit = false;
+    m_impl->m_quit = false;
     flush();
     auto mouse_offset = current_position();
     ansi::run([this, mouse_offset](const event &e) {
@@ -225,13 +259,13 @@ void ancy::window::run()
             mouse_scroll(s.pos() + mouse_offset, s.flags());
         }
         flush();
-        return m_quit ? event_return::exit_loop : event_return::continue_loop;
+        return m_impl->m_quit ? event_return::exit_loop : event_return::continue_loop;
     });
 }
 
 void ancy::window::key_press(char32_t ch)
 {
-    if (m_focus)
+    if (m_impl->m_focus)
     {
         if(ch == UP)
         {
@@ -243,12 +277,12 @@ void ancy::window::key_press(char32_t ch)
         }
         else
         {
-            m_focus->key_press(ch);
+            m_impl->m_focus->key_press(ch);
         }
     }
     else
     {
-        for (auto *child : m_children)
+        for (auto *child : m_impl->m_children)
         {
             child->key_press(ch);
         }
@@ -257,7 +291,7 @@ void ancy::window::key_press(char32_t ch)
 
 void ancy::window::mouse_click(position p, mouse_flags f)
 {
-    for (auto *child : m_children)
+    for (auto *child : m_impl->m_children)
     {
         child->mouse_click(p, f);
     }
@@ -265,7 +299,7 @@ void ancy::window::mouse_click(position p, mouse_flags f)
 
 void ancy::window::mouse_release(position p, mouse_flags f)
 {
-    for (auto *child : m_children)
+    for (auto *child : m_impl->m_children)
     {
         child->mouse_release(p, f);
     }
@@ -273,7 +307,7 @@ void ancy::window::mouse_release(position p, mouse_flags f)
 
 void ancy::window::mouse_move(position p, mouse_flags f)
 {
-    for (auto *child : m_children)
+    for (auto *child : m_impl->m_children)
     {
         child->mouse_move(p, f);
     }
@@ -281,7 +315,7 @@ void ancy::window::mouse_move(position p, mouse_flags f)
 
 void ancy::window::mouse_scroll(position p, mouse_flags f)
 {
-    for (auto *child : m_children)
+    for (auto *child : m_impl->m_children)
     {
         child->mouse_scroll(p, f);
     }
@@ -289,7 +323,7 @@ void ancy::window::mouse_scroll(position p, mouse_flags f)
 
 void ancy::window::quit()
 {
-    m_quit = true;
+    m_impl->m_quit = true;
 }
 
 std::function<void()> ancy::window::quit_action()
@@ -299,67 +333,67 @@ std::function<void()> ancy::window::quit_action()
 
 ancy::position ancy::window::current_position() const
 {
-    return m_underlying.current_position();
+    return m_impl->m_underlying.current_position();
 }
 
 void ancy::window::show_cursor()
 {
-    if (!m_show_cursor)
+    if (!m_impl->m_show_cursor)
     {
-        m_underlying.show_cursor();
-        m_show_cursor = true;
+        m_impl->m_underlying.show_cursor();
+        m_impl->m_show_cursor = true;
     }
 }
 
 void ancy::window::show_cursor(position p)
 {
-    if (!m_show_cursor)
+    if (!m_impl->m_show_cursor)
     {
-        m_underlying.show_cursor(p);
-        m_show_cursor = true;
+        m_impl->m_underlying.show_cursor(p);
+        m_impl->m_show_cursor = true;
     }
-    m_cursor_position = p;
+    m_impl->m_cursor_position = p;
 }
 
 void ancy::window::hide_cursor()
 {
-    if (m_show_cursor)
+    if (m_impl->m_show_cursor)
     {
-        m_underlying.hide_cursor();
-        m_show_cursor = false;
+        m_impl->m_underlying.hide_cursor();
+        m_impl->m_show_cursor = false;
     }
 }
 
 void ancy::window::set_focus(widget &child)
 {
-    if (m_focus == &child)
+    if (m_impl->m_focus == &child)
     {
         return;
     }
-    else if (m_focus)
+    else if (m_impl->m_focus)
     {
-        m_focus->grant_focus(false);
+        m_impl->m_focus->grant_focus(false);
     }
-    m_focus = &child;
-    m_focus->grant_focus(true);
+    m_impl->m_focus = &child;
+    m_impl->m_focus->grant_focus(true);
 }
 
 void ancy::window::next_focus()
 {
-    for(auto c : m_children)
+    for(auto c : m_impl->m_children)
     {
-        if(m_focus ==c)
+        if(m_impl->m_focus ==c)
         {
             c->grant_focus(false);
-            m_focus = nullptr;
+            m_impl->m_focus = nullptr;
         }
-        else if(!m_focus && c->can_take_focus())
+        else if(!m_impl->m_focus && c->can_take_focus())
         {
             set_focus(*c);
             return;
         }
     }
-    for(auto c : m_children)
+    for(auto c : m_impl->m_children)
     {
         if(c->can_take_focus())
         {
@@ -372,7 +406,7 @@ void ancy::window::next_focus()
 void ancy::window::prev_focus()
 {
     widget * last_widget = nullptr;
-    for(auto *w : m_children)
+    for(auto *w : m_impl->m_children)
     {
         if(w->can_take_focus())
         {
@@ -385,15 +419,15 @@ void ancy::window::prev_focus()
         return;
     }
 
-    if(!m_focus)
+    if(!m_impl->m_focus)
     {
         set_focus(*last_widget);
         return;
     }
 
-    for(auto *w : m_children)
+    for(auto *w : m_impl->m_children)
     {
-        if(w == m_focus)
+        if(w == m_impl->m_focus)
         {
             set_focus(*last_widget);
             return;

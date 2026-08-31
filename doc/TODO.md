@@ -21,6 +21,10 @@ Open question:
 - How to create a worker thread?
 - Cancellable event loops
 
+1. Threaded model:
+- `window.start_event_loop(std::cout)`
+
+
 
 
 
