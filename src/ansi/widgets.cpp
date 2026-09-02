@@ -200,9 +200,31 @@ const ancy::theme &ancy::default_theme()
     return t;
 }
 
+void ancy::widget::on_timer()
+{
+}
+
+void ancy::widget::set_timer(std::chrono::milliseconds)
+{
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ancy::widget::redraw()
 {
     draw(get_writer());
+}
+
+ancy::timer::timer(widget &w, std::function<void()> fn) : widget(&w), m_command(fn)
+{
+}
+
+void ancy::timer::set_timer(std::chrono::milliseconds ms)
+{
+    m_parent->set_timer(ms);
+}
+
+void ancy::timer::on_timer()
+{
+    m_command();
 }

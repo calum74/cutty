@@ -1,8 +1,10 @@
 # ANSI library
 
 Next sample:
-- Progress bar with worker thread and a cancel button
+- Progress bar with timer widget
 
+
+- Progress bar with worker thread and a cancel button
 
 
 - Progress bar
@@ -21,12 +23,23 @@ Open question:
 - How to create a worker thread?
 - Cancellable event loops
 
-1. Threaded model:
+1. Blocking mode:
+- `window.run()`
+- Sends an `on_idle()` event when done: work can be done then
+- `on_idle()` can call `process_events()`
+
+2. Interactive mode
+- `window.process_events();` runs all events but does *not* send `idle()`
+
+4. Set timers
+- `window.set_timer(1ms)`: Sends a `timer()` event to all children.
+- Setting multiple timers overides the previous timer
+- `run()` will wait for the given duration.
+
+3. Threaded model:
 - `window.start_event_loop(std::cout)`
-
-
-
-
+- Runs until `window::quit()` or until the window is destroyed.
+- `window` is fully threadsafe.
 
 Each test should be a separate sample
 - Get rid of existing test/sample

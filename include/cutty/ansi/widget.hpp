@@ -36,6 +36,10 @@ class widget
     virtual bool can_take_focus();
     virtual void grant_focus(bool has_focus);
 
+    // Timer
+    virtual void set_timer(std::chrono::milliseconds);
+    virtual void on_timer();
+
   protected:
     widget *m_parent;
     position m_position;

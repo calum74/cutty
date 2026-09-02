@@ -20,6 +20,12 @@ int main()
 
     ancy::text_box text_number(window, {3,2}, {25,1}, theme.text, theme, "");
 
+    ancy::timer t(window, [&] { 
+        text_number.set_text(std::format("Processed {} items", ++progress));
+        t.set_timer(std::chrono::milliseconds(1));
+    });
+
+    t.set_timer(std::chrono::milliseconds(1));
 
     // Button widget:
 

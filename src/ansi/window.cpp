@@ -30,6 +30,8 @@ public:
     bool m_show_cursor;
     position m_cursor_position;
     widget *m_focus = 0;
+
+    std::chrono::milliseconds m_timer {0};
 };
 
 ancy::window::window(size s, std::ostream &os) : m_impl(std::make_unique<impl>(s, os))
@@ -438,4 +440,10 @@ void ancy::window::prev_focus()
             last_widget = w;
         }
     }
+}
+
+void ancy::window::set_timer(std::chrono::milliseconds ms)
+{
+    m_impl->m_timer = ms;
+    // TODO: Activate threads maybe
 }

@@ -151,4 +151,15 @@ class text_input : public widget
     bool m_has_focus = false;
 };
 
+class timer : public widget
+{
+public:
+  timer(widget &parent, std::function<void()> command);
+  void set_timer(std::chrono::milliseconds ms);
+  void on_timer();
+
+private:
+  std::function<void()> m_command;
+};
+
 } // namespace cutty::ansi
