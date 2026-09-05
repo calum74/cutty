@@ -260,9 +260,13 @@ void ancy::window::run()
         {
             mouse_scroll(s.pos() + mouse_offset, s.flags());
         }
+        else if (e.is_timer())
+        {
+            on_timer();
+        }
         flush();
-        return m_impl->m_quit ? event_return::exit_loop : event_return::continue_loop;
-    });
+        return event_return { m_impl->m_quit, m_impl->m_timer };
+    }, m_impl->m_timer);
 }
 
 void ancy::window::key_press(char32_t ch)
@@ -446,4 +450,12 @@ void ancy::window::set_timer(std::chrono::milliseconds ms)
 {
     m_impl->m_timer = ms;
     // TODO: Activate threads maybe
+}
+
+void ancy::window::on_timer()
+{
+    for(auto i : m_impl->m_children)
+    {
+        i->on_timer();
+    }
 }

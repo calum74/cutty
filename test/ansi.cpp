@@ -149,7 +149,7 @@ void test_event_loop()
         {
             if (e.key() == 'x')
             {
-                return ancy::event_return::exit_loop;
+                return ancy::event_return { true };
             }
         }
         else if (ancy::mouse_click e{event})
@@ -164,7 +164,7 @@ void test_event_loop()
             vp.text("Mouse moved " + std::to_string(e.pos().x) + "," + std::to_string(e.pos().y) + "  ");
             vp.flush();
         }
-        return ancy::event_return::continue_loop;
+        return ancy::event_return { false };
     });
 }
 

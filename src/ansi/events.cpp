@@ -1,6 +1,7 @@
 #include <cutty/ansi/events.hpp>
 #include <cutty/ansi/raw.hpp>
 
+#include <poll.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
@@ -38,11 +39,11 @@ class RawEventsSetup
 };
 } // namespace
 
-void ancy::run(const std::function<event_return(event)> &fn)
+void ancy::run(const std::function<event_return(event)> &fn, std::chrono::milliseconds timeout)
 {
     RawEventsSetup setup(std::cout);
 
-    unsigned char c;
+    char c;
 
     int state = 0;
     /*
@@ -69,9 +70,36 @@ void ancy::run(const std::function<event_return(event)> &fn)
 
     event e;
 
-    auto send_event = [&] { return fn(e) == event_return::exit_loop; };
+    auto send_event = [&] { 
+        auto r = fn(e);
+        timeout = r.timeout;
+        return r.exit;
+    };
 
-    while (read(STDIN_FILENO, &c, 1) == 1)
+    bool timed_out = false;
+
+    auto read_with_timeout = [&] -> int
+    {
+        if (timeout.count()>0)
+        {
+            struct pollfd pfd = {
+                .fd = STDIN_FILENO,
+                .events = POLLIN
+            };
+
+            int r = poll(&pfd, 1, timeout.count());
+
+            if (r == 0) {
+                // timed out
+                c = 0;
+                return true;
+            }    
+        }
+
+        return read(STDIN_FILENO, &c, 1)==1;
+    };
+
+    while (read_with_timeout())
     {
         switch (state)
         {
@@ -79,6 +107,12 @@ void ancy::run(const std::function<event_return(event)> &fn)
             if (c == 27)
             {
                 state = 1;
+            }
+            else if (c==0)
+            {
+                e.type = event_type::timer;
+                if(send_event())
+                    return;
             }
             else
             {
@@ -273,4 +307,9 @@ ancy::mouse_event::mouse_event(mouse_flags f, position p) : m_flags(f), m_positi
 ancy::mouse_flags ancy::mouse_event::flags() const
 {
     return m_flags;
+}
+
+bool ancy::event::is_timer() const
+{
+    return type == event_type::timer;
 }

@@ -56,6 +56,7 @@ class window : public writer, public widget
     void show_cursor(position p) override;
     void show_cursor() override;
     void set_timer(std::chrono::milliseconds ms) override;
+    void on_timer() override;
 
     void set_focus(widget &child) override;
     void next_focus() override;

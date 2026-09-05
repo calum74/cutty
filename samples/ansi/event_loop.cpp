@@ -22,26 +22,17 @@ int main()
 
     ancy::timer t(window, [&] { 
         text_number.set_text(std::format("Processed {} items", ++progress));
-        t.set_timer(std::chrono::milliseconds(1));
+        if(progress < 1000)
+        {
+            t.set_timer(std::chrono::milliseconds(1));
+        }
+        else
+        {
+            window.quit();
+        }
     });
 
     t.set_timer(std::chrono::milliseconds(1));
 
-    // Button widget:
-
-    // Progress bar widget
-
-    for(progress = 0; progress < 1000; ++progress)
-    {
-        // std::chrono::sleep_for(1ms);
-        // Update the
-
-        text_number.set_text(std::format("Processed {} items", progress));
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        window.flush();
-        // ?? Flush ??
-    }
-
-    // window.run();
+    window.run();
 }

@@ -3,6 +3,7 @@
 #include <cutty/ansi/common.hpp>
 
 #include <functional>
+#include <chrono>
 
 namespace cutty::ansi
 {
@@ -12,7 +13,8 @@ enum class event_type
     mouse_move,
     mouse_click,
     mouse_release,
-    mouse_scroll
+    mouse_scroll,
+    timer
 };
 
 struct event
@@ -25,6 +27,7 @@ struct event
     bool is_mouse_move() const;
     bool is_mouse_click() const;
     bool is_mouse_release() const;
+    bool is_timer() const;
 
     bool shift_key() const;
     bool ctrl_key() const;
@@ -107,13 +110,12 @@ enum key
 };
 
 
-
-enum event_return
+struct event_return
 {
-    continue_loop,
-    exit_loop
+    bool exit = false;
+    std::chrono::milliseconds timeout;
 };
 
-void run(const std::function<event_return(event)>&fn);
+void run(const std::function<event_return(event)>&fn, std::chrono::milliseconds timeout = {});
 
 }

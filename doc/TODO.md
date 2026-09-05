@@ -3,6 +3,14 @@
 Next sample:
 - Progress bar with timer widget
 
+ancy::run() needs to specify a timeout.
+
+struct event_loop
+{
+    std::chrono::milliseconds 
+    bool quit;
+};
+
 
 - Progress bar with worker thread and a cancel button
 
