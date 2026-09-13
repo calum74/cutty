@@ -114,8 +114,25 @@ class move_command : public widget
     std::function<void(position, mouse_flags)> m_function;
 };
 
-class progress : public widget
+struct progress_bar_options
 {
+  widget &parent;
+  ansi::position position;
+  ansi::size size;
+  const ansi::style &style;
+  int value = 0;
+  int max_value = 100;
+};
+
+class progress_bar : public widget
+{
+public:
+  progress_bar(progress_bar_options&&);
+  void set_progress(int value, int max_value);
+  void draw(writer &w) override;
+private:
+  style m_style;
+  int m_value, m_max_value;
 };
 
 class layout

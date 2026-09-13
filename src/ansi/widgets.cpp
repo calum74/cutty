@@ -228,3 +228,20 @@ void ancy::timer::on_timer()
 {
     m_command();
 }
+
+ancy::progress_bar::progress_bar(progress_bar_options&&options) : widget(options.parent, options.position, options.size), m_style(options.style), m_value(options.value), m_max_value(options.max_value)
+{
+    redraw();
+}
+
+void ancy::progress_bar::set_progress(int value, int max)
+{
+    m_value = value;
+    m_max_value = max;
+    redraw();
+}
+
+void ancy::progress_bar::draw(writer &w)
+{
+    draw_progress(w, m_style, m_position.x, m_position.y, m_size.w, m_value, m_max_value);
+}

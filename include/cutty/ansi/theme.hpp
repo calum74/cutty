@@ -4,6 +4,22 @@
 
 namespace cutty::ansi
 {
+    struct button_style
+    {
+        style normal;
+        style focus;
+    };
+
+    struct text_box_style
+    {
+        style text;
+        button_style button;
+    };
+
+    struct text_input_style
+    {
+    };
+
     struct theme
     {
         // TODO: These defaults don't belong here

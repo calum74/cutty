@@ -39,6 +39,7 @@ class colour
 
     static colour bright(sgr_colour c);
 
+    /// @param level   A number in the range [0,23]
     static colour grey(std::uint8_t level);
 
     static colour six_cube(std::uint8_t r, std::uint8_t g, std::uint8_t b);

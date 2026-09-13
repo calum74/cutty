@@ -1,7 +1,20 @@
 # ANSI library
 
+"space bar" also selects buttons
+Selected button can show >< markers when selected
+Selected button put cursor on the end of the widget.
+
 Next sample:
+- Concurrent work in thread
 - Progress bar with timer widget
+
+- Themes properly
+- CY_THEME=mono
+- `default_theme()`
+- fill the text box with the background colour
+- Test themes:
+  ascii, green, orange, colour
+
 
 ancy::run() needs to specify a timeout.
 
